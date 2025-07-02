@@ -1,0 +1,1 @@
+<img src="{{env('APP_URL')}}/img/logo.png" alt="">
