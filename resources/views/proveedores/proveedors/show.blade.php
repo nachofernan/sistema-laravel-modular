@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="flex justify-between border-b-2 pb-2">
                                     <span class="font-medium text-gray-800">Registrado en Portal</span>
-                                    <span class="text-gray-600">{{ $proveedor->proveedor_externo ? 'Si' : 'No' }}</span>
+                                    <span class="text-gray-600">{{-- {{ $proveedor->proveedor_externo ? 'Si' : 'No' }} --}}</span>
                                 </div>
                                 <div class="flex justify-between border-b pb-2">
                                     <span class="font-medium text-gray-800">Teléfono</span>
