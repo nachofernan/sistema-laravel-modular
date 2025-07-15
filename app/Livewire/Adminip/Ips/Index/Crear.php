@@ -8,7 +8,7 @@ use Livewire\Component;
 
 class Crear extends Component
 {
-    public $open = false;
+    public $showModal = false;
     public $users;
 
     public $nombre;
@@ -19,9 +19,35 @@ class Crear extends Component
     public $password;
     public $user_id;
 
+    protected $listeners = ['openCreateModal' => 'openModal'];
+
     public function mount()
     {
-        $this->users = User::all();
+        $this->users = User::orderBy('realname')->get();
+    }
+
+    public function openModal()
+    {
+        $this->showModal = true;
+        $this->resetForm();
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->resetForm();
+    }
+
+    public function resetForm()
+    {
+        $this->nombre = '';
+        $this->ip = '';
+        $this->mac = '';
+        $this->descripcion = '';
+        $this->user = '';
+        $this->password = '';
+        $this->user_id = '';
+        $this->resetErrorBag();
     }
 
     public function guardar()
@@ -39,14 +65,18 @@ class Crear extends Component
             'regex' => 'El campo no es una IP válida',
             'unique' => 'La IP ya está registrada en la base de datos',
         ]);
+
         $ips = explode('.', $validated['ip']);
         $validated['bloque_a'] = $ips[0];
         $validated['bloque_b'] = $ips[1];
         $validated['bloque_c'] = $ips[2];
         $validated['bloque_d'] = $ips[3];
+
         IP::create($validated);
 
-        return redirect()->route('adminip.ips.index');
+        session()->flash('message', 'IP creada correctamente.');
+        $this->closeModal();
+        $this->dispatch('refreshComponent');
     }
 
     public function render()

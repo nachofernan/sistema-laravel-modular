@@ -1,12 +1,8 @@
 <x-app-layout>
-    <div class="w-full mb-12 xl:w-10/12 xl:mb-0 px-4 mx-auto mt-4">
+    <div class="w-full xl:mb-0 mx-auto ">
         <div class="relative flex flex-col min-w-0 break-words w-full mb-6">
             <div class="block w-full overflow-x-auto">
-                <div class="grid grid-cols-10 py-4">
-                    <div class="col-span-8 titulo-index">
-                        Listado Usuarios Eliminados
-                    </div>
-                </div>
+                <x-page-header title="Listado de Usuarios Eliminados" />
                 <table class="table-index">
                     <thead>
                         <tr>

@@ -8,10 +8,8 @@ use Livewire\Component;
 
 class Editar extends Component
 {
-    public $open = false;
-    public $users;
-
     public $ip_db;
+    public $users;
 
     public $nombre;
     public $ip;
@@ -21,9 +19,11 @@ class Editar extends Component
     public $password;
     public $user_id;
 
+    protected $listeners = ['refreshComponent' => '$refresh'];
+
     public function mount($ip)
     {
-        $this->users = User::all();
+        $this->users = User::orderBy('realname')->get();
         $this->ip_db = $ip;
 
         $this->nombre = $ip->nombre;
@@ -54,6 +54,7 @@ class Editar extends Component
             'regex' => 'El campo no es una IP válida',
             'unique' => 'La IP ya está registrada en la base de datos',
         ]);
+
         $ips = explode('.', $validated['ip']);
         $validated['bloque_a'] = $ips[0];
         $validated['bloque_b'] = $ips[1];
@@ -62,7 +63,9 @@ class Editar extends Component
 
         $this->ip_db->update($validated);
 
-        return redirect()->route('adminip.ips.index');
+        session()->flash('message', 'IP actualizada correctamente.');
+        $this->dispatch('closeModals');
+        $this->dispatch('refreshComponent');
     }
 
     public function render()
