@@ -45,10 +45,18 @@ return [
             'password' => env('DB_PASSWORD_USUARIOS', ''),
         ]),
 
+        'usuarios_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'usuarios',
+        ]),
+
         'tickets' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_TICKETS', 'forge'),
             'username' => env('DB_USERNAME_TICKETS', 'forge'),
             'password' => env('DB_PASSWORD_TICKETS', ''),
+        ]),
+
+        'tickets_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'tickets',
         ]),
 
         'inventario' => array_merge(require __DIR__.'/database_default.php', [
@@ -57,10 +65,18 @@ return [
             'password' => env('DB_PASSWORD_INVENTARIO', ''),
         ]),
 
+        'inventario_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'inventario',
+        ]),
+
         'documentos' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_DOCUMENTOS', 'forge'),
             'username' => env('DB_USERNAME_DOCUMENTOS', 'forge'),
             'password' => env('DB_PASSWORD_DOCUMENTOS', ''),
+        ]),
+
+        'documentos_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'documentos',
         ]),
 
         'adminip' => array_merge(require __DIR__.'/database_default.php', [
@@ -69,10 +85,18 @@ return [
             'password' => env('DB_PASSWORD_ADMINIP', ''),
         ]),
 
+        'adminip_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'adminip',
+        ]),
+
         'capacitaciones' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_CAPACITACIONES', 'forge'),
             'username' => env('DB_USERNAME_CAPACITACIONES', 'forge'),
             'password' => env('DB_PASSWORD_CAPACITACIONES', ''),
+        ]),
+
+        'capacitaciones_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'capacitaciones',
         ]),
 
         'proveedores' => array_merge(require __DIR__.'/database_default.php', [
@@ -81,10 +105,18 @@ return [
             'password' => env('DB_PASSWORD_PROVEEDORES', ''),
         ]),
 
+        'proveedores_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'proveedores2',
+        ]),
+
         'proveedores_externos' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_PROVEEDORES_EXTERNOS', 'forge'),
             'username' => env('DB_USERNAME_PROVEEDORES_EXTERNOS', 'forge'),
             'password' => env('DB_PASSWORD_PROVEEDORES_EXTERNOS', ''),
+        ]),
+
+        'proveedores_externos_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'proveedores_externos',
         ]),
 
         'concursos' => array_merge(require __DIR__.'/database_default.php', [
@@ -92,13 +124,21 @@ return [
             'username' => env('DB_USERNAME_CONCURSOS', 'forge'),
             'password' => env('DB_PASSWORD_CONCURSOS', ''),
         ]),
-        
+
+        'concursos_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'concursos',
+        ]),
+
         'mesadeentradas' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_MESADEENTRADAS', 'forge'),
             'username' => env('DB_USERNAME_MESADEENTRADAS', 'forge'),
             'password' => env('DB_PASSWORD_MESADEENTRADAS', ''),
         ]),
-        
+
+        'mesadeentradas_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'mesadeentradas',
+        ]),
+
         'fichadas' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
