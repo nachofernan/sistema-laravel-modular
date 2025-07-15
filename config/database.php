@@ -139,7 +139,11 @@ return [
             'database' => 'mesadeentradas',
         ]),
 
-        'fichadas' => [
+        'fichadas' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'fichadas',
+        ]),
+
+        /* 'fichadas' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => '172.17.8.63',
@@ -157,7 +161,7 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
-        ],
+        ], */
 
         'mysql' => [
             'driver' => 'mysql',
