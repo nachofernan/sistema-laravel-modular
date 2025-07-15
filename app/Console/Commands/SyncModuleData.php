@@ -107,16 +107,47 @@ class SyncModuleData extends Command
             $bar = $this->output->createProgressBar($totalRecords);
             $bar->start();
             
-            DB::connection("{$module}_prod")
-                ->table($table)
-                ->chunkById(500, function ($records) use ($table, $module, $bar) {
+            // Detectar si la tabla tiene columna id
+            $hasIdColumn = $this->tableHasIdColumn($table, $module);
+            
+            if ($hasIdColumn) {
+                DB::connection("{$module}_prod")
+                    ->table($table)
+                    ->chunkById(500, function ($records) use ($table, $module, $bar) {
+                        $data = $records->map(function ($record) {
+                            return $this->sanitizeRecord((array) $record);
+                        })->toArray();
+                        
+                        DB::connection($module)->table($table)->insert($data);
+                        $bar->advance(count($data));
+                    });
+            } else {
+                // Para tablas sin columna id, usar orderBy con la primera columna disponible
+                $firstColumn = $this->getFirstColumn($table, $module);
+                
+                if ($firstColumn) {
+                    DB::connection("{$module}_prod")
+                        ->table($table)
+                        ->orderBy($firstColumn)
+                        ->chunk(500, function ($records) use ($table, $module, $bar) {
+                            $data = $records->map(function ($record) {
+                                return $this->sanitizeRecord((array) $record);
+                            })->toArray();
+                            
+                            DB::connection($module)->table($table)->insert($data);
+                            $bar->advance(count($data));
+                        });
+                } else {
+                    // Si no se puede obtener una columna, usar get() y procesar en memoria
+                    $records = DB::connection("{$module}_prod")->table($table)->get();
                     $data = $records->map(function ($record) {
                         return $this->sanitizeRecord((array) $record);
                     })->toArray();
                     
                     DB::connection($module)->table($table)->insert($data);
                     $bar->advance(count($data));
-                });
+                }
+            }
             
             $bar->finish();
             $this->newLine();
@@ -142,5 +173,41 @@ class SyncModuleData extends Command
         }
         
         return $record;
+    }
+
+    private function tableHasIdColumn($table, $module)
+    {
+        try {
+            $columns = DB::connection("{$module}_prod")
+                ->select("SHOW COLUMNS FROM {$table}");
+            
+            foreach ($columns as $column) {
+                if ($column->Field === 'id') {
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (\Exception $e) {
+            $this->warn("Could not check columns for table {$table}: " . $e->getMessage());
+            return false; // Por defecto usar chunk simple si no se puede verificar
+        }
+    }
+
+    private function getFirstColumn($table, $module)
+    {
+        try {
+            $columns = DB::connection("{$module}_prod")
+                ->select("SHOW COLUMNS FROM {$table}");
+            
+            if (!empty($columns)) {
+                return $columns[0]->Field;
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            $this->warn("Could not get columns for table {$table}: " . $e->getMessage());
+            return null;
+        }
     }
 }
