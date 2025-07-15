@@ -35,7 +35,7 @@
                 @foreach ($validaciones as $validacion)
                 <tr class="hover:bg-gray-200">
                     <td class="td-index">
-                        <a href="{{route('proveedores.proveedors.show', $validacion->documento->documentable)}}" class="link-azul">
+                        <a href="{{route('proveedores.proveedors.show', $validacion->documento->documentable_type == 'App\Models\Proveedores\Proveedor' ? $validacion->documento->documentable : $validacion->documento->documentable->proveedor)}}" class="link-azul">
                             {{$validacion->documento->documentable_type == 'App\Models\Proveedores\Proveedor' ? $validacion->documento->documentable->razonsocial : $validacion->documento->documentable->proveedor->razonsocial}}
                         </a>
                     </td>
