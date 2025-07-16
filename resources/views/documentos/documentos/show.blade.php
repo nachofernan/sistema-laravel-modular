@@ -134,7 +134,7 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div class="text-sm font-medium text-gray-500">Archivo:</div>
                         <div class="col-span-2 text-sm text-gray-900">
-                            <a href="{{ route('documentos.documentos.download', $documento) }}" 
+                            <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
                                target="_blank" 
                                class="text-blue-600 hover:text-blue-800 underline font-medium">
                                 {{ $documento->archivo }}
@@ -154,7 +154,7 @@
 
                 <!-- Botón de descarga prominente -->
                 <div class="mt-6 pt-4 border-t border-gray-200">
-                    <a href="{{ route('documentos.documentos.download', $documento) }}" 
+                    <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
                        target="_blank"
                        class="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

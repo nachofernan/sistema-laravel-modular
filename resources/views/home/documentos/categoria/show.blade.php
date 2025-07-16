@@ -54,7 +54,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <a href="{{ route('home.documentos.download', $documento) }}" 
+                                        <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
                                            target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
                                             <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

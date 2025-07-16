@@ -91,7 +91,7 @@
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center space-x-1">
-                                        <a href="{{ route('documentos.documentos.download', $documento) }}" 
+                                        <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
                                            target="_blank"
                                            class="inline-flex items-center px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded transition-colors">
                                             Bajar
