@@ -50,23 +50,25 @@ class DocumentoController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $file = $request->file('archivo');
-        $file_storage = $file->hashName();
-        if(Storage::disk('documentos')->put($file_storage, file_get_contents($file))) {
-            $documento = new Documento([
-                'nombre' => $request->input('nombre'),
-                'descripcion' => $request->input('descripcion'),
-                'version' => $request->input('version'),
-                'archivo' => $file->getClientOriginalName(),
-                'mimeType' => $file->getClientMimeType(),
-                'extension' => $file->extension(),
-                'file_storage' => $file_storage,
-                'archivo_uploaded_at' => \Carbon\Carbon::now(),
-                'categoria_id' => $request->input('categoria_id'),
-                'sede_id' => is_numeric($request->input('sede_id')) ? $request->input('sede_id') : null,
-                'user_id' => Auth::user()->id,
-            ]);
+        $documento = new Documento([
+            'nombre' => $request->input('nombre'),
+            'descripcion' => $request->input('descripcion'),
+            'version' => $request->input('version'),
+            'categoria_id' => $request->input('categoria_id'),
+            'sede_id' => is_numeric($request->input('sede_id')) ? $request->input('sede_id') : null,
+            'user_id' => Auth::user()->id,
+        ]);
+        $documento->save();
+        if ($request->hasFile('archivo')) {
+            $media = $documento->addMediaFromRequest('archivo')
+                ->usingFileName($request->file('archivo')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->archivo_uploaded_at = now();
             $documento->save();
         }
         return redirect()->route('documentos.documentos.show', $documento);
@@ -86,13 +88,15 @@ class DocumentoController extends Controller
      */
     public function download(Documento $documento)
     {
-        //
         Descarga::create([
             'documento_id' => $documento->id,
             'user_id' => Auth::user()->id ?? 1,
         ]);
-        return response()->file(storage_path('app/public/documentos/').$documento->file_storage);
-        //return Storage::disk('public')->get($documento->file_storage, $documento->archivo);
+        $media = $documento->getFirstMedia('archivos');
+        if ($media) {
+            return $media->toResponse(request());
+        }
+        abort(404, 'Archivo no encontrado');
     }
 
     /**
@@ -111,31 +115,27 @@ class DocumentoController extends Controller
      */
     public function update(Request $request, Documento $documento)
     {
-        //
         $file = $request->file('archivo');
-        
-        if($file) {
-            $file_storage = $file->hashName();
-            if(Storage::disk('documentos')->put($file_storage, file_get_contents($file))) {
-                $documento->archivo = $file->getClientOriginalName();
-                $documento->mimeType = $file->getClientMimeType();
-                $documento->extension = $file->extension();
-                $documento->file_storage = $file_storage;
-                $documento->archivo_uploaded_at = \Carbon\Carbon::now();
-            }
+        if ($file) {
+            // Eliminar archivo anterior si existe
+            $documento->clearMediaCollection('archivos');
+            $media = $documento->addMedia($file)
+                ->usingFileName($file->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->archivo_uploaded_at = now();
         }
-        
         $documento->nombre = $request->input('nombre');
         $documento->descripcion = $request->input('descripcion');
         $documento->categoria_id = $request->input('categoria_id');
         $documento->sede_id = is_numeric($request->input('sede_id')) ? $request->input('sede_id') : null;
         $documento->user_id = Auth::user()->id;
-
         $documento->orden = $request->input('orden');
         $documento->visible = $request->input('visible');
-
         $documento->save();
-        
         return redirect()->route('documentos.documentos.show', $documento);
     }
 
