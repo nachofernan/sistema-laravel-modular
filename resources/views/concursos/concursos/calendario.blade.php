@@ -1,61 +1,58 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-            <div class="grid grid-cols-12 px-6 py-4 border-b">
-                <div class="col-span-8 flex flex-col justify-center">
-                    <h1 class="text-2xl font-semibold text-gray-800">Calendario de Cierres de Concursos</h1>
+    <x-page-header title="Calendario de Cierres de Concursos">
+    </x-page-header>
+    
+    <div class="max-w-7xl mx-auto">
+        <!-- Leyenda de estados y controles -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div class="flex flex-wrap gap-4">
+                <div class="flex items-center">
+                    <span class="h-4 w-4 rounded-full bg-orange-600 mr-2"></span>
+                    <span class="text-sm text-gray-700">En Precarga</span>
                 </div>
-                <div class="col-span-4 flex justify-end items-center">
-                    <div class="flex space-x-4">
-                        <!-- Selector de mes -->
-                        <div class="relative">
-                            <form action="{{ route('concursos.calendario') }}" method="GET" id="mesForm">
-                                <input type="month" name="mes" id="mesSelector" 
-                                       value="{{ $mes }}" 
-                                       class="rounded-md border-gray-300 shadow-sm px-4 py-2"
-                                       onchange="document.getElementById('mesForm').submit()">
-                            </form>
-                        </div>
-                        
-                        <!-- Botones de navegación -->
-                        <div class="flex space-x-2 items-center">
-                            <a href="{{ route('concursos.calendario', ['mes' => $mesPrevio]) }}" 
-                               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md">
-                                <span class="sr-only">Mes anterior</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                            <a href="{{ route('concursos.calendario', ['mes' => $mesSiguiente]) }}" 
-                               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md">
-                                <span class="sr-only">Mes siguiente</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
+                <div class="flex items-center">
+                    <span class="h-4 w-4 rounded-full bg-green-600 mr-2"></span>
+                    <span class="text-sm text-gray-700">Activos</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="h-4 w-4 rounded-full bg-yellow-600 mr-2"></span>
+                    <span class="text-sm text-gray-700">Cerrados</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="h-4 w-4 rounded-full bg-blue-600 mr-2"></span>
+                    <span class="text-sm text-gray-700">En Análisis</span>
                 </div>
             </div>
-        </div>
-        
-        <!-- Leyenda de estados -->
-        <div class="flex flex-wrap gap-4 mb-4">
-            <div class="flex items-center">
-                <span class="h-4 w-4 rounded-full bg-orange-600 mr-2"></span>
-                <span class="text-sm text-gray-700">En Precarga</span>
-            </div>
-            <div class="flex items-center">
-                <span class="h-4 w-4 rounded-full bg-green-600 mr-2"></span>
-                <span class="text-sm text-gray-700">Activos</span>
-            </div>
-            <div class="flex items-center">
-                <span class="h-4 w-4 rounded-full bg-yellow-600 mr-2"></span>
-                <span class="text-sm text-gray-700">Cerrados</span>
-            </div>
-            <div class="flex items-center">
-                <span class="h-4 w-4 rounded-full bg-blue-600 mr-2"></span>
-                <span class="text-sm text-gray-700">En Análisis</span>
+            
+            <!-- Controles de navegación -->
+            <div class="flex items-center space-x-4">
+                <!-- Selector de mes -->
+                <div class="relative">
+                    <form action="{{ route('concursos.calendario') }}" method="GET" id="mesForm">
+                        <input type="month" name="mes" id="mesSelector" 
+                               value="{{ $mes }}" 
+                               class="rounded-md border-gray-300 shadow-sm px-4 py-2 text-sm"
+                               onchange="document.getElementById('mesForm').submit()">
+                    </form>
+                </div>
+                
+                <!-- Botones de navegación -->
+                <div class="flex space-x-2 items-center">
+                    <a href="{{ route('concursos.calendario', ['mes' => $mesPrevio]) }}" 
+                       class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors">
+                        <span class="sr-only">Mes anterior</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="{{ route('concursos.calendario', ['mes' => $mesSiguiente]) }}" 
+                       class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors">
+                        <span class="sr-only">Mes siguiente</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
         

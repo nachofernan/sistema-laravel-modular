@@ -44,7 +44,11 @@ class CategoriaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'prefijo' => 'required|string|max:10|unique:categorias,prefijo',
+        ]);
+
         $categoria = Categoria::create($request->all());
         return redirect()->route('inventario.categorias.show', $categoria);
     }
@@ -64,7 +68,7 @@ class CategoriaController extends Controller
      */
     public function edit(Categoria $categoria)
     {
-        //
+        return view('inventario.categorias.edit', compact('categoria'));
     }
 
     /**
@@ -72,7 +76,13 @@ class CategoriaController extends Controller
      */
     public function update(Request $request, Categoria $categoria)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'prefijo' => 'required|string|max:10|unique:categorias,prefijo,' . $categoria->id,
+        ]);
+
+        $categoria->update($request->all());
+        return redirect()->route('inventario.categorias.show', $categoria);
     }
 
     /**
