@@ -158,13 +158,13 @@ class ProveedorController extends Controller
             }
         }
         $proveedor->update($request->all());
-        if($proveedor->proveedor_externo) {
+        /* if($proveedor->proveedor_externo) {
             $proveedor->proveedor_externo->update([
                 'username' => $proveedor->cuit,
                 'email' => $proveedor->correo,
                 'name' => $proveedor->razonsocial,
             ]);
-        }
+        } */
 
         return redirect()->route('proveedores.proveedors.edit', $proveedor)->with('info', 'Se actualizó con éxito');
     }

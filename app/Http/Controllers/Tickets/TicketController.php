@@ -107,14 +107,12 @@ class TicketController extends Controller
     public function documentos(Ticket $ticket)
     {
         if($ticket->documento != null) {
-            // Verifica si el archivo existe en el disco "tickets"
-            if (!Storage::disk('tickets')->exists($ticket->documento->file_storage)) {
-                abort(404, 'Archivo no encontrado.');
+            $media = $ticket->documento->getFirstMedia('archivos');
+            if ($media) {
+                return $media->toResponse(request());
             }
-
-            // Devuelve la descarga con el nombre personalizado
-            $filePath = Storage::disk('tickets')->path($ticket->documento->file_storage);
-            return response()->download($filePath, $ticket->documento->archivo);
+            abort(404, 'Archivo no encontrado.');
         }
+        abort(404, 'No hay documento asociado a este ticket.');
     }
 }
