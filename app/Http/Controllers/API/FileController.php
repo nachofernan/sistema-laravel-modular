@@ -56,8 +56,7 @@ class FileController extends Controller
                 $documentoTipo->id = null;
             }
 
-            //de acá
-            
+            // Crear documento
             $documento = new Documento([
                 'user_id_created' => null,
                 'concurso_id' => null,
@@ -65,29 +64,33 @@ class FileController extends Controller
                 'documento_tipo_id' => $documentoTipo->id,
                 'invitacion_id' => $invitacion->id,
             ]);
+            $documento->save();
+
             if($documentoTipo->encriptado) {
+                // Lógica para archivos encriptados
                 $fileController = new EncryptsFileController(app(FileEncryptionService::class));
                 $encryptedFileResult = $fileController->upload($request, 'concursos');
                 $encryptedFileData = $encryptedFileResult->getData();
-                //Agregar datos al documento
+                
+                // Guardar metadatos del archivo encriptado
                 $documento->archivo = $encryptedFileData->data->metadata->originalName;
                 $documento->mimeType = $encryptedFileData->data->metadata->mimeType;
                 $documento->extension = pathinfo($encryptedFileData->data->metadata->originalName, PATHINFO_EXTENSION);
                 $documento->file_storage = $encryptedFileData->data->path;
             } else {
-                $file_storage = $file->hashName();
-                Storage::disk('concursos')->put($file_storage, file_get_contents($file));
-                $documento->archivo = $file->getClientOriginalName();
-                $documento->mimeType = $file->getClientMimeType();
-                $documento->extension = $file->extension();
-                $documento->file_storage = $file_storage;
+                // Lógica para archivos no encriptados con Spatie
+                $media = $documento->addMediaFromRequest('file')
+                    ->usingFileName($file->getClientOriginalName())
+                    ->toMediaCollection('archivos');
+                
+                // Guardar metadatos en el modelo Documento
+                $documento->archivo = $media->file_name;
+                $documento->mimeType = $media->mime_type;
+                $documento->extension = $media->getExtensionAttribute();
+                $documento->file_storage = $media->getPath();
             }
 
             $documento->save();
-
-            //a acá
-    
-            //$path = $file->store('proveedores', 'public'); // Guardar en storage/public/proveedores
 
             return response()->json([
                 'invi' => $request->input('invitacion_id'),
@@ -231,32 +234,32 @@ class FileController extends Controller
             return response()->json(['message' => 'Proveedor no encontrado'], 404);
         }
         
-        $file = $request->file('file');
-        $file_storage = $file->hashName();
-        
-        
-        if (Storage::disk('proveedores')->put($file_storage, file_get_contents($file))) {
-            //return response()->json(['message' => $request->input('documento_tipo_id')], 404);
-            $documento = $proveedor->documentos()->create([
-                'archivo' => $file->getClientOriginalName(),
-                'mimeType' => $file->getClientMimeType(),
-                'extension' => $file->extension(),
-                'file_storage' => $file_storage,
-                'user_id_created' => 1, // o auth()->id() si hay autenticación de usuario API
-                'vencimiento' => $request->input('vencimiento') ?? null,
-                'documento_tipo_id' => $request->input('documento_tipo_id'),
-            ]);
+        $documento = $proveedor->documentos()->create([
+            'user_id_created' => 1, // o auth()->id() si hay autenticación de usuario API
+            'vencimiento' => $request->input('vencimiento') ?? null,
+            'documento_tipo_id' => $request->input('documento_tipo_id'),
+        ]);
 
-            $documento->validacion()->create();
-
-            return response()->json([
-                'message' => 'Documento subido con éxito',
-                'documento_id' => $documento->id,
-                'path' => $documento->file_storage,
-            ], 200);
+        if ($request->hasFile('file')) {
+            $media = $documento->addMediaFromRequest('file')
+                ->usingFileName($request->file('file')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->save();
         }
 
-        return response()->json(['message' => 'Error al subir el archivo'], 500);
+        $documento->validacion()->create();
+
+        return response()->json([
+            'message' => 'Documento subido con éxito',
+            'documento_id' => $documento->id,
+            'path' => $documento->file_storage,
+        ], 200);
     }
 
     public function uploadDocumentacionApoderado(Request $request)
@@ -279,36 +282,37 @@ class FileController extends Controller
             return response()->json(['message' => 'Proveedor no encontrado'], 404);
         }
 
-        //return response()->json(['message' => 'Error Acá'], 404);
-        
-        $file = $request->file('file');
-        $file_storage = $file->hashName();
+        $apoderado = Apoderado::create([
+            'proveedor_id' => $request->input('proveedor_id'),
+            'nombre' => $request->input('nombre') ?? null,
+            'tipo' => $request->input('tipo'),
+        ]);
 
-        if(Storage::disk('proveedores')->put($file_storage, file_get_contents($file))) {
-            $apoderado = Apoderado::create([
-                'proveedor_id' => $request->input('proveedor_id'),
-                'nombre' => $request->input('nombre') ?? null,
-                'tipo' => $request->input('tipo'),
-            ]);
+        $documento = $apoderado->documentos()->create([
+            'user_id_created' => 1,
+            'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
+        ]);
 
-            $documento = $apoderado->documentos()->create([
-                'archivo' => $file->getClientOriginalName(),
-                'mimeType' => $file->getClientMimeType(),
-                'extension' => $file->extension(),
-                'file_storage' => $file_storage,
-                'user_id_created' => 1,
-                'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
-            ]);
-            $documento->validacion()->create();
-            //Mail::to('ifernandez@buenosairesenergia.com.ar')->send(new NuevoArchivoValidacion($documento->validacion));
-
-            return response()->json([
-                'message' => 'Documento subido con éxito',
-                'documento_id' => $documento->id,
-                'path' => $documento->file_storage,
-            ], 200);
+        if ($request->hasFile('file')) {
+            $media = $documento->addMediaFromRequest('file')
+                ->usingFileName($request->file('file')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->save();
         }
 
-        return response()->json(['message' => 'Error al subir el archivo'], 500);
+        $documento->validacion()->create();
+        //Mail::to('ifernandez@buenosairesenergia.com.ar')->send(new NuevoArchivoValidacion($documento->validacion));
+
+        return response()->json([
+            'message' => 'Documento subido con éxito',
+            'documento_id' => $documento->id,
+            'path' => $documento->file_storage,
+        ], 200);
     }
 }
