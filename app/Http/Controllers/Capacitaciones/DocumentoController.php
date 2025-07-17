@@ -34,19 +34,25 @@ class DocumentoController extends Controller
     public function store(Request $request)
     {
         //
-        $file = $request->file('file');
-        $file_storage = $file->hashName();
-        if(Storage::disk('capacitaciones')->put($file_storage, file_get_contents($file))) {
-            $documento = new Documento([
-                'nombre' => $request->input('nombre'),
-                'capacitacion_id' => $request->input('capacitacion_id'),
-                'archivo' => $file->getClientOriginalName(),
-                'mimeType' => $file->getClientMimeType(),
-                'extension' => $file->extension(),
-                'file_storage' => $file_storage,
-            ]);
+        $documento = new Documento([
+            'nombre' => $request->input('nombre'),
+            'capacitacion_id' => $request->input('capacitacion_id'),
+        ]);
+        $documento->save();
+        
+        if ($request->hasFile('file')) {
+            $media = $documento->addMediaFromRequest('file')
+                ->usingFileName($request->file('file')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
             $documento->save();
         }
+        
         return redirect()->route('capacitaciones.capacitacions.show', $documento->capacitacion);
     }
 
@@ -69,13 +75,16 @@ class DocumentoController extends Controller
             $user->hasRole('Capacitaciones/Acceso') ||
             Invitacion::where('capacitacion_id', $documento->capacitacion->id)->where('user_id', $user->id)->count()
         ) {
-            return response()->file(storage_path('app/public/capacitaciones/').$documento->file_storage);
+            $media = $documento->getFirstMedia('archivos');
+            if ($media) {
+                return $media->toResponse(request());
+            }
+            abort(404, 'Archivo no encontrado.');
         }
         else
         {
             return "No tiene los permisos";
         }
-        //return Storage::disk('public')->get($documento->file_storage, $documento->archivo);
     }
 
     /**
@@ -100,7 +109,6 @@ class DocumentoController extends Controller
     public function destroy(Documento $documento)
     {
         //
-        Storage::disk('capacitaciones')->delete($documento->file_storage);
         $capacitacion = $documento->capacitacion;
         $documento->delete();
         return redirect()->route('capacitaciones.capacitacions.show', $capacitacion);
