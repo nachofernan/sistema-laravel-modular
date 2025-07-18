@@ -31,19 +31,13 @@
         <div class="lg:col-span-7 space-y-6">
             
             <!-- Componente: Nuevo Ticket -->
-            @can('Plataforma/Tickets/Crear')
                 @livewire('dashboard.nuevo-ticket')
-            @endcan
             
             <!-- Componente: Mi Inventario -->
-            @can('Plataforma/Inventario/Ver')
                 @livewire('dashboard.mi-inventario')
-            @endcan
 
             <!-- Componente: Mis Capacitaciones -->
-            @can('Plataforma/Capacitaciones/Ver')
                 @livewire('dashboard.mis-capacitaciones')
-            @endcan
 
         </div>
 
@@ -51,14 +45,10 @@
         <div class="lg:col-span-5 space-y-6">
             
             <!-- Componente: Mis Tickets -->
-            @can('Plataforma/Tickets/Ver')
                 @livewire('dashboard.mis-tickets')
-            @endcan
             
             <!-- Componente: Chat Assistant -->
-            @can('Plataforma/Chat/Usar')
                 @livewire('dashboard.chat-assistant')
-            @endcan
             
         </div>
     </div>
