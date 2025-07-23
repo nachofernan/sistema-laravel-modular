@@ -92,10 +92,20 @@ class User extends Authenticatable
     {
         $retorno = array();
         foreach($this->getRoleNames()->toArray() as $role) {
-            if($role == 'Admin') { continue; }
+            if($role == 'Plataforma/Admin') { continue; }
             $retorno[] = explode('/', $role)[0];
         }
         return array_unique($retorno);
+    }
+
+    public function hasRole($roles, $guard = null): bool
+    {
+        // Si es super-admin, siempre retorna true
+        if ($this->roles->contains('name', 'Plataforma/Admin')) {
+            return true;
+        }
+        // Llama al método original de Spatie
+        return parent::hasRole($roles, $guard);
     }
 
     /**
