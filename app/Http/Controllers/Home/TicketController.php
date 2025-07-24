@@ -48,19 +48,22 @@ class TicketController extends Controller
         $ticket->save();
 
 		if($request->file('documento')) {
-            $file = $request->file('documento');
-            $file_storage = $file->hashName();
-            if(Storage::disk('tickets')->put($file_storage, file_get_contents($file))) {
-                $documento = new Documento([
-                    'archivo' => $file->getClientOriginalName(),
-                    'mimeType' => $file->getClientMimeType(),
-                    'extension' => $file->extension(),
-                    'file_storage' => $file_storage,
-                    'user_id_created' => Auth::user()->id,
-                    'ticket_id' => $ticket->id,
-                ]);
-                $documento->save();
-            }
+            $documento = new Documento([
+                'user_id_created' => Auth::user()->id,
+                'ticket_id' => $ticket->id,
+            ]);
+            $documento->save();
+            
+            $media = $documento->addMediaFromRequest('documento')
+                ->usingFileName($request->file('documento')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->save();
         }
 
 
@@ -119,14 +122,12 @@ class TicketController extends Controller
     public function documentos(Ticket $ticket)
     {
         if($ticket->documento != null) {
-            // Verifica si el archivo existe en el disco "tickets"
-            if (!Storage::disk('tickets')->exists($ticket->documento->file_storage)) {
-                abort(404, 'Archivo no encontrado.');
+            $media = $ticket->documento->getFirstMedia('archivos');
+            if ($media) {
+                return $media->toResponse(request());
             }
-
-            // Devuelve la descarga con el nombre personalizado
-            $filePath = Storage::disk('tickets')->path($ticket->documento->file_storage);
-            return response()->download($filePath, $ticket->documento->archivo);
+            abort(404, 'Archivo no encontrado.');
         }
+        abort(404, 'No hay documento asociado a este ticket.');
     }
 }

@@ -48,25 +48,30 @@ class ApoderadoController extends Controller
         ]);
 
         if($request->file('file')) {
-            $file = $request->file('file');
-            $file_storage = $file->hashName();
-            if(Storage::disk('proveedores')->put($file_storage, file_get_contents($file))) {
-                $documento = $apoderado->documentos()->create([
-                    'archivo' => $file->getClientOriginalName(),
-                    'mimeType' => $file->getClientMimeType(),
-                    'extension' => $file->extension(),
-                    'file_storage' => $file_storage,
-                    'user_id_created' => Auth::user()->id,
-                    'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
-                ]);
-                $documento->validacion()->create();
-                //Mail::to(['egaitero@buenosairesenergia.com.ar', 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar'])->send(new NuevoArchivoValidacion($documento->validacion));
-                EmailHelper::enviarNotificacion(
-                    ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
-                    new NuevoArchivoValidacion($documento->validacion),
-                    'Nuevo archivo para validación del proveedor ' . $apoderado->proveedor->razonsocial
-                );
-            }
+            $documento = $apoderado->documentos()->create([
+                'user_id_created' => Auth::user()->id,
+                'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
+            ]);
+
+            $media = $documento->addMediaFromRequest('file')
+                ->usingFileName($request->file('file')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->save();
+
+            $documento->validacion()->create();
+            
+            //Mail::to(['egaitero@buenosairesenergia.com.ar', 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar'])->send(new NuevoArchivoValidacion($documento->validacion));
+            EmailHelper::enviarNotificacion(
+                ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
+                new NuevoArchivoValidacion($documento->validacion),
+                'Nuevo archivo para validación del proveedor ' . $apoderado->proveedor->razonsocial
+            );
         }
 
         return redirect()->route('proveedores.proveedors.show', $apoderado->proveedor)->with('info', 'Se creó con éxito');
@@ -99,25 +104,30 @@ class ApoderadoController extends Controller
             'nombre' => $request->input('nombre') ?? null,
         ]);
         if($request->file('file')) {
-            $file = $request->file('file');
-            $file_storage = $file->hashName();
-            if(Storage::disk('proveedores')->put($file_storage, file_get_contents($file))) {
-                $documento = $apoderado->documentos()->create([
-                    'archivo' => $file->getClientOriginalName(),
-                    'mimeType' => $file->getClientMimeType(),
-                    'extension' => $file->extension(),
-                    'file_storage' => $file_storage,
-                    'user_id_created' => Auth::user()->id,
-                    'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
-                ]);
-                $documento->validacion()->create();
-                //Mail::to('ifernandez@buenosairesenergia.com.ar')->send(new NuevoArchivoValidacion($documento->validacion));
-                EmailHelper::enviarNotificacion(
-                    ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
-                    new NuevoArchivoValidacion($documento->validacion),
-                    'Nuevo archivo de validación para el proveedor ' . $apoderado->proveedor->razon_social
-                );
-            }
+            $documento = $apoderado->documentos()->create([
+                'user_id_created' => Auth::user()->id,
+                'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
+            ]);
+
+            $media = $documento->addMediaFromRequest('file')
+                ->usingFileName($request->file('file')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
+            $documento->save();
+
+            $documento->validacion()->create();
+            
+            //Mail::to('ifernandez@buenosairesenergia.com.ar')->send(new NuevoArchivoValidacion($documento->validacion));
+            EmailHelper::enviarNotificacion(
+                ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
+                new NuevoArchivoValidacion($documento->validacion),
+                'Nuevo archivo de validación para el proveedor ' . $apoderado->proveedor->razon_social
+            );
         }
 
         return redirect()->route('proveedores.proveedors.show', $apoderado->proveedor)->with('info', 'Se actualizó con éxito');

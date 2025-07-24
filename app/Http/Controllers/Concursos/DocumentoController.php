@@ -38,22 +38,28 @@ class DocumentoController extends Controller
     public function store(Request $request)
     {
         //
-        $file = $request->file('file');
-        $file_storage = $file->hashName();
-        if(Storage::disk('concursos')->put($file_storage, file_get_contents($file))) {
-            $documento = new Documento([
-                'archivo' => $file->getClientOriginalName(),
-                'mimeType' => $file->getClientMimeType(),
-                'extension' => $file->extension(),
-                'file_storage' => $file_storage,
-                'user_id_created' => Auth::user()->id,
-                'concurso_id' => $request->input('concurso_id') ? $request->input('concurso_id') : null,
-                'encriptado' => false,
-                'documento_tipo_id' => $request->input('documento_tipo_id') ? $request->input('documento_tipo_id') : null,
-                'invitacion_id' => $request->input('invitacion_id') ? $request->input('invitacion_id') : null,
-            ]);
+        $documento = new Documento([
+            'user_id_created' => Auth::user()->id,
+            'concurso_id' => $request->input('concurso_id') ? $request->input('concurso_id') : null,
+            'encriptado' => false,
+            'documento_tipo_id' => $request->input('documento_tipo_id') ? $request->input('documento_tipo_id') : null,
+            'invitacion_id' => $request->input('invitacion_id') ? $request->input('invitacion_id') : null,
+        ]);
+        $documento->save();
+
+        if ($request->hasFile('file')) {
+            $media = $documento->addMediaFromRequest('file')
+                ->usingFileName($request->file('file')->getClientOriginalName())
+                ->toMediaCollection('archivos');
+            
+            // Guardar metadatos en el modelo Documento
+            $documento->archivo = $media->file_name;
+            $documento->mimeType = $media->mime_type;
+            $documento->extension = $media->getExtensionAttribute();
+            $documento->file_storage = $media->getPath();
             $documento->save();
         }
+
         $concurso = $request->input('concurso_id') ? Concurso::find($request->input('concurso_id')) : Invitacion::find($request->input('invitacion_id'))->concurso;
         /* if($concurso->estado->id > 1) {
             $mails = [];
@@ -107,14 +113,12 @@ class DocumentoController extends Controller
         if($documento->invitacion != null && $documento->invitacion->concurso->estado_id != 3) {
             abort(403, 'No autorizado');
         }
-        // Verifica si el archivo existe en el disco "concursos"
-        if (!Storage::disk('concursos')->exists($documento->file_storage)) {
-            abort(404, 'Archivo no encontrado.');
+        
+        $media = $documento->getFirstMedia('archivos');
+        if ($media) {
+            return $media->toResponse(request());
         }
-
-        // Devuelve la descarga con el nombre personalizado
-        $filePath = Storage::disk('concursos')->path($documento->file_storage);
-        return response()->download($filePath, $documento->archivo);
+        abort(404, 'Archivo no encontrado.');
     }
 
     /**
@@ -147,10 +151,15 @@ class DocumentoController extends Controller
     public function downloadDocument(Documento $documento)
     {
         if (!$documento->encriptado) {
-            // Lógica para documentos no encriptados
-            return Storage::disk('concursos')->get($documento->file_storage, $documento->archivo);
+            // Lógica para documentos no encriptados con Spatie
+            $media = $documento->getFirstMedia('archivos');
+            if ($media) {
+                return $media->toResponse(request());
+            }
+            abort(404, 'Archivo no encontrado.');
         }
 
+        // Lógica para documentos encriptados
         $fileController = new FileController(app(FileEncryptionService::class));
         return $fileController->download(request(), $documento->file_storage, 'concursos');
     }

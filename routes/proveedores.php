@@ -30,6 +30,7 @@ Route::prefix('proveedores')->name('proveedores.')->group(function () {
 
         Route::resource('validacions', ValidacionController::class)->names('validacions');
         Route::resource('documentos', DocumentoController::class)->names('documentos');
+        Route::get('documentos/{documento}/download', [DocumentoController::class, 'download'])->name('documentos.download');
         Route::resource('documento_tipos', DocumentoTipoController::class)->names('documento_tipos');
 
         Route::resource('rubros', RubroController::class)->names('rubros');
