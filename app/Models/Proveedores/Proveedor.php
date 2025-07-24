@@ -162,18 +162,71 @@ class Proveedor extends Model
         return $this->hasMany(Invitacion::class);
     }
 
+    /**
+     * Trae el documento válido (validado, no vencido, cargado antes de una fecha límite) para un tipo dado.
+     */
+    public function traer_documento_valido($documento_tipo_id, $fecha_limite = null)
+    {
+        $query = Documento::where('documento_tipo_id', $documento_tipo_id)
+            ->where('documentable_id', $this->id)
+            ->where('documentable_type', 'App\\Models\\Proveedores\\Proveedor')
+            ->whereHas('validacion', function ($q) {
+                $q->where('validado', true);
+            });
+
+        if ($fecha_limite) {
+            $query->where('created_at', '<=', $fecha_limite);
+        }
+
+        $query->where(function($q) use ($fecha_limite) {
+            $q->whereNull('vencimiento')
+              ->orWhere('vencimiento', '>=', $fecha_limite ?? now());
+        });
+
+        return $query->orderBy('created_at', 'desc')->first();
+    }
+
+    /**
+     * Devuelve todos los documentos válidos (validación positiva, no vencidos a una fecha) para un tipo.
+     */
+    public function documentos_validos($documento_tipo_id, $fecha_limite = null)
+    {
+        $query = Documento::where('documento_tipo_id', $documento_tipo_id)
+            ->where('documentable_id', $this->id)
+            ->where('documentable_type', 'App\\Models\\Proveedores\\Proveedor')
+            ->whereHas('validacion', function ($q) {
+                $q->where('validado', true);
+            });
+        if ($fecha_limite) {
+            $query->where('created_at', '<=', $fecha_limite);
+        }
+        $query->where(function($q) use ($fecha_limite) {
+            $q->whereNull('vencimiento')
+              ->orWhere('vencimiento', '>=', $fecha_limite ?? now());
+        });
+        return $query->orderBy('created_at', 'desc')->get();
+    }
+
+    /**
+     * Trae el documento más reciente validado, sin filtrar por fecha ni vencimiento (compatibilidad).
+     */
     public function traer_documento($documento_tipo_id, $soloValidados = true)
     {
         if($soloValidados) {
             return Documento::where('documento_tipo_id', $documento_tipo_id)
                             ->where('documentable_id', $this->id)
-                            ->where('documentable_type', 'App\Models\Proveedores\Proveedor')
+                            ->where('documentable_type', 'App\\Models\\Proveedores\\Proveedor')
                             ->whereHas('validacion', function ($query) {
                                 $query->where('validado', true);
                             })
+                            ->orderBy('created_at', 'desc')
                             ->first();
         } else {
-            return Documento::where('documento_tipo_id', $documento_tipo_id)->where('documentable_id', $this->id)->where('documentable_type', 'App\Models\Proveedores\Proveedor')->first();
+            return Documento::where('documento_tipo_id', $documento_tipo_id)
+                ->where('documentable_id', $this->id)
+                ->where('documentable_type', 'App\\Models\\Proveedores\\Proveedor')
+                ->orderBy('created_at', 'desc')
+                ->first();
         }
     }
 

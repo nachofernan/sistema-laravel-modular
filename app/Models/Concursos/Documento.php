@@ -24,4 +24,23 @@ class Documento extends Model
     public function invitacion() {
         return $this->belongsTo(Invitacion::class);
     }
+
+    /**
+     * Retorna true si el documento está bloqueado (cargado antes o en la fecha de cierre del concurso).
+     */
+    public function estaBloqueado($fecha_cierre)
+    {
+        return $this->created_at <= $fecha_cierre;
+    }
+
+    /**
+     * Retorna true si el documento es válido para la oferta (validado, no vencido a la fecha de cierre).
+     */
+    public function esValidoParaOferta($fecha_cierre)
+    {
+        $validado = $this->validacion && $this->validacion->validado;
+        $noVencido = !$this->vencimiento || $this->vencimiento->gte($fecha_cierre);
+        $bloqueado = $this->created_at <= $fecha_cierre;
+        return $validado && $noVencido && $bloqueado;
+    }
 }
