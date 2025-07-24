@@ -79,4 +79,24 @@ class Documento extends Model implements HasMedia
     {
         $this->addMediaCollection('archivos')->useDisk('proveedores');
     }
+    
+    /**
+     * Retorna true si el documento está vencido a una fecha dada (o ahora si no se pasa fecha).
+     */
+    public function estaVencido($fecha = null)
+    {
+        $fecha = $fecha ? \Carbon\Carbon::parse($fecha) : now();
+        return $this->vencimiento && $this->vencimiento->lt($fecha);
+    }
+
+    /**
+     * Retorna true si el documento es válido (validado, no vencido a una fecha dada).
+     */
+    public function esValido($fecha = null)
+    {
+        $fecha = $fecha ? \Carbon\Carbon::parse($fecha) : now();
+        $validado = $this->validacion && $this->validacion->validado;
+        $noVencido = !$this->vencimiento || $this->vencimiento->gte($fecha);
+        return $validado && $noVencido;
+    }
 }

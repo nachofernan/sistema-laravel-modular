@@ -67,20 +67,22 @@ class VerOferta extends Component
 
             // Documentos específicos de la invitación (prioridad máxima)
             foreach ($this->invitacion->documentos as $documento) {
-                $filePath = Storage::disk('concursos')->path($documento->file_storage);
-                if (file_exists($filePath)) {
-                    // Usar nombre descriptivo en el ZIP
-                    if($documento->documento_tipo_id) {
-                        $tipo_documento = Str::slug($documento->documentoTipo->nombre, '_');
-                    } else {
-                        $tipo_documento = 'otros_documentos';
-                        if($documento->user_id_created) {
-                            $tipo_documento .= '_baesa';
+                // Solo incluir si es válido para la oferta (validado, no vencido, cargado antes del cierre)
+                if (method_exists($documento, 'esValidoParaOferta') && $documento->esValidoParaOferta($this->concurso->fecha_cierre)) {
+                    $filePath = Storage::disk('concursos')->path($documento->file_storage);
+                    if (file_exists($filePath)) {
+                        if($documento->documento_tipo_id) {
+                            $tipo_documento = Str::slug($documento->documentoTipo->nombre, '_');
+                        } else {
+                            $tipo_documento = 'otros_documentos';
+                            if($documento->user_id_created) {
+                                $tipo_documento .= '_baesa';
+                            }
                         }
+                        $nombreEnZip = $documento->nombre ? $documento->nombre : $tipo_documento . '_' . $documento->id . '.pdf';
+                        $zip->addFile($filePath, 'Concurso_' . $nombreEnZip);
+                        $documentosTiposIncluidos[] = $documento->documento_tipo_id;
                     }
-                    $nombreEnZip = $documento->nombre ? $documento->nombre : $tipo_documento . '_' . $documento->id . '.pdf';
-                    $zip->addFile($filePath, 'Concurso_' . $nombreEnZip);
-                    $documentosTiposIncluidos[] = $documento->documento_tipo_id;
                 }
             }
     
@@ -89,19 +91,16 @@ class VerOferta extends Component
                 // Si ya no está incluido
                 if (!in_array($documentoTipo->id, $documentosTiposIncluidos)) {
                     if ($documentoTipo->tipo_documento_proveedor) {
-                        $documentoProveedor = $this->invitacion->proveedor->traer_documento($documentoTipo->tipo_documento_proveedor->id);
-                        
+                        // Usar el nuevo método para traer el documento válido a la fecha de cierre
+                        $documentoProveedor = $this->invitacion->proveedor->traer_documento_valido($documentoTipo->tipo_documento_proveedor->id, $this->concurso->fecha_cierre);
                         if ($documentoProveedor && file_exists(Storage::disk('proveedores')->path($documentoProveedor->file_storage))) {
                             $filePath = Storage::disk('proveedores')->path($documentoProveedor->file_storage);
                             if (file_exists($filePath)) {
-                                // Usar nombre descriptivo en el ZIP
                                 $tipo_documento = Str::slug($documentoProveedor->documentoTipo->nombre, '_');
                                 $nombreEnZip = $documentoProveedor->nombre ? $documentoProveedor->nombre : $tipo_documento . '_' . $documentoProveedor->id . '.pdf';
                                 $zip->addFile($filePath, 'Proveedor_' . $nombreEnZip);
                                 $documentosTiposIncluidos[] = $documentoProveedor->documento_tipo_id;
                             }
-                            /* $zip->addFile($filePath, 'Proveedor_' . $documentoProveedor->nombre_archivo);
-                            $documentosTiposIncluidos[] = $documentoTipo->id; */
                         }
                     }
                 }

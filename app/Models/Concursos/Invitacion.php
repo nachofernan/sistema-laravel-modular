@@ -52,4 +52,13 @@ class Invitacion extends Model
             ->whereNotNull('user_id_created')
             ->get();
     }
+
+    /**
+     * Devuelve el documento de proveedor válido para un tipo y la fecha de cierre del concurso.
+     */
+    public function documento_proveedor_valido($documento_tipo_id)
+    {
+        $fecha_cierre = $this->concurso->fecha_cierre;
+        return $this->proveedor->traer_documento_valido($documento_tipo_id, $fecha_cierre);
+    }
 }
