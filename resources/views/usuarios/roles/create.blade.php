@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="w-full xl:w-10/12 mb-12 xl:mb-0 px-4 mx-auto mt-4">
+    <div class="w-full max-w-7xl mx-auto">
         <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
             <form action="{{ route('usuarios.roles.store') }}" method="POST">
                 {{ csrf_field() }}

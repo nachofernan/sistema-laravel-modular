@@ -1,30 +1,64 @@
 <x-app-layout>
-    <div class="w-full xl:w-6/12 mb-12 xl:mb-0 px-4 mx-auto mt-4">
-        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
-            <div class="block w-full overflow-x-auto py-5 px-5">
-                <form action="{{route('usuarios.sedes.update', $sede)}}" method="POST">
-                    {{ method_field('PUT') }}
-                    {{ csrf_field() }}
-                    <div class="flex items-center space-x-5">
-                        <div class="block pl-2 font-semibold text-xl self-start text-gray-700">
-                          <h2 class="leading-relaxed">Editar Sede - ID: {{$sede->id}}</h2>
-                        </div>
-                      </div>
-                      <div class="divide-y divide-gray-200">
-                        <div class="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                          <div class="flex flex-col">
-                            <label class="leading-loose">Nombre de la Sede</label>
-                            <input type="text" name="nombre" value="{{$sede->nombre}}" class="px-4 py-2 border focus:ring-gray-500 focus:border-gray-900 w-full sm:text-sm border-gray-300 rounded-md focus:outline-none text-gray-600" placeholder="Nombre de la Sede">
-                          </div>
-                        </div>
-                        <div class="pt-4 flex items-center space-x-4">
-                            <a class="flex justify-center items-center w-full text-gray-900 px-4 py-3 rounded-md focus:outline-none" href="{{route('usuarios.sedes.index')}}">Cancelar</a>
-                            <button class="bg-blue-500 flex justify-center items-center w-full text-white px-4 py-3 rounded-md focus:outline-none" type="submit">Actualizar</button>
-                        </div>
-                      </div>
+  <x-page-header title="Editar Sede - ID: {{ $sede->id }}">
+      <x-slot:actions>
+          <a href="{{ route('usuarios.sedes.index') }}" 
+             class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
+              Volver al Listado
+          </a>
+      </x-slot:actions>
+  </x-page-header>
 
-                </form>
-            </div>
-        </div>
-    </div>
+  <div class="w-full max-w-2xl mx-auto">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <form action="{{ route('usuarios.sedes.update', $sede) }}" method="POST" class="space-y-6">
+              @method('PUT')
+              @csrf
+
+              <div class="space-y-4">
+                  <div>
+                      <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                          Nombre de la Sede *
+                      </label>
+                      <input type="text" 
+                             name="nombre" 
+                             id="nombre"
+                             value="{{ old('nombre', $sede->nombre) }}"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                             placeholder="Ingrese el nombre de la sede"
+                             required>
+                      @error('nombre')
+                          <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                      @enderror
+                  </div>
+              </div>
+
+              <!-- Información adicional -->
+              <div class="bg-gray-50 rounded-md p-4">
+                  <h4 class="text-sm font-medium text-gray-900 mb-2">Información de la sede</h4>
+                  <div class="text-sm text-gray-600 space-y-1">
+                      <p><span class="font-medium">Personal asignado:</span> {{ count($sede->users) }} persona(s)</p>
+                      <p><span class="font-medium">Creada:</span> {{ $sede->created_at->format('d/m/Y H:i') }}</p>
+                      @if($sede->updated_at != $sede->created_at)
+                          <p><span class="font-medium">Última modificación:</span> {{ $sede->updated_at->format('d/m/Y H:i') }}</p>
+                      @endif
+                  </div>
+              </div>
+
+              <!-- Botones de acción -->
+              <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                  <a href="{{ route('usuarios.sedes.index') }}" 
+                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                      Cancelar
+                  </a>
+                  <button type="submit" 
+                          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                      <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Actualizar Sede
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
 </x-app-layout>

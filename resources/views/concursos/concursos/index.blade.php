@@ -1,26 +1,17 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <x-page-header title="Gestión de Concursos">
+        <x-slot:actions>
+            @can('Concursos/Concursos/Crear')
+                <a href="{{ route('concursos.concursos.create') }}"
+                    class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-colors">
+                    + Nuevo Concurso
+                </a>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
+    <div class="max-w-7xl mx-auto">
         <!-- Header con estadísticas generales -->
         <div class="mb-8">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-                <div class="grid grid-cols-12 px-6 py-4 border-b items-center">
-                    <div class="col-span-8 flex flex-col justify-center">
-                        <h1 class="text-2xl font-semibold text-gray-800">Gestión de Concursos</h1>
-                        <p class="text-sm text-gray-600 mt-1">Administra y monitorea todos los procesos de licitación</p>
-                    </div>
-                    <div class="col-span-4 flex justify-end items-center">
-                        @can('Concursos/Concursos/Crear')
-                            <a href="{{ route('concursos.concursos.create') }}"
-                                class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Crear Nuevo Concurso
-                            </a>
-                        @endcan
-                    </div>
-                </div>
-            </div>
 
             <!-- Estadísticas rápidas -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

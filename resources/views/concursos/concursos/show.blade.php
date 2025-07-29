@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="w-full xl:w-11/12 mb-12 xl:mb-0 px-4 mx-auto mt-4">
+    <div class="w-full mb-12 xl:mb-0 mx-auto">
         <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded-lg overflow-hidden" role="article">
             <div class="flex justify-between border-b text-white font-bold bg-gradient-to-r p-6
             @switch($concurso->estado->id)

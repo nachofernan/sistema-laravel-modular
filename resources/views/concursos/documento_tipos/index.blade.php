@@ -1,42 +1,23 @@
 <x-app-layout>
-    <div class="w-full xl:w-11/12 mb-12 xl:mb-0 px-4 mx-auto mt-4">
-        <!-- Header -->
-        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
-            <div class="grid grid-cols-12 px-6 py-4 border-b">
-                <div class="col-span-8 flex flex-col justify-center">
-                    <h1 class="text-2xl font-semibold text-gray-800">Gestión de Tipos de Documentos</h1>
-                    <p class="text-sm text-gray-600 mt-1">Administra los tipos de documentos para concursos y ofertas</p>
-                </div>
-                <div class="col-span-4 flex justify-end items-center">
-                    @can('Concursos/DocumentoTipos/Crear')
-                        <a href="{{ route('concursos.documento_tipos.create') }}"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Nuevo Tipo de Documento
-                        </a>
-                    @endcan
-                </div>
-            </div>
-        </div>
+    <div class="w-full mb-12 xl:mb-0 mx-auto">
+        <x-page-header title="Gestión de Tipos de Documentos">
+            <x-slot:actions>
+                @can('Concursos/DocumentoTipos/Crear')
+                    <a href="{{ route('concursos.documento_tipos.create') }}"
+                        class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-colors">
+                        + Nuevo Tipo de Documento
+                    </a>
+                @endcan
+            </x-slot:actions>
+        </x-page-header>
 
         <div class="grid grid-cols-12 gap-6">
             <!-- Documentos de Concursos -->
             <div class="col-span-12 lg:col-span-4">
                 <div class="bg-white shadow-lg rounded-lg overflow-hidden">
                     <div class="bg-green-50 px-6 py-4 border-b border-green-200">
-                        <div class="flex items-center">
-                            <div class="bg-green-100 p-2 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-lg font-semibold text-green-800">Documentos de Concursos</h2>
-                                <p class="text-sm text-green-600">Documentos que carga la empresa</p>
-                            </div>
-                        </div>
+                        <h2 class="text-lg font-semibold text-green-800">Documentos de Concursos</h2>
+                        <p class="text-sm text-green-600">Documentos que carga la empresa</p>
                     </div>
                     
                     @if($documentoTipos_concurso->count() > 0)
@@ -75,17 +56,8 @@
             <div class="col-span-12 lg:col-span-8">
                 <div class="bg-white shadow-lg rounded-lg overflow-hidden">
                     <div class="bg-blue-50 px-6 py-4 border-b border-blue-200">
-                        <div class="flex items-center">
-                            <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-lg font-semibold text-blue-800">Documentos de Ofertas</h2>
-                                <p class="text-sm text-blue-600">Documentos que cargan los proveedores</p>
-                            </div>
-                        </div>
+                        <h2 class="text-lg font-semibold text-blue-800">Documentos de Ofertas</h2>
+                        <p class="text-sm text-blue-600">Documentos que cargan los proveedores</p>
                     </div>
 
                     @if($documentoTipos_ofertas->count() > 0)

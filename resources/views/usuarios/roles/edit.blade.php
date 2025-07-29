@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="w-full xl:w-6/12 mb-12 xl:mb-0 px-4 mx-auto mt-4">
+    <div class="w-full max-w-7xl mx-auto">
         <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
             <div class="block w-full overflow-x-auto py-5 px-5">
                 <form action="{{route('usuarios.roles.update', $role)}}" method="POST">

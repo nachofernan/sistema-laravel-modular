@@ -1,23 +1,20 @@
 <div>
     {{-- A good traveler has no fixed plans and is not intent upon arriving. --}}
     <!-- Header con búsqueda -->
-    <div class="grid grid-cols-10 py-2 mb-4">
-        <div class="col-span-4 titulo-index">
-            Administrar Rubros y Subrubros
-        </div>
-        <div class="col-span-4">
-            <input wire:model.live.debounce.300ms="search" 
-                   type="text" 
-                   placeholder="Buscar rubros o subrubros..." 
-                   class="input-full">
-        </div>
-        <div class="col-span-2">
-            <button wire:click="openCreateRubro" 
-                    class="w-full boton-celeste">
+    <x-page-header title="Administar Rubros y Subrubros">
+        <x-slot:actions>
+        @can('Proveedores/Rubros/Crear')
+        <button wire:click="openCreateRubro" 
+                    class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-colors">
                 + Nuevo Rubro
             </button>
-        </div>
-    </div>
+        @endcan
+        </x-slot:actions>
+    </x-page-header>
+    <input wire:model.live.debounce.300ms="search" 
+            type="text" 
+            placeholder="Buscar rubros o subrubros..." 
+            class="input-full my-2">
 
     <!-- Mensajes de feedback -->
     @if (session()->has('message'))

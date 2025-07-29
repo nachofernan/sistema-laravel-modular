@@ -14,18 +14,34 @@ class Search extends Component
     public $search = '';
     public $sede_id = 0;
 
+    // Resetear paginación cuando cambian los filtros
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSede_id()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
-        $sedes = Sede::all();
+        $sedes = Sede::orderBy('nombre')->get();
 
-        $users = User::where(function($query) {
-            $query->where('realname', 'like', '%' . $this->search . '%')
-                  ->orWhere('name', 'like', '%' . $this->search . '%');
-        })
-        ->when($this->sede_id, function($query) {
-            return $query->where('sede_id', $this->sede_id);
-        })
-        ->paginate(20);
+        $users = User::query()
+            ->where(function($query) {
+                if (!empty($this->search)) {
+                    $query->where('realname', 'like', '%' . $this->search . '%')
+                          ->orWhere('name', 'like', '%' . $this->search . '%')
+                          ->orWhere('legajo', 'like', '%' . $this->search . '%');
+                }
+            })
+            ->when($this->sede_id, function($query) {
+                return $query->where('sede_id', $this->sede_id);
+            })
+            ->orderBy('realname')
+            ->paginate(20);
             
         return view('livewire.usuarios.users.index.search', compact('users', 'sedes'));
     }

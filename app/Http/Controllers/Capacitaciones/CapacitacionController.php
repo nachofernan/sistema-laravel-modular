@@ -51,6 +51,7 @@ class CapacitacionController extends Controller
     public function edit(Capacitacion $capacitacion)
     {
         //
+        return view('capacitaciones.capacitacions.edit', compact('capacitacion'));
     }
 
     /**
@@ -59,6 +60,8 @@ class CapacitacionController extends Controller
     public function update(Request $request, Capacitacion $capacitacion)
     {
         //
+        $capacitacion->update($request->all());
+        return redirect()->route('capacitaciones.capacitacions.show', $capacitacion);
     }
 
     /**
