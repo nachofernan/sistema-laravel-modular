@@ -250,4 +250,26 @@ class Proveedor extends Model
             return $this->hasMany(Apoderado::class);
         }
     }
+
+    /**
+     * Obtiene solo los últimos documentos validados por tipo de documento.
+     * Retorna un documento por cada tipo de documento que tenga al menos un documento validado.
+     */
+    public function ultimosDocumentosValidados()
+    {
+        return Documento::select('documentos.*')
+            ->join('validacions', 'documentos.id', '=', 'validacions.documento_id')
+            ->where('documentable_id', $this->id)
+            ->where('documentable_type', 'App\Models\Proveedores\Proveedor')
+            ->where('validacions.validado', true)
+            ->whereNotNull('documento_tipo_id')
+            ->orderBy('documento_tipo_id')
+            ->orderBy('documentos.created_at', 'desc')
+            ->get()
+            ->groupBy('documento_tipo_id')
+            ->map(function ($documentos) {
+                return $documentos->first();
+            })
+            ->values();
+    }
 }

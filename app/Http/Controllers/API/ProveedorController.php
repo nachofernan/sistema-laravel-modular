@@ -3,11 +3,23 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Proveedores\Proveedor;
-use App\Models\Proveedores\DocumentoTipo;
-use App\Models\Proveedores\Rubro;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Proveedores\Proveedor;
+use App\Models\Proveedores\Rubro;
+use App\Models\Proveedores\Subrubro;
+use App\Models\Proveedores\DocumentoTipo;
+use App\Models\Proveedores\Apoderado;
+use App\Models\Proveedores\Documento;
+use App\Http\Resources\API\ProveedorResource;
+use App\Http\Resources\API\RubroResource;
+use App\Http\Resources\API\SubrubroResource;
+use App\Http\Resources\API\DocumentoResource;
+use App\Http\Resources\API\ApoderadoResource;
+use App\Http\Requests\API\ProveedorSyncSubrubrosRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Response;
 
 class ProveedorController extends Controller
 {
@@ -17,229 +29,167 @@ class ProveedorController extends Controller
     }
 
     /**
-     * Obtener datos completos del proveedor para el dashboard
+     * Obtener todos los datos de un proveedor por CUIT.
      */
-    public function getDashboardData($cuit)
+    public function show($cuit)
     {
-        try {
-            $proveedor = Proveedor::with([
-                'contactos', 
-                'direcciones', 
-                'documentos.documentoTipo',
-                'documentos.validacion',
+        $proveedor = Proveedor::where('cuit', $cuit)
+            ->with([
+                'contactos',
+                'direcciones',
                 'subrubros.rubro',
-                'apoderados.documentos'
+                'documentos', // Ya filtra por validados por defecto
+                'apoderados' // Ya filtra por validados por defecto
             ])
-            ->where('cuit', $cuit)
-            ->first();
+            ->firstOrFail();
+        return response()->json([
+            'success' => true,
+            'data' => new ProveedorResource($proveedor),
+            'message' => 'Proveedor encontrado.'
+        ]);
+    }
+
+    /**
+     * Obtener todos los tipos de documentos y apoderados.
+     */
+    public function tiposDocumentos()
+    {
+        $tipos = DocumentoTipo::all();
+        $apoderados = Apoderado::select('id', 'nombre')->distinct()->get();
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'tipos_documentos' => $tipos,
+                'tipos_apoderados' => $apoderados
+            ],
+            'message' => 'Tipos obtenidos.'
+        ]);
+    }
+
+    /**
+     * Obtener todos los tipos de rubros y subrubros.
+     */
+    public function tiposRubros()
+    {
+        $rubros = Rubro::with('subrubros')->get();
+        return response()->json([
+            'success' => true,
+            'data' => RubroResource::collection($rubros),
+            'message' => 'Rubros y subrubros obtenidos.'
+        ]);
+    }
+
+    /**
+     * Asociar subrubros a un proveedor (sync).
+     */
+    public function syncSubrubros(ProveedorSyncSubrubrosRequest $request, $cuit)
+    {
+        $proveedor = Proveedor::where('cuit', $cuit)->firstOrFail();
+        $proveedor->subrubros()->sync($request->subrubro_ids);
+        return response()->json([
+            'success' => true,
+            'message' => 'Subrubros actualizados correctamente.'
+        ]);
+    }
+
+    /**
+     * Subir un documento para el proveedor (queda pendiente de validación).
+     */
+    public function subirDocumento(Request $request, $cuit)
+    {
+        // Validar los datos de entrada
+        $request->validate([
+            'documento_tipo_id' => 'required|exists:proveedores.documento_tipos,id',
+            'file' => 'required|file',
+            'vencimiento' => 'nullable|date',
+        ]);
+
+        // Obtener el proveedor
+        $proveedor = Proveedor::where('cuit', $cuit)->firstOrFail();
+
+        // Iniciar transacción
+        DB::beginTransaction();
+        
+        try {
+            // Procesar el archivo
+            $archivo = $request->file('file');
+            $nombreArchivo = $archivo->getClientOriginalName();
+            $extension = $archivo->getClientOriginalExtension();
+            $mimeType = $archivo->getMimeType();
             
-            if (!$proveedor) {
-                return response()->json(['error' => 'Proveedor no encontrado'], 404);
-            }
-            
+            // Crear el documento en la base de datos
+            $documento = $proveedor->documentos(false)->create([
+                'documento_tipo_id' => $request->documento_tipo_id,
+                'user_id_created' => 1,
+                'vencimiento' => $request->vencimiento ?? null,
+                'archivo' => $nombreArchivo,
+                'extension' => $extension,
+                'mimeType' => $mimeType,
+                'file_storage' => 'temp_' . time(), // Valor temporal
+            ]);
+
+            // Crear la validación
+            $documento->validacion()->create([
+                'user_id' => null,
+                'validado' => false,
+            ]);
+
+            // Confirmar transacción
+            DB::commit();
+
             return response()->json([
-                'proveedor' => $proveedor
+                'success' => true,
+                'data' => new DocumentoResource($documento),
+                'message' => 'Documento subido correctamente. Pendiente de validación.'
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error in getDashboardData', [
-                'cuit' => $cuit,
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json(['error' => 'Error interno del servidor'], 500);
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al subir el documento: ' . $e->getMessage()
+            ], 500);
         }
     }
 
     /**
-     * Obtener tipos de documentos para el select de subida
+     * Descargar un documento validando acceso.
      */
-    public function getDocumentTypes()
+    public function descargarDocumento($cuit, $documento_id)
     {
-        try {
-            $documentos = DocumentoTipo::all();
-            
+        $proveedor = Proveedor::where('cuit', $cuit)->firstOrFail();
+        $documento = $proveedor->documentos()->where('id', $documento_id)->firstOrFail();
+        // Validar que el documento pertenece al proveedor y está validado
+        if (!$documento->esValido()) {
             return response()->json([
-                'documento_tipos' => $documentos
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error in getDocumentTypes', [
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json(['error' => 'Error interno del servidor'], 500);
+                'success' => false,
+                'message' => 'No autorizado o documento no válido.'
+            ], 403);
         }
+        $media = $documento->getFirstMedia('archivos');
+        if (!$media) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Archivo no encontrado.'
+            ], 404);
+        }
+        return response()->download($media->getPath(), $media->file_name);
     }
 
     /**
-     * Obtener rubros y subrubros para la gestión
+     * Obtener solo los últimos documentos validados por tipo de documento.
      */
-    public function getRubros(Request $request)
+    public function ultimosDocumentosValidados($cuit)
     {
-        try {
-            $search = $request->query('search', '');
-            
-            if (strlen($search) > 2) {
-                $query = $search;
-                $rubros = Rubro::with('subrubros')
-                    ->where('nombre', 'LIKE', "%$query%")
-                    ->get();
-
-                // Busca en los subrubros y trae su rubro asociado
-                $subrubros = \App\Models\Proveedores\Subrubro::with('rubro')
-                    ->where('nombre', 'LIKE', "%$query%")
-                    ->get();
-
-                // Combina los resultados y evita duplicados
-                $resultados = [];
-
-                // Agregar rubros y sus subrubros
-                foreach ($rubros as $rubro) {
-                    $resultados[$rubro->id]['rubro'] = $rubro;
-                    $resultados[$rubro->id]['subrubros'] = $rubro->subrubros;
-                }
-
-                // Agregar subrubros que coinciden, evitando duplicados
-                foreach ($subrubros as $subrubro) {
-                    $rubroId = $subrubro->rubro->id;
-
-                    // Si el rubro ya existe en el array, agrega el subrubro si no está duplicado
-                    if (isset($resultados[$rubroId])) {
-                        if (!$resultados[$rubroId]['subrubros']->contains('id', $subrubro->id)) {
-                            $resultados[$rubroId]['subrubros']->push($subrubro);
-                        }
-                    } else {
-                        // Si el rubro no existe, lo agregamos con el subrubro
-                        $resultados[$rubroId]['rubro'] = $subrubro->rubro;
-                        $resultados[$rubroId]['subrubros'] = collect([$subrubro]);
-                    }
-                }
-            } else {
-                // Todos los rubros
-                $resultados = [];
-                foreach (Rubro::with('subrubros')->get() as $rubro) {
-                    $resultados[] = [
-                        'rubro' => $rubro,
-                        'subrubros' => $rubro->subrubros,
-                    ];
-                }
-            }
-
-            return response()->json([
-                'rubros' => array_values($resultados)
-            ]);
-            
-        } catch (\Exception $e) {
-            Log::error('Error in getRubros', [
-                'search' => $search ?? '',
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json(['error' => 'Error interno del servidor'], 500);
-        }
+        $proveedor = Proveedor::where('cuit', $cuit)->firstOrFail();
+        
+        $documentos = $proveedor->ultimosDocumentosValidados()
+            ->load('documentoTipo');
+        
+        return response()->json([
+            'success' => true,
+            'data' => DocumentoResource::collection($documentos),
+            'message' => 'Documentos obtenidos correctamente.'
+        ]);
     }
-
-    /**
-     * Gestionar subrubros del proveedor
-     */
-    public function manageSubrubro(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'cuit' => 'required|string',
-                'subrubro_id' => 'required|integer',
-                'action' => 'required|in:attach,detach'
-            ]);
-
-            $proveedor = Proveedor::where('cuit', $validated['cuit'])->first();
-            
-            if (!$proveedor) {
-                return response()->json(['error' => 'Proveedor no encontrado'], 404);
-            }
-
-            if ($validated['action'] === 'attach') {
-                $proveedor->subrubros()->syncWithoutDetaching([$validated['subrubro_id']]);
-            } else {
-                $proveedor->subrubros()->detach($validated['subrubro_id']);
-            }
-
-            // Recargar subrubros con rubro
-            $subrubros = $proveedor->subrubros()->with('rubro')->get();
-
-            return response()->json([
-                'message' => 'Subrubro actualizado correctamente',
-                'subrubros' => $subrubros
-            ]);
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'error' => 'Datos de entrada inválidos',
-                'details' => $e->errors()
-            ], 422);
-            
-        } catch (\Exception $e) {
-            Log::error('Error in manageSubrubro', [
-                'request_data' => $request->all(),
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json(['error' => 'Error interno del servidor'], 500);
-        }
-    }
-
-    /**
-     * Gestionar todos los subrubros de un rubro
-     */
-    public function manageRubroComplete(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'cuit' => 'required|string',
-                'rubro_id' => 'required|integer',
-                'action' => 'required|in:attach_all,detach_all'
-            ]);
-
-            $proveedor = Proveedor::where('cuit', $validated['cuit'])->first();
-            
-            if (!$proveedor) {
-                return response()->json(['error' => 'Proveedor no encontrado'], 404);
-            }
-
-            $rubro = Rubro::with('subrubros')->find($validated['rubro_id']);
-            if (!$rubro) {
-                return response()->json(['error' => 'Rubro no encontrado'], 404);
-            }
-
-            $subrubroIds = $rubro->subrubros->pluck('id')->toArray();
-
-            if ($validated['action'] === 'attach_all') {
-                $proveedor->subrubros()->syncWithoutDetaching($subrubroIds);
-            } else {
-                $proveedor->subrubros()->detach($subrubroIds);
-            }
-
-            // Recargar subrubros con rubro
-            $subrubros = $proveedor->subrubros()->with('rubro')->get();
-
-            return response()->json([
-                'message' => 'Rubros actualizados correctamente',
-                'subrubros' => $subrubros
-            ]);
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'error' => 'Datos de entrada inválidos',
-                'details' => $e->errors()
-            ], 422);
-            
-        } catch (\Exception $e) {
-            Log::error('Error in manageRubroComplete', [
-                'request_data' => $request->all(),
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json(['error' => 'Error interno del servidor'], 500);
-        }
-    }
-}
+} 

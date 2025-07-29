@@ -13,6 +13,8 @@ use App\Services\FileEncryptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use stdClass;
 
 class FileController extends Controller
@@ -26,71 +28,80 @@ class FileController extends Controller
     // Subida de archivos desde PortalProveedores
     public function upload(Request $request)
     {
-        $invitacion = Invitacion::find($request->input('invitacion_id'));
-        if(!$invitacion) {
-            return response()->json([
-                'message' => 'No se encontró la invitación',
-            ], 400);
-        } 
-        if(
-            !(
-                // Caso 1: concurso abierto
-                ($invitacion->concurso->estado->id == 2 && $invitacion->concurso->fecha_cierre > now())
-                ||
-                // Caso 2: en análisis solo si la intención es 3
-                ($invitacion->concurso->estado->id == 3 && $invitacion->intencion == 3)
-            )
-        ) {
-            return response()->json([
-                'message' => 'El concurso no está abierto',
-            ], 400);
-        } 
+        try {
+            // Validaciones explícitas
+            $request->validate([
+                'file' => 'required|file|mimes:pdf|max:10240',
+                'invitacion_id' => 'required|integer|exists:concursos.invitacions,id',
+                'documento_tipo_id' => 'nullable|integer',
+            ]);
 
-        if ($request->hasFile('file')) {
+            $invitacion = Invitacion::find($request->input('invitacion_id'));
+            if(!$invitacion) {
+                return response()->json([
+                    'message' => 'No se encontró la invitación',
+                ], 400);
+            }
+            if(
+                !(
+                    // Caso 1: concurso abierto
+                    ($invitacion->concurso->estado->id == 2 && $invitacion->concurso->fecha_cierre > now())
+                    ||
+                    // Caso 2: en análisis solo si la intención es 3
+                    ($invitacion->concurso->estado->id == 3 && $invitacion->intencion == 3)
+                )
+            ) {
+                return response()->json([
+                    'message' => 'El concurso no está abierto',
+                ], 400);
+            }
+
             $file = $request->file('file');
             if($request->input('documento_tipo_id') > 0) {
                 $documentoTipo = DocumentoTipo::find($request->input('documento_tipo_id'));
             } else {
-                $documentoTipo = new stdClass();
+                $documentoTipo = new \stdClass();
                 $documentoTipo->encriptado = false;
                 $documentoTipo->id = null;
             }
 
-            // Crear documento
+            // Crear documento con los datos básicos y guardar primero
             $documento = new Documento([
                 'user_id_created' => null,
                 'concurso_id' => null,
                 'encriptado' => $documentoTipo->encriptado,
                 'documento_tipo_id' => $documentoTipo->id,
                 'invitacion_id' => $invitacion->id,
+                'file_storage' => '-',
+                'archivo' => '-',
+                'mimeType' => '-',
+                'extension' => '-',
             ]);
-            $documento->save();
+            $documento->save(); // Guardar antes de asociar archivo
 
             if($documentoTipo->encriptado) {
                 // Lógica para archivos encriptados
                 $fileController = new EncryptsFileController(app(FileEncryptionService::class));
                 $encryptedFileResult = $fileController->upload($request, 'concursos');
                 $encryptedFileData = $encryptedFileResult->getData();
-                
                 // Guardar metadatos del archivo encriptado
                 $documento->archivo = $encryptedFileData->data->metadata->originalName;
                 $documento->mimeType = $encryptedFileData->data->metadata->mimeType;
                 $documento->extension = pathinfo($encryptedFileData->data->metadata->originalName, PATHINFO_EXTENSION);
                 $documento->file_storage = $encryptedFileData->data->path;
+                $documento->save();
             } else {
                 // Lógica para archivos no encriptados con Spatie
                 $media = $documento->addMediaFromRequest('file')
                     ->usingFileName($file->getClientOriginalName())
                     ->toMediaCollection('archivos');
-                
                 // Guardar metadatos en el modelo Documento
                 $documento->archivo = $media->file_name;
                 $documento->mimeType = $media->mime_type;
                 $documento->extension = $media->getExtensionAttribute();
                 $documento->file_storage = $media->getPath();
+                $documento->save();
             }
-
-            $documento->save();
 
             return response()->json([
                 'invi' => $request->input('invitacion_id'),
@@ -98,11 +109,15 @@ class FileController extends Controller
                 'message' => 'File uploaded successfully',
                 'path' => $documento->file_storage,
             ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error en upload de archivo', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::check() ? Auth::id() : null,
+                'input' => $request->all()
+            ]);
+            return response()->json(['message' => 'Error interno del servidor'], 500);
         }
-
-        return response()->json([
-            'message' => 'No file uploaded'
-        ], 400);
     }
 
     // Descargar archivos solicitados por PortalProveedores
