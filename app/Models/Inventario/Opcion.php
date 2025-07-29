@@ -9,6 +9,8 @@ class Opcion extends Model
 {
     use HasFactory;
 
+    protected $connection = 'inventario';
+
     protected $guarded = [];
 
     public function caracteristica()

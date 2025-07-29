@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Usuarios\Area;
+use App\Models\Usuarios\Sede;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -27,8 +29,9 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $this->faker->name(),
+            'realname' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'two_factor_secret' => null,
@@ -36,6 +39,12 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
             'current_team_id' => null,
+            'legajo' => $this->faker->unique()->numberBetween(1000, 999999),
+            'interno' => $this->faker->optional()->numberBetween(100, 999),
+            'visible' => $this->faker->boolean(),
+            // Para que 'area_id' y 'sede_id' sean nulleables de forma aleatoria, puedes usar faker->optional()
+            'area_id' => $this->faker->optional()->randomElement([Area::factory(), null]),
+            'sede_id' => $this->faker->optional()->randomElement([Sede::factory(), null]),
         ];
     }
 
