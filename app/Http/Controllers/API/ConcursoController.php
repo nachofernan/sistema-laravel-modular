@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Concursos\Concurso;
 use App\Models\Concursos\Invitacion;
 use App\Models\Proveedores\Proveedor;
-use Illuminate\Support\Facades\Log;
+use App\Models\Proveedores\Documento;
+use App\Models\Proveedores\DocumentoTipo;
+use Illuminate\Support\Facades\DB;
 
 class ConcursoController extends Controller
 {
@@ -15,124 +20,133 @@ class ConcursoController extends Controller
     }
 
     /**
-     * Obtener invitaciones/concursos de un proveedor
+     * Listar concursos activos y terminados donde el proveedor es invitado.
      */
-    public function getProviderInvitations($providerId)
+    public function index(Request $request)
     {
-        $proveedor = Proveedor::find($providerId);
-        
-        if (!$proveedor) {
-            return response()->json(['error' => 'Proveedor no encontrado'], 404);
-        }
-        
-        // Invitaciones activas
-        $invitacionesActivas = $proveedor->invitaciones()
-            ->with(['concurso.estado', 'concurso.documentos_requeridos'])
-            ->whereHas('concurso', function ($query) {
-                $query->where('estado_id', 2)
-                    ->where('fecha_cierre', '>', now());
+        $proveedor_id = $request->attributes->get('proveedor_id');
+        $concursos = Concurso::whereHas('invitaciones', function($q) use ($proveedor_id) {
+                $q->where('proveedor_id', $proveedor_id);
             })
+            ->with(['invitaciones' => function($q) use ($proveedor_id) {
+                $q->where('proveedor_id', $proveedor_id);
+            }])
             ->get();
-        
-        // Invitaciones finalizadas (donde presentó oferta)
-        $invitacionesFinalizadas = $proveedor->invitaciones()
-            ->with(['concurso.estado'])
-            ->where('intencion', 3)
-            ->whereHas('concurso', function ($query) {
-                $query->whereIn('estado_id', [3, 4])
-                    ->orWhere(function ($q) {
-                        $q->where('estado_id', 2)
-                          ->where('fecha_cierre', '<', now());
-                    });
-            })
-            ->get();
-        
         return response()->json([
-            'invitaciones_activas' => $invitacionesActivas,
-            'invitaciones_finalizadas' => $invitacionesFinalizadas
+            'success' => true,
+            'data' => $concursos,
+            'message' => 'Concursos obtenidos.'
         ]);
     }
 
     /**
-     * Obtener detalles completos de un concurso para un proveedor específico
+     * Obtener info completa de un concurso (documentos, estado, contactos, sedes, prórrogas, etc.).
      */
-    public function getConcursoDetails($concursoId, $cuit)
+    public function show(Request $request, $concurso_id)
     {
-        try {
-            // Buscar el proveedor
-            $proveedor = \App\Models\Proveedores\Proveedor::where('cuit', $cuit)->first();
-            
-            if (!$proveedor) {
-                return response()->json(['error' => 'Proveedor no encontrado'], 404);
-            }
-            
-            // Buscar el concurso con todas sus relaciones
-            $concurso = \App\Models\Concursos\Concurso::with([
+        $proveedor_id = $request->attributes->get('proveedor_id');
+        $concurso = Concurso::with([
+                'documentos',
                 'estado',
-                'documentos_requeridos.tipo_documento_proveedor',
-                'documentos.documentoTipo',
                 'contactos',
                 'sedes',
-                'prorrogas'
-            ])->find($concursoId);
-            
-            if (!$concurso) {
-                return response()->json(['error' => 'Concurso no encontrado'], 404);
-            }
-            
-            // Buscar la invitación del proveedor para este concurso
-            $invitacion = \App\Models\Concursos\Invitacion::with([
-                'documentos.documentoTipo',
-                'proveedor.apoderados.documentos',
-                'proveedor.documentos.documentoTipo'
-            ])
-            ->where('concurso_id', $concursoId)
-            ->where('proveedor_id', $proveedor->id)
-            ->first();
-            
-            if (!$invitacion) {
-                return response()->json(['error' => 'Invitación no encontrada'], 404);
-            }
-            
-            // ✅ Preparar datos SIN referencias circulares
-            $invitacionArray = $invitacion->toArray();
-            $concursoArray = $concurso->toArray();
-            
-            // ✅ EN LUGAR de agregar referencias completas, agregar solo IDs básicos
-            if (isset($invitacionArray['documentos'])) {
-                foreach ($invitacionArray['documentos'] as &$documento) {
-                    // Solo agregar información mínima necesaria, NO objetos completos
-                    $documento['concurso_id'] = $concursoArray['id'];
-                    $documento['concurso_nombre'] = $concursoArray['nombre'];
-                    $documento['invitacion_id'] = $invitacionArray['id'];
-                    // NO agregamos el concurso completo ni la invitación completa
+                'prorrogas',
+                'invitaciones' => function($q) use ($proveedor_id) {
+                    $q->where('proveedor_id', $proveedor_id);
                 }
+            ])
+            ->findOrFail($concurso_id);
+        return response()->json([
+            'success' => true,
+            'data' => $concurso,
+            'message' => 'Concurso encontrado.'
+        ]);
+    }
+
+    /**
+     * Cambiar la intención en la invitación al concurso.
+     */
+    public function cambiarIntencion(Request $request, $concurso_id)
+    {
+        $request->validate([
+            'intencion' => 'required|integer|in:0,1,2,3',
+        ]);
+        $proveedor_id = $request->attributes->get('proveedor_id');
+        $invitacion = Invitacion::where('concurso_id', $concurso_id)
+            ->where('proveedor_id', $proveedor_id)
+            ->firstOrFail();
+        $invitacion->intencion = $request->intencion;
+        $invitacion->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Intención actualizada correctamente.'
+        ]);
+    }
+
+    /**
+     * Subir documento asociado a la invitación y tipo de documento.
+     */
+    public function subirDocumento(Request $request, $concurso_id)
+    {
+        $request->validate([
+            'documento_tipo_id' => 'required|exists:documento_tipos,id',
+            'file' => 'required|file',
+        ]);
+        $proveedor_id = $request->attributes->get('proveedor_id');
+        $invitacion = Invitacion::where('concurso_id', $concurso_id)
+            ->where('proveedor_id', $proveedor_id)
+            ->firstOrFail();
+        DB::beginTransaction();
+        try {
+            $documento = new Documento([
+                'documento_tipo_id' => $request->documento_tipo_id,
+                'user_id_created' => null,
+            ]);
+            $invitacion->documentos()->save($documento);
+            if ($request->hasFile('file')) {
+                $media = $documento->addMediaFromRequest('file')
+                    ->usingFileName($request->file('file')->getClientOriginalName())
+                    ->toMediaCollection('archivos');
+                $documento->archivo = $media->file_name;
+                $documento->mimeType = $media->mime_type;
+                $documento->extension = $media->getExtensionAttribute();
+                $documento->file_storage = $media->getPath();
+                $documento->save();
             }
-            
-            // Preparar datos del "user"
-            $userData = [
-                'id' => $proveedor->id,
-                'username' => $proveedor->cuit,
-                'name' => $proveedor->razonsocial,
-                'email' => $proveedor->correo,
-                'proveedor' => $proveedor->toArray()
-            ];
-            
+            DB::commit();
             return response()->json([
-                'concurso' => $concursoArray,
-                'invitacion' => $invitacionArray,
-                'user' => $userData
+                'success' => true,
+                'data' => $documento,
+                'message' => 'Documento subido correctamente. Pendiente de validación.'
             ]);
-            
         } catch (\Exception $e) {
-            Log::error('Error in getConcursoDetails', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'concurso_id' => $concursoId,
-                'cuit' => $cuit
-            ]);
-            
-            return response()->json(['error' => 'Error interno del servidor'], 500);
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al subir el documento: ' . $e->getMessage()
+            ], 500);
         }
     }
-}
+
+    /**
+     * Verificar si un documento requerido en el concurso ya está subido y validado como documento de proveedor.
+     */
+    public function verificarDocumentoProveedor(Request $request, $concurso_id, $documento_tipo_id)
+    {
+        $proveedor_id = $request->attributes->get('proveedor_id');
+        $proveedor = Proveedor::findOrFail($proveedor_id);
+        $documento = $proveedor->traer_documento_valido($documento_tipo_id);
+        if ($documento) {
+            return response()->json([
+                'success' => true,
+                'data' => $documento,
+                'message' => 'Documento válido encontrado.'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'No hay documento válido para este tipo.'
+            ], 404);
+        }
+    }
+} 
