@@ -10,11 +10,15 @@ class DireccionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'tipo' => $this->tipo,
             'calle' => $this->calle,
-            'numero' => $this->numero,
-            'localidad' => $this->localidad,
+            'altura' => $this->altura,
+            'piso' => $this->piso,
+            'departamento' => $this->departamento,
+            'ciudad' => $this->ciudad,
+            'codigopostal' => $this->codigopostal,
             'provincia' => $this->provincia,
-            // Agrega otros campos relevantes
+            'pais' => $this->pais,
         ];
     }
 } 

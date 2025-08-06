@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
 use App\Models\Capacitaciones\Capacitacion;
+use App\Models\Capacitaciones\Documento;
 use App\Models\Capacitaciones\Invitacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,5 +67,23 @@ class CapacitacionController extends Controller
     public function destroy(Capacitacion $capacitacion)
     {
         //
+    }
+
+    public function documentoDownload(Capacitacion $capacitacion, Documento $documento)
+    {
+        //
+        if(
+            Invitacion::where('capacitacion_id', $documento->capacitacion->id)->where('user_id', Auth::user()->id)->count()
+        ) {
+            $media = $documento->getFirstMedia('archivos');
+            if ($media) {
+                return $media->toResponse(request());
+            }
+            abort(404, 'Archivo no encontrado.');
+        }
+        else
+        {
+            return "No tiene los permisos";
+        }
     }
 }

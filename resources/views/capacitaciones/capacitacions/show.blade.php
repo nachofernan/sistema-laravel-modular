@@ -87,7 +87,7 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <a href="{{ Storage::disk('capacitaciones')->url($documento->file_storage) }}"
+                                    <a href="{{ route('capacitaciones.documentos.show', $documento) }}"
                                        target="_blank" 
                                        class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

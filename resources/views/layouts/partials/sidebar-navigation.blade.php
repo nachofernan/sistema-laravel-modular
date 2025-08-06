@@ -9,7 +9,7 @@ elseif (str_starts_with($routeName, 'concursos.')) $currentModule = 'concursos';
 elseif (str_starts_with($routeName, 'inventario.')) $currentModule = 'inventario';
 elseif (str_starts_with($routeName, 'documentos.')) $currentModule = 'documentos';
 elseif (str_starts_with($routeName, 'tickets.')) $currentModule = 'tickets';
-elseif (str_starts_with($routeName, 'mesadeentradas.')) $currentModule = 'mesadeentradas';
+/* elseif (str_starts_with($routeName, 'mesadeentradas.')) $currentModule = 'mesadeentradas'; */
 elseif (str_starts_with($routeName, 'capacitaciones.')) $currentModule = 'capacitaciones';
 elseif (str_starts_with($routeName, 'fichadas.')) $currentModule = 'fichadas';
 elseif (str_starts_with($routeName, 'adminip.')) $currentModule = 'adminip';
@@ -307,12 +307,12 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home') $currentM
 </a>
 @endcan
 
-@can('MesaDeEntradas/Entradas/Ver')
+{{-- @can('MesaDeEntradas/Entradas/Ver')
 <a href="{{ route('mesadeentradas.entradas.index') }}" 
    class="block px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('mesadeentradas.entradas.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
     Mesa de Entradas
 </a>
-@endcan
+@endcan --}}
 
 @can('Capacitaciones/Capacitaciones/Ver')
 <a href="{{ route('capacitaciones.capacitacions.index') }}" 

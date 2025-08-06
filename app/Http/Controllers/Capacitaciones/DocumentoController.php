@@ -37,20 +37,21 @@ class DocumentoController extends Controller
         $documento = new Documento([
             'nombre' => $request->input('nombre'),
             'capacitacion_id' => $request->input('capacitacion_id'),
-        ]);
-        $documento->save();
+        ]);        
         
-        if ($request->hasFile('file')) {
-            $media = $documento->addMediaFromRequest('file')
-                ->usingFileName($request->file('file')->getClientOriginalName())
-                ->toMediaCollection('archivos');
+        if ($request->hasFile('archivo')) {
+            $media = $documento->addMediaFromRequest('archivo')
+                ->usingFileName($request->file('archivo')->getClientOriginalName())
+                ->toMediaCollection('archivos', 'capacitaciones');
             
             // Guardar metadatos en el modelo Documento
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
+            $documento->file_storage = $request->file('archivo')->getClientOriginalName();
             $documento->save();
+        } else {
+            return redirect()->route('capacitaciones.capacitacions.show', $documento->capacitacion)->with('error', 'No se pudo subir el archivo');
         }
         
         return redirect()->route('capacitaciones.capacitacions.show', $documento->capacitacion);
@@ -59,15 +60,15 @@ class DocumentoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Documento $documento)
+    /* public function show(Documento $documento)
     {
         //
-    }
+    } */
 
     /**
      * Display the specified resource.
      */
-    public function download(Documento $documento)
+    public function show(Documento $documento)
     {
         //
         $user = User::find(Auth::user()->id);

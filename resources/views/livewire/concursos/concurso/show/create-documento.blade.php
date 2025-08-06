@@ -1,6 +1,8 @@
 <div>
-    {{-- Success is as dangerous as failure. --}}
-    <button class="link-azul float-right text-sm mt-2 mr-4" wire:click="$set('open', true)"> 
+    <button class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors" wire:click="$set('open', true)"> 
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mr-1">
+            <path d="M8 4a.75.75 0 0 1 .75.75v2.5h2.5a.75.75 0 0 1 0 1.5h-2.5v2.5a.75.75 0 0 1-1.5 0v-2.5h-2.5a.75.75 0 0 1 0-1.5h2.5v-2.5A.75.75 0 0 1 8 4Z" />
+        </svg>
         Agregar
     </button>
     <x-dialog-modal wire:model="open"> 
@@ -11,12 +13,9 @@
                     Nueva Documentación
                 </div>
             </div>                 
-                
-                
         </x-slot> 
         <x-slot name="content">
             <form action="{{ route('concursos.documentos.store') }}" method="post" enctype="multipart/form-data">
-            {{-- <form action="{{ route('concursos.oferta', [$concurso]) }}" method="post" enctype="multipart/form-data"> --}}
                 @csrf
                 <div class="grid-datos-show">
                     <input type="hidden" name="concurso_id" value="{{ $concurso->id }}">
@@ -35,7 +34,6 @@
                     </div>
                     <div class="valor-edit">
                         <input type="file" name="file" class="input-full" placeholder="Seleccione el archivo" required>
-                        {{-- <input type="file" name="oferta" class="input-full" placeholder="Seleccione el archivo" required> --}}
                     </div>
                     <div class="atributo-edit">
                     </div>

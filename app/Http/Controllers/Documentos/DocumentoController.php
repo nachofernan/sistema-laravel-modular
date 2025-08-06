@@ -58,7 +58,7 @@ class DocumentoController extends Controller
             'sede_id' => is_numeric($request->input('sede_id')) ? $request->input('sede_id') : null,
             'user_id' => Auth::user()->id,
         ]);
-        $documento->save();
+        
         if ($request->hasFile('archivo')) {
             $media = $documento->addMediaFromRequest('archivo')
                 ->usingFileName($request->file('archivo')->getClientOriginalName())
@@ -67,9 +67,11 @@ class DocumentoController extends Controller
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
+            $documento->file_storage = $documento->file_storage = $request->file('archivo')->getClientOriginalName();
             $documento->archivo_uploaded_at = now();
             $documento->save();
+        } else {
+            return redirect()->route('documentos.documentos.create')->with('error', 'No se pudo subir el archivo');
         }
         return redirect()->route('documentos.documentos.show', $documento);
     }

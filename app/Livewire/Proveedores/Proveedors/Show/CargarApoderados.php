@@ -8,7 +8,13 @@ class CargarApoderados extends Component
 {
     public $open = false; 
     public $proveedor;
-    public $tipo = 'apoderado';
+    public $contexto = 'apoderado'; // 'apoderado' o 'representante'
+    
+    public function mount($proveedor, $contexto = 'apoderado')
+    {
+        $this->proveedor = $proveedor;
+        $this->contexto = $contexto;
+    }
     
     public function render()
     {

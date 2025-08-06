@@ -1,6 +1,9 @@
 <div>
-    {{-- The Master doesn't talk, he acts. --}}
-    <button class="text-blue-700 hover:underline text-sm" wire:click="$set('open', true)"> 
+    <button class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors" wire:click="$set('open', true)"> 
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mr-1">
+            <path d="M13.488 2.914a.75.75 0 0 0-1.06 0L6.75 8.704 6.287 9.146a.75.75 0 0 0 1.06 1.06l.463-.463 5.75-5.75a.75.75 0 0 0 0-1.06Z" />
+            <path d="M2.5 4.5a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Zm0 4a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Zm0 4a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Z" />
+        </svg>
         Editar
     </button>
     <x-dialog-modal wire:model="open"> 
@@ -14,8 +17,6 @@
                     <button wire:click="guardar()" class="boton-celeste text-sm">Guardar</button>
                 </div>
             </div>                 
-                
-                
         </x-slot> 
         <x-slot name="content">
             <div class="grid-datos-show">
@@ -36,7 +37,6 @@
                 </div>
                 <div class="valor-edit">
                     @livewire('concursos.concurso.create.legajo-input', ['numero_legajo' => $numero_legajo])
-                    {{-- <input type="text" name="numero_legajo" value="{{ $numero_legajo }}" class="input-full" placeholder="Número de Legajo" required> --}} 
                 </div>
                 <div class="atributo-edit">
                     Link del Legajo

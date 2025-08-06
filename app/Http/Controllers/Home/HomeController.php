@@ -36,4 +36,16 @@ class HomeController extends Controller
         ]);
         return response()->file(storage_path('app/public/documentos/').$documento->file_storage);
     }
+
+    public function documentoDownloadWithLog(Documento $documento)
+    {
+        // Registrar la descarga
+        Descarga::create([
+            'documento_id' => $documento->id,
+            'user_id' => Auth::user()->id ?? 1,
+        ]);
+
+        // Redirigir a la descarga directa usando Spatie Media Library
+        return redirect($documento->getFirstMediaUrl('archivos'));
+    }
 }

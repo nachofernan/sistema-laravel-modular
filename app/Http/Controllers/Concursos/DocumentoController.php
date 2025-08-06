@@ -44,8 +44,9 @@ class DocumentoController extends Controller
             'encriptado' => false,
             'documento_tipo_id' => $request->input('documento_tipo_id') ? $request->input('documento_tipo_id') : null,
             'invitacion_id' => $request->input('invitacion_id') ? $request->input('invitacion_id') : null,
+            'archivo' => 'x',
+            'file_storage' => 'x',
         ]);
-        $documento->save();
 
         if ($request->hasFile('file')) {
             $media = $documento->addMediaFromRequest('file')
@@ -56,7 +57,7 @@ class DocumentoController extends Controller
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
+            $documento->file_storage = $request->file('file')->getClientOriginalName();
             $documento->save();
         }
 

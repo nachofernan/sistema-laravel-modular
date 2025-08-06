@@ -103,14 +103,19 @@
                             <div class="grid grid-cols-3 gap-4">
                                 <div class="text-sm font-medium text-gray-500">Documento:</div>
                                 <div class="col-span-2 text-sm text-gray-900">
-                                    <a href="{{ route('home.tickets.documentos', $ticket) }}" 
-                                       target="_blank"
-                                       class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        Descargar
-                                    </a>
+                                    @php $media = $ticket->documento->getFirstMedia('archivos') @endphp
+                                    @if($media)
+                                        <a href="{{ route('tickets.tickets.documentos', $ticket) }}" 
+                                           target="_blank"
+                                           class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                            Descargar Documento
+                                        </a>
+                                    @else
+                                        <span class="text-xs text-gray-500">Archivo no disponible</span>
+                                    @endif
                                 </div>
                             </div>
                         @endif

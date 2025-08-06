@@ -27,7 +27,7 @@ class TicketModal extends Component
     
     public function abrirTicket($ticketId)
     {
-        $this->ticket = Ticket::with(['categoria', 'estado', 'user', 'mensajes.user'])
+        $this->ticket = Ticket::with(['categoria', 'estado', 'user', 'mensajes.user', 'documento'])
             ->findOrFail($ticketId);
             
         // Marcar mensajes como leídos si el usuario es el propietario del ticket
@@ -70,7 +70,7 @@ class TicketModal extends Component
         
         // Recargar el ticket con los mensajes actualizados
         $this->ticket->refresh();
-        $this->ticket->load(['mensajes.user']);
+        $this->ticket->load(['mensajes.user', 'documento']);
         
         $this->dispatch('ticketActualizado');
         

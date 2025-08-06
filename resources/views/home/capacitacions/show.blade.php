@@ -89,7 +89,7 @@
                                 </div>
                             </div>
                             <div class="flex-shrink-0">
-                                <a href="{{ Storage::disk('capacitaciones')->url($documento->file_storage) }}" 
+                                <a href="{{ route('home.capacitacions.documentos.download', $documento) }}"
                                    target="_blank"
                                    class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors">
                                     <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

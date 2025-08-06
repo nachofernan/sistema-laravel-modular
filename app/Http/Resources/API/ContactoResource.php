@@ -11,7 +11,7 @@ class ContactoResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'email' => $this->email,
+            'correo' => $this->correo,
             'telefono' => $this->telefono,
             // Agrega otros campos relevantes
         ];

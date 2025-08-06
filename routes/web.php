@@ -36,7 +36,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Descarga de documentación pública
 Route::get('/cats/{categoria}', [HomeController::class, 'documentoCategoria'])->name('home.documentos.categoria');
-Route::get('/docs/{documento}', [HomeController::class, 'documentoDownload'])->name('home.documentos.download');
+Route::get('/docs/{documento}', [HomeController::class, 'documentoDownload'])->name('home.documentos.download'); // Deprecated
+Route::get('/docs/{documento}/download', [HomeController::class, 'documentoDownloadWithLog'])->name('home.documentos.download-with-log');
 
 /* Route::get('/crearSuper', function() {
     //$role = Role::create(['name' => 'Super Admin']);
@@ -54,9 +55,10 @@ Route::middleware(['auth', 'PasswordExpiryCheck'])->prefix('home')->name('home.'
 
     Route::resource('tickets', TicketController::class)->names('tickets');
     Route::resource('mensajes', MensajeController::class)->names('mensajes');
-    Route::resource('capacitacions', CapacitacionController::class)->names('capacitacions');
     Route::resource('encuestas', EncuestaController::class)->names('encuestas');
 
+    Route::resource('capacitacions', CapacitacionController::class)->names('capacitacions');
+    Route::get('capacitacions/documentos/{documento}', [CapacitacionController::class, 'documentoDownload'])->name('capacitacions.documentos.download');
     Route::get('tickets/{ticket}/documentos', [TicketController::class, 'documentos'])->name('tickets.documentos');
 });
 

@@ -30,21 +30,13 @@ Authorization: Bearer {token}
     "success": true,
     "data": [
         {
-            "id": 123,
-            "tipo_documento": {
-                "id": 1,
-                "nombre": "Inscripción AFIP",
-                "codigo": "AFIP"
-            },
-            "vencimiento": "2024-12-31"
+            "id": 123, // ID documento
+            "nombre": "Inscripción AFIP", // Nombre tipo de documento
+            "vencimiento": "2024-12-31" // Vencimiento
         },
         {
             "id": 124,
-            "tipo_documento": {
-                "id": 2,
-                "nombre": "Constancia de Inscripción",
-                "codigo": "CONST"
-            }
+            "nombre": "Constancia de Inscripción",
         }
     ],
     "message": "Documentos obtenidos correctamente."

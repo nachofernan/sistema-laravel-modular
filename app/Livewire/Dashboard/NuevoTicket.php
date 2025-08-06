@@ -4,6 +4,7 @@ namespace App\Livewire\Dashboard;
 
 use App\Models\Tickets\Categoria;
 use App\Models\Tickets\Ticket;
+use App\Models\Tickets\Documento;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class NuevoTicket extends Component
     public $enviando = false;
     
     protected $rules = [
-        'categoria_id' => 'required|exists:ticket_categorias,id',
+        'categoria_id' => 'required',
         'notas' => 'required|min:10|max:1000',
         'documento' => 'nullable|file|max:10240' // 10MB max
     ];
@@ -58,25 +59,29 @@ class NuevoTicket extends Component
         try {
             $this->validate();
             
-            // Generar código único del ticket
-            do {
-                $codigo = strtoupper(Str::random(8));
-            } while (Ticket::where('codigo', $codigo)->exists());
-            
             // Crear el ticket
             $ticket = Ticket::create([
-                'codigo' => $codigo,
+                'codigo' => null,
                 'user_id' => Auth::id(),
                 'categoria_id' => $this->categoria_id,
                 'notas' => $this->notas,
                 'estado_id' => 1, // Estado inicial (abierto)
             ]);
+            $ticket->codigo = str_pad($ticket->id, 6, '0', STR_PAD_LEFT);
+            $ticket->save();
             
-            // Subir documento si existe
+            // Subir documento si existe usando Spatie Media Library
             if ($this->documento) {
-                $nombreDocumento = $codigo . '_' . $this->documento->getClientOriginalName();
-                $rutaDocumento = $this->documento->storeAs('tickets', $nombreDocumento, 'public');
-                $ticket->update(['documento' => $rutaDocumento]);
+                $documento = Documento::create([
+                    'archivo' => $ticket->codigo . '_' . $this->documento->getClientOriginalName(),
+                    'file_storage' => $this->documento->getClientOriginalName(),
+                    'ticket_id' => $ticket->id,
+                ]);
+                
+                $documento->addMedia($this->documento->getRealPath())
+                    ->usingName($this->documento->getClientOriginalName())
+                    ->usingFileName($ticket->codigo . '_' . $this->documento->getClientOriginalName())
+                    ->toMediaCollection('archivos', 'tickets');
             }
             
             // Limpiar formulario
@@ -86,15 +91,12 @@ class NuevoTicket extends Component
             $this->dispatch('ticketCreado');
             $this->dispatch('ticketActualizado');
             
-            session()->flash('mensaje_verde', 'Ticket #' . $codigo . ' creado exitosamente');
+            session()->flash('mensaje_verde', 'Ticket #' . $ticket->codigo . ' creado exitosamente');
             
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->enviando = false;
             throw $e;
-        } catch (\Exception $e) {
-            $this->enviando = false;
-            session()->flash('mensaje_error', 'Error al crear el ticket: ' . $e->getMessage());
-        }
+        } 
         
         $this->enviando = false;
     }

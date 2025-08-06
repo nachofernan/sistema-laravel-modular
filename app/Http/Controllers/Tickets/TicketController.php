@@ -106,8 +106,10 @@ class TicketController extends Controller
 
     public function documentos(Ticket $ticket)
     {
-        if($ticket->documento != null) {
-            $media = $ticket->documento->getFirstMedia('archivos');
+        $documento = $ticket->documento;
+        
+        if ($documento) {
+            $media = $documento->getFirstMedia('archivos');
             if ($media) {
                 return $media->toResponse(request());
             }

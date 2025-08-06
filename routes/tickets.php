@@ -12,6 +12,7 @@ Route::prefix('tickets')->name('tickets.')->group(function () {
 
     Route::group(['middleware' => ['role:Tickets/Acceso', 'PasswordExpiryCheck']], function () {
         
+        Route::get('tickets/{ticket}/documentos', [TicketController::class, 'documentos'])->name('tickets.documentos');
         Route::resource('tickets', TicketController::class)->names('tickets');
         Route::resource('mensajes', MensajeController::class)->names('mensajes');
 

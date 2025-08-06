@@ -17,9 +17,9 @@ class ProveedorResource extends JsonResource
             'webpage' => $this->webpage,
             'contactos' => ContactoResource::collection($this->whenLoaded('contactos')),
             'direcciones' => DireccionResource::collection($this->whenLoaded('direcciones')),
-            'documentos' => DocumentoResource::collection($this->whenLoaded('documentos')),
             'subrubros' => SubrubroResource::collection($this->whenLoaded('subrubros')),
             'apoderados' => ApoderadoResource::collection($this->whenLoaded('apoderados')),
+            'documentos' => DocumentoResource::collection($this->ultimosDocumentosValidados()),
         ];
     }
 } 

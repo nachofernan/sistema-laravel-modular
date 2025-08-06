@@ -17,8 +17,10 @@ Route::middleware('verify.jwt')->group(function () {
     Route::get('/proveedores/tipos-rubros', [ProveedorController::class, 'tiposRubros']);
     Route::get('/proveedores/{cuit}', [ProveedorController::class, 'show']);
     Route::get('/proveedores/{cuit}/documentos-validados', [ProveedorController::class, 'ultimosDocumentosValidados']);
+    Route::get('/proveedores/{cuit}/apoderados', [ProveedorController::class, 'apoderados']);
     Route::post('/proveedores/{cuit}/subrubros', [ProveedorController::class, 'syncSubrubros']);
     Route::post('/proveedores/{cuit}/documentos', [ProveedorController::class, 'subirDocumento']);
+    Route::post('/proveedores/{cuit}/apoderados', [ProveedorController::class, 'subirApoderado']);
     Route::get('/proveedores/{cuit}/documentos/{documento_id}/descargar', [ProveedorController::class, 'descargarDocumento']);
 
     // CONCURSOS

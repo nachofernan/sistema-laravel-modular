@@ -1,56 +1,66 @@
 <div>
-    {{-- Stop trying to control. --}}
-    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6 mt-4">
-        <div class="bg-gray-100 px-6 py-4 flex justify-between items-center">
-            <h2 class="text-lg font-medium text-gray-700">Contactos</h2>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center">
+                <svg class="h-5 w-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2a2 2 0 01-2-2v-6a2 2 0 012-2zM7 8H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2v-6a2 2 0 00-2-2z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900">Contactos</h3>
+            </div>
             @if(auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id())
-            @if ($concurso->estado->id < 3 && $concurso->fecha_cierre > now())
-            <button 
-                wire:click="$set('open_nuevo', true)" 
-                class="px-4 py-2 text-blue-600 text-sm hover:underline"
-            >
-                Agregar contacto
-            </button>
-            @endif
+                @if ($concurso->estado->id < 3 && $concurso->fecha_cierre > now())
+                    <button 
+                        wire:click="$set('open_nuevo', true)" 
+                        class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 mr-1">
+                            <path d="M8 4a.75.75 0 0 1 .75.75v2.5h2.5a.75.75 0 0 1 0 1.5h-2.5v2.5a.75.75 0 0 1-1.5 0v-2.5h-2.5a.75.75 0 0 1 0-1.5h2.5v-2.5A.75.75 0 0 1 8 4Z" />
+                        </svg>
+                        Agregar contacto
+                    </button>
+                @endif
             @endif
         </div>
-    
-        <div class="divide-y divide-gray-200">
+
+        <div class="px-6 py-4">
             @forelse ($concurso->contactos as $contacto)
-                <div class="px-6 py-2 hover:bg-gray-50 transition-colors">
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1">
-                            <div class="mt-2 space-y-1 text-gray-700">
-                                <div class="flex items-center">
-                                    <span class="mr-3 font-medium text-gray-600">{{ $contacto->nombre }}</span>
-                                    <span class="text-xs">
-                                        {{ $contacto->tipo == 'administrativo' ? 'Administrativo' : 'Técnico' }}
-                                    </span>
-                                </div>
-                                <div class="text-sm flex items-center">
-                                    <span class="mr-3 font-medium text-gray-600">{{ $contacto->correo }}</span>
-                                    <span>{{ $contacto->telefono }}</span>
-                                </div>
+                <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ $contacto->nombre }}</div>
+                            <div class="text-xs text-gray-500">{{ $contacto->correo }}</div>
+                            <div class="text-xs text-gray-500">{{ $contacto->telefono }}</div>
+                            <div class="text-xs text-gray-500">
+                                {{ $contacto->tipo == 'administrativo' ? 'Administrativo' : 'Técnico' }}
                             </div>
                         </div>
-                        @if(auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id())
-                        @if ($concurso->estado->id < 3 && $concurso->fecha_cierre > now())
-                        <button 
-                            wire:click="abrirYeditar({{$contacto->id}})"
-                            class="ml-4 text-blue-500 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-md transition-colors flex items-center text-sm"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Editar
-                        </button>
-                        @endif
-                        @endif
                     </div>
+                    @if(auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id())
+                        @if ($concurso->estado->id < 3 && $concurso->fecha_cierre > now())
+                            <button 
+                                wire:click="abrirYeditar({{$contacto->id}})"
+                                class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Editar
+                            </button>
+                        @endif
+                    @endif
                 </div>
             @empty
-                <div class="px-6 py-4 text-center text-gray-500">
-                    No hay contactos registrados
+                <div class="text-center py-8">
+                    <svg class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2a2 2 0 01-2-2v-6a2 2 0 012-2zM7 8H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2v-6a2 2 0 00-2-2z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No hay contactos</h3>
+                    <p class="text-gray-500">Los contactos del concurso aparecerán aquí.</p>
                 </div>
             @endforelse
         </div>

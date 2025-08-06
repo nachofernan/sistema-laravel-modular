@@ -8,10 +8,10 @@ class DocumentoResource extends JsonResource
 {
     public function toArray($request)
     {
-        $vencimiento = $this->documentoTipo->vencimiento && $this->vencimiento ? $this->vencimiento->format('Y-m-d') : null;
+        $vencimiento = $this->documentoTipo && $this->documentoTipo->vencimiento && $this->vencimiento ? $this->vencimiento->format('Y-m-d') : null;
         return [
             'id' => $this->id,
-            'nombre' => $this->documentoTipo->nombre,
+            'nombre' => $this->documentoTipo ? $this->documentoTipo->nombre : null,
             'vencimiento' => $vencimiento,
         ];
     }

@@ -36,24 +36,28 @@ class DocumentoController extends Controller
     public function store(Request $request)
     {
         //
-        $proveedor = Proveedor::find($request->all('proveedor_id')['proveedor_id']);
+        $proveedor = Proveedor::find($request->input('proveedor_id'));
 
         $documento = $proveedor->documentos()->create([
+            'archivo' => 'x',
+            'file_storage' => 'x',
+            'extension' => 'x',
+            'mimeType' => 'x',
             'user_id_created' => Auth::user()->id,
-            'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
-            'documento_tipo_id' => $request->all('documento_tipo_id')['documento_tipo_id'],
+            'vencimiento' => $request->input('vencimiento') ?? null,
+            'documento_tipo_id' => $request->input('documento_tipo_id'),
         ]);
 
         if ($request->hasFile('file')) {
             $media = $documento->addMediaFromRequest('file')
                 ->usingFileName($request->file('file')->getClientOriginalName())
-                ->toMediaCollection('archivos');
+                ->toMediaCollection('archivos', 'proveedores');
             
             // Guardar metadatos en el modelo Documento
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
+            $documento->file_storage = $request->file('file')->getClientOriginalName();
             $documento->save();
         }
 
@@ -75,6 +79,11 @@ class DocumentoController extends Controller
     public function show(Documento $documento)
     {
         //
+        $media = $documento->getFirstMedia('archivos');
+            if ($media) {
+                return $media->toResponse(request());
+            }
+            abort(404, 'Archivo no encontrado.');
     }
 
     /**
@@ -115,6 +124,26 @@ class DocumentoController extends Controller
     {
         //
         $proveedor = $documento->documentable;
+        
+        // Si el documento pertenece a un representante legal, verificar si es el último
+        if ($documento->documentable_type === 'App\Models\Proveedores\Apoderado') {
+            $apoderado = $documento->documentable;
+            if ($apoderado->tipo === 'representante') {
+                // Contar documentos validados del representante
+                $documentosValidados = $apoderado->documentos()
+                    ->whereHas('validacion', function($query) {
+                        $query->where('validado', true);
+                    })
+                    ->count();
+                
+                // Si este es el último documento validado, eliminar el representante
+                if ($documentosValidados <= 1) {
+                    $apoderado->delete();
+                    return redirect()->route('proveedores.proveedors.show', $proveedor)->with('info', 'Se eliminó el documento y el representante legal');
+                }
+            }
+        }
+        
         $documento->delete();
         return redirect()->route('proveedores.proveedors.show', $proveedor)->with('info', 'Se eliminó con éxito');
     }

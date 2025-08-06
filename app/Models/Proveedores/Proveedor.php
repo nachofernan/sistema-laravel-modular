@@ -263,6 +263,7 @@ class Proveedor extends Model
             ->where('documentable_type', 'App\Models\Proveedores\Proveedor')
             ->where('validacions.validado', true)
             ->whereNotNull('documento_tipo_id')
+            ->with('documentoTipo')
             ->orderBy('documento_tipo_id')
             ->orderBy('documentos.created_at', 'desc')
             ->get()

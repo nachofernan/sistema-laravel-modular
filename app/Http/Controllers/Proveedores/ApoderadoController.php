@@ -41,27 +41,32 @@ class ApoderadoController extends Controller
             'file' => 'required',
             'tipo' => 'required',
         ]);
+        
         $apoderado = Apoderado::create([
             'proveedor_id' => $request->input('proveedor_id'),
-            'nombre' => $request->input('nombre') ?? null,
+            'nombre' => $request->input('tipo') === 'representante' ? ($request->input('nombre') ?? null) : null,
             'tipo' => $request->input('tipo'),
         ]);
 
         if($request->file('file')) {
             $documento = $apoderado->documentos()->create([
+                'archivo' => 'x',
+                'file_storage' => 'x',
+                'extension' => 'x',
+                'mimeType' => 'x',
                 'user_id_created' => Auth::user()->id,
-                'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
+                'vencimiento' => $request->input('tipo') === 'representante' ? ($request->input('vencimiento') ?? null) : null,
             ]);
 
             $media = $documento->addMediaFromRequest('file')
                 ->usingFileName($request->file('file')->getClientOriginalName())
-                ->toMediaCollection('archivos');
+                ->toMediaCollection('archivos', 'proveedores');
             
             // Guardar metadatos en el modelo Documento
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
+            $documento->file_storage = $request->file('file')->getClientOriginalName();
             $documento->save();
 
             $documento->validacion()->create();
@@ -105,19 +110,23 @@ class ApoderadoController extends Controller
         ]);
         if($request->file('file')) {
             $documento = $apoderado->documentos()->create([
+                'archivo' => 'x',
+                'file_storage' => 'x',
+                'extension' => 'x',
+                'mimeType' => 'x',
                 'user_id_created' => Auth::user()->id,
-                'vencimiento' => $request->all('vencimiento')['vencimiento'] ?? null,
+                'vencimiento' => $apoderado->tipo === 'representante' ? ($request->input('vencimiento') ?? null) : null,
             ]);
 
             $media = $documento->addMediaFromRequest('file')
                 ->usingFileName($request->file('file')->getClientOriginalName())
-                ->toMediaCollection('archivos');
+                ->toMediaCollection('archivos', 'proveedores');
             
             // Guardar metadatos en el modelo Documento
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
+            $documento->file_storage = $request->file('file')->getClientOriginalName();
             $documento->save();
 
             $documento->validacion()->create();
@@ -140,7 +149,13 @@ class ApoderadoController extends Controller
     {
         //
         $proveedor = $apoderado->proveedor;
+        
+        // Eliminar todos los documentos del apoderado
+        foreach ($apoderado->documentos as $documento) {
+            $documento->delete();
+        }
+        
         $apoderado->delete();
-        return redirect()->route('proveedores.proveedors.show', $proveedor)->with('info', 'Se eliminó con éxito');
+        return redirect()->route('proveedores.proveedors.show', $proveedor)->with('info', 'Se eliminó el apoderado y todos sus documentos');
     }
 }

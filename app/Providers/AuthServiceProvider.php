@@ -11,7 +11,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         // Lógica para super-admin
         Gate::before(function ($user, $ability) {
-            return $user->hasRole('Plataforma/Admin') ? true : null;
+            return $user->isSuperAdmin() ? true : null;
         });
     }
 }

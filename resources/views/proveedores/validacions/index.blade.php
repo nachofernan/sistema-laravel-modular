@@ -64,7 +64,7 @@
 
                             <!-- Documento -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{Storage::disk('proveedores')->url($validacion->documento->file_storage)}}" 
+                                <a href="{{ route('proveedores.documentos.show', $validacion->documento) }}" 
                                     class="link-azul hover:text-blue-700 text-sm transition-colors" 
                                     target="_blank"
                                     x-tooltip="Ver documento">

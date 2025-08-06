@@ -8,11 +8,14 @@ class ApoderadoResource extends JsonResource
 {
     public function toArray($request)
     {
+        if (!$this->activo) {
+            return null;
+        }
+
         return [
-            'id' => $this->id,
+            'id' => $this->documentos(true)->latest()->first()->id,
             'nombre' => $this->nombre,
-            'documentos_validados' => DocumentoResource::collection($this->whenLoaded('documentosValidados')),
-            // Agrega otros campos relevantes
+            'tipo' => $this->tipo,
         ];
     }
 } 

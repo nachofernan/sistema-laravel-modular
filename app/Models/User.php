@@ -23,6 +23,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasPermissions;
 
 use App\Notifications\Auth\CustomResetPasswordNotification;
 
@@ -34,7 +35,7 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    use HasRoles;
+    use HasRoles, HasPermissions;
     use SoftDeletes;
 
     
@@ -98,15 +99,15 @@ class User extends Authenticatable
         return array_unique($retorno);
     }
 
-    public function hasRole($roles, $guard = null): bool
+    /**
+     * Verificar si el usuario es super-admin
+     */
+    public function isSuperAdmin(): bool
     {
-        // Si es super-admin, siempre retorna true
-        if ($this->roles->contains('name', 'Plataforma/Admin')) {
-            return true;
-        }
-        // Llama al método original de Spatie
-        return parent::hasRole($roles, $guard);
+        return $this->roles->contains('name', 'Plataforma/Admin');
     }
+
+
 
     /**
      * Un usuario tiene una seguridad en su contraseña

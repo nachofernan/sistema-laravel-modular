@@ -92,6 +92,14 @@ class Documento extends Model implements HasMedia
     /**
      * Retorna true si el documento es válido (validado, no vencido a una fecha dada).
      */
+    public function estaValidado()
+    {
+        return $this->validacion && $this->validacion->validado;
+    }
+
+    /**
+     * Retorna true si el documento es válido (validado, no vencido a una fecha dada).
+     */
     public function esValido($fecha = null)
     {
         $fecha = $fecha ? \Carbon\Carbon::parse($fecha) : now();
