@@ -23,6 +23,7 @@ use App\Http\Resources\API\DocumentoAdicionalResource;
 use App\Http\Requests\API\ConcursoCambiarIntencionRequest;
 use App\Http\Requests\API\ConcursoSubirDocumentoRequest;
 use App\Models\Media;
+use App\Services\ConcursoEncryptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -153,8 +154,18 @@ class ConcursoController extends Controller
         
         DB::beginTransaction();
         try {
+            Log::info('Iniciando subida de documento', [
+                'concurso_id' => $concurso_id,
+                'proveedor_id' => $proveedor_id,
+                'estado_concurso' => $concurso->estado_id,
+                'tiene_archivo' => $request->hasFile('file'),
+                'documento_tipo_id' => $request->documento_tipo_id
+            ]);
+            
             // Crear el documento en la base de datos con valores temporales
             $encriptado = $concurso->estado_id == 2;
+            Log::info('Documento será encriptado', ['encriptado' => $encriptado]);
+            
             $documento = new OfertaDocumento([
                 'invitacion_id' => $invitacion->id,
                 'documento_tipo_id' => $request->documento_tipo_id, // Puede ser null para documentos adicionales
@@ -168,18 +179,128 @@ class ConcursoController extends Controller
                 'comentarios' => $request->comentarios,
             ]);
             
+            // Guardar el documento ANTES de procesar el archivo para que Spatie Media Library tenga el ID
+            $documento->save();
+            
+            Log::info('Documento guardado en BD', [
+                'documento_id' => $documento->id,
+                'invitacion_id' => $documento->invitacion_id
+            ]);
+            
             // Procesar el archivo con Spatie Media Library
             if ($request->hasFile('file')) {
-                $media = $documento->addMediaFromRequest('file')
-                    ->usingFileName($request->file('file')->getClientOriginalName())
-                    ->toMediaCollection('archivos', 'concursos');
+                $originalFileName = $request->file('file')->getClientOriginalName();
+                $originalExtension = $request->file('file')->getClientOriginalExtension();
                 
-                // Actualizar metadatos en el modelo Documento
+                Log::info('Procesando archivo', [
+                    'archivo_original' => $originalFileName,
+                    'extension' => $originalExtension,
+                    'tamaño' => $request->file('file')->getSize(),
+                    'mime_type' => $request->file('file')->getMimeType()
+                ]);
+                
+                // Si el concurso está en estado activo, encriptar el archivo
+                if ($encriptado) {
+                    Log::info('Iniciando encriptación de archivo');
+                    
+                    // Crear nombre de archivo encriptado
+                    $encryptedFileName = $originalFileName . '.enc';
+                    
+                    // Guardar archivo temporalmente
+                    $tempPath = $request->file('file')->getRealPath();
+                    $encryptedPath = storage_path('app/temp/' . $encryptedFileName);
+                    
+                    Log::info('Rutas de archivos', [
+                        'temp_path' => $tempPath,
+                        'encrypted_path' => $encryptedPath,
+                        'temp_exists' => file_exists($tempPath),
+                        'temp_size' => file_exists($tempPath) ? filesize($tempPath) : 'N/A'
+                    ]);
+                    
+                    // Asegurar que el directorio temporal existe
+                    if (!file_exists(dirname($encryptedPath))) {
+                        mkdir(dirname($encryptedPath), 0755, true);
+                        Log::info('Directorio temporal creado', ['path' => dirname($encryptedPath)]);
+                    }
+                    
+                    // Encriptar el archivo
+                    Log::info('Iniciando encriptación con servicio');
+                    $encryptionService = new ConcursoEncryptionService();
+                    $encryptionResult = $encryptionService->encryptFile($tempPath, $encryptedPath);
+                    
+                    Log::info('Encriptación completada', [
+                        'resultado' => $encryptionResult,
+                        'archivo_encriptado_existe' => file_exists($encryptedPath),
+                        'archivo_encriptado_tamaño' => file_exists($encryptedPath) ? filesize($encryptedPath) : 'N/A'
+                    ]);
+                    
+                    // Agregar archivo encriptado a media library
+                    Log::info('Agregando archivo encriptado a media library');
+                    $media = $documento->addMedia($encryptedPath)
+                        ->usingFileName($encryptedFileName)
+                        ->toMediaCollection('archivos', 'concursos');
+                    
+                    Log::info('Media creado', [
+                        'media_id' => $media->id,
+                        'media_file_name' => $media->file_name,
+                        'media_path' => $media->getPath(),
+                        'media_exists' => file_exists($media->getPath())
+                    ]);
+                    
+                    // Limpiar archivo temporal (verificar que existe antes de eliminar)
+                    if (file_exists($encryptedPath)) {
+                        unlink($encryptedPath);
+                        Log::info('Archivo temporal eliminado');
+                    } else {
+                        Log::info('Archivo temporal ya no existe (probablemente movido por Spatie)');
+                    }
+                    
+                    Log::info('Documento encriptado subido exitosamente', [
+                        'documento_id' => $documento->id,
+                        'archivo_original' => $originalFileName,
+                        'archivo_encriptado' => $encryptedFileName,
+                        'concurso_id' => $concurso_id,
+                        'media_id' => $media->id
+                    ]);
+                } else {
+                    Log::info('Subiendo archivo sin encriptar');
+                    
+                    // Si no está encriptado, subir normalmente
+                    $media = $documento->addMediaFromRequest('file')
+                        ->usingFileName($originalFileName)
+                        ->toMediaCollection('archivos', 'concursos');
+                    
+                    Log::info('Media creado sin encriptar', [
+                        'media_id' => $media->id,
+                        'media_file_name' => $media->file_name,
+                        'media_path' => $media->getPath(),
+                        'media_exists' => file_exists($media->getPath())
+                    ]);
+                }
+                
+                // Actualizar metadatos en el modelo Documento (para ambos casos)
+                Log::info('Actualizando metadatos del documento', [
+                    'documento_id' => $documento->id,
+                    'media_file_name' => $media->file_name,
+                    'media_mime_type' => $media->mime_type,
+                    'media_extension' => $media->getExtensionAttribute(),
+                    'file_storage' => $originalFileName
+                ]);
+                
                 $documento->archivo = $media->file_name;
                 $documento->mimeType = $media->mime_type;
                 $documento->extension = $media->getExtensionAttribute();
-                $documento->file_storage = $request->file('file')->getClientOriginalName();
-                $documento->save();
+                $documento->file_storage = $originalFileName; // Guardar nombre original
+                $documento->save(); // Usar save() para persistir los cambios
+                
+                Log::info('Metadatos actualizados', [
+                    'documento_id' => $documento->id,
+                    'archivo' => $documento->archivo,
+                    'mimeType' => $documento->mimeType,
+                    'extension' => $documento->extension,
+                    'file_storage' => $documento->file_storage,
+                    'encriptado' => $documento->encriptado
+                ]);
             }
             
             DB::commit();
@@ -290,8 +411,8 @@ class ConcursoController extends Controller
         
         Log::info('Aplicando consistencia auditable en API - Fecha de cierre: ' . $fecha_cierre);
         
-        // Obtener tipos de documentos de oferta (de_concurso = false)
-        $tipos = DocumentoTipoConcurso::where('de_concurso', false)
+        // Obtener tipos de documentos de oferta específicamente asociados al concurso
+        $tipos = $concurso->documentos_requeridos()
             ->with('tipo_documento_proveedor')
             ->get();
         
@@ -369,8 +490,47 @@ class ConcursoController extends Controller
             ], 404);
         }
         
-        // Descargar el archivo como respuesta API (idéntico a proveedores)
-        return response()->download($media->getPath(), $media->file_name);
+        // Verificar si el archivo está encriptado
+        $encryptionService = new ConcursoEncryptionService();
+        $filePath = $media->getPath();
+        $isEncrypted = $encryptionService->isEncrypted($filePath);
+        
+        Log::info('Verificando archivo para descarga', [
+            'media_id' => $media->id,
+            'media_file_name' => $media->file_name,
+            'file_path' => $filePath,
+            'file_exists' => file_exists($filePath),
+            'file_size' => file_exists($filePath) ? filesize($filePath) : 'N/A',
+            'is_encrypted' => $isEncrypted,
+            'documento_file_storage' => $documento->file_storage,
+            'documento_encriptado' => $documento->encriptado
+        ]);
+        
+        // Determinar el nombre de archivo para la descarga
+        $downloadFileName = $documento->file_storage ?: $media->file_name;
+        
+        // Si el archivo está encriptado, desencriptar y enviar como stream
+        if ($isEncrypted) {
+            Log::info('Descargando archivo encriptado con streaming', [
+                'documento_id' => $documento->id,
+                'archivo_encriptado' => $media->file_name,
+                'archivo_descarga' => $downloadFileName
+            ]);
+            
+            return $encryptionService->decryptAndStream(
+                $filePath,
+                $downloadFileName,
+                $media->mime_type
+            );
+        } else {
+            // Si no está encriptado, descargar normalmente
+            Log::info('Descargando archivo sin encriptar', [
+                'documento_id' => $documento->id,
+                'archivo' => $media->file_name
+            ]);
+            
+            return response()->download($filePath, $downloadFileName);
+        }
     }
 
     /**

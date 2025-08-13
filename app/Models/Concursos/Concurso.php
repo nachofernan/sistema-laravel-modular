@@ -93,7 +93,9 @@ class Concurso extends Model
 
     public function documentos_requeridos()
     {
-        return $this->belongsToMany(DocumentoTipo::class, 'concurso_documento_tipo', 'concurso_id', 'documento_tipo_id')->orderByPivot('documento_tipo_id');
+        return $this->belongsToMany(DocumentoTipo::class, 'concurso_documento_tipo', 'concurso_id', 'documento_tipo_id')
+            ->where('de_concurso', false)
+            ->orderByPivot('documento_tipo_id');
     }
 
     public function contactos()

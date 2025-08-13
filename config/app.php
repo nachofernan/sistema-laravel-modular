@@ -107,6 +107,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Concurso Encryption Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is used specifically for encrypting/decrypting files uploaded
+    | to concursos (bids). Files are encrypted until the concurso status
+    | changes from active (2) to analysis (3).
+    |
+    */
+
+    'concurso_encryption_key' => env('CONCURSO_ENCRYPTION_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |

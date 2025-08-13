@@ -3,11 +3,11 @@
 namespace App\Livewire\Concursos\Concurso\Show;
 
 use App\Helpers\EmailHelper;
-use App\Http\Controllers\Encrypts\FileController;
 use App\Models\Concursos\Concurso;
 use App\Models\Usuarios\ManagedJob;
-use App\Services\FileEncryptionService;
+use App\Services\ConcursoEncryptionService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class AccionesConcurso extends Component
@@ -70,15 +70,27 @@ class AccionesConcurso extends Component
                 break;
                 
             case '3': //En análisis
-                // Se desencriptan los archivos y se guardan con su nuevo link
-                foreach ($this->concurso->invitaciones as $invitacion) {
-                    foreach($invitacion->documentos->where('encriptado', 1) as $doc_encrypt) {
-                        $fileController = new FileController(app(FileEncryptionService::class));
-                        $fileController->decryptAndSave($doc_encrypt->file_storage, 'concursos');
-                        $doc_encrypt->encriptado = 0;
-                        $doc_encrypt->file_storage = basename($doc_encrypt->file_storage);
-                        $doc_encrypt->save();
-                    }
+                // Desencriptar masivamente todos los documentos de ofertas válidas
+                try {
+                    $encryptionService = new ConcursoEncryptionService();
+                    $result = $encryptionService->bulkDecryptOfertas($this->concurso->id);
+                    
+                    Log::info('Desencriptación masiva completada', [
+                        'concurso_id' => $this->concurso->id,
+                        'documentos_desencriptados' => $result['decrypted_count'],
+                        'errores' => $result['errors']
+                    ]);
+                    
+                    // Mostrar mensaje de éxito
+                    session()->flash('success', "Se desencriptaron {$result['decrypted_count']} documentos y se limpiaron ofertas no presentadas.");
+                    
+                } catch (\Exception $e) {
+                    Log::error('Error en desencriptación masiva', [
+                        'concurso_id' => $this->concurso->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    
+                    session()->flash('error', 'Error al desencriptar documentos: ' . $e->getMessage());
                 }
                 
                 // Obtener proveedores que participaron (intencion != 2)
