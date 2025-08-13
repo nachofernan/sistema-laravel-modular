@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Encrypts\FileController;
 use App\Mail\Concursos\NuevoDocumento;
 use App\Models\Concursos\Concurso;
-use App\Models\Concursos\Documento;
+use App\Models\Concursos\ConcursoDocumento;
+use App\Models\Concursos\OfertaDocumento;
 use App\Models\Concursos\Invitacion;
 use App\Services\FileEncryptionService;
 use Illuminate\Http\Request;
@@ -37,16 +38,28 @@ class DocumentoController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $documento = new Documento([
-            'user_id_created' => Auth::user()->id,
-            'concurso_id' => $request->input('concurso_id') ? $request->input('concurso_id') : null,
-            'encriptado' => false,
-            'documento_tipo_id' => $request->input('documento_tipo_id') ? $request->input('documento_tipo_id') : null,
-            'invitacion_id' => $request->input('invitacion_id') ? $request->input('invitacion_id') : null,
-            'archivo' => 'x',
-            'file_storage' => 'x',
-        ]);
+        // Determinar si es un documento del concurso o de oferta
+        if ($request->input('concurso_id')) {
+            // Es un documento del concurso
+            $documento = new ConcursoDocumento([
+                'user_id_created' => Auth::user()->id,
+                'concurso_id' => $request->input('concurso_id'),
+                'documento_tipo_id' => $request->input('documento_tipo_id'),
+                'archivo' => 'x',
+                'file_storage' => 'x',
+            ]);
+        } else {
+            // Es un documento de oferta
+            $documento = new OfertaDocumento([
+                'invitacion_id' => $request->input('invitacion_id'),
+                'documento_tipo_id' => $request->input('documento_tipo_id'),
+                'documento_proveedor_id' => null,
+                'user_id_created' => Auth::user()->id,
+                'archivo' => 'x',
+                'file_storage' => 'x',
+                'encriptado' => false,
+            ]);
+        }
 
         if ($request->hasFile('file')) {
             $media = $documento->addMediaFromRequest('file')
@@ -109,9 +122,20 @@ class DocumentoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Documento $documento)
+    public function show($documento_id)
     {
-        if($documento->invitacion != null && $documento->invitacion->concurso->estado_id != 3) {
+        // Buscar en ambas tablas
+        $documento = ConcursoDocumento::find($documento_id);
+        if (!$documento) {
+            $documento = OfertaDocumento::find($documento_id);
+        }
+        
+        if (!$documento) {
+            abort(404, 'Documento no encontrado.');
+        }
+        
+        // Verificar autorización para documentos de oferta
+        if ($documento instanceof OfertaDocumento && $documento->invitacion->concurso->estado_id != 3) {
             abort(403, 'No autorizado');
         }
         
@@ -125,7 +149,7 @@ class DocumentoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Documento $documento)
+    public function edit($documento_id)
     {
         //
     }
@@ -133,7 +157,7 @@ class DocumentoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Documento $documento)
+    public function update(Request $request, $documento_id)
     {
         //
     }
@@ -141,16 +165,41 @@ class DocumentoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Documento $documento)
+    public function destroy($documento_id)
     {
-        //
-        $concurso = $documento->concurso;
+        // Buscar en ambas tablas
+        $documento = ConcursoDocumento::find($documento_id);
+        if (!$documento) {
+            $documento = OfertaDocumento::find($documento_id);
+        }
+        
+        if (!$documento) {
+            abort(404, 'Documento no encontrado.');
+        }
+        
+        // Obtener el concurso para la redirección
+        if ($documento instanceof ConcursoDocumento) {
+            $concurso = $documento->concurso;
+        } else {
+            $concurso = $documento->invitacion->concurso;
+        }
+        
         $documento->delete();
         return redirect()->route('concursos.concursos.show', $concurso)->with('info', 'Se eliminó con éxito');
     }
 
-    public function downloadDocument(Documento $documento)
+    public function downloadDocument($documento_id)
     {
+        // Buscar en ambas tablas
+        $documento = ConcursoDocumento::find($documento_id);
+        if (!$documento) {
+            $documento = OfertaDocumento::find($documento_id);
+        }
+        
+        if (!$documento) {
+            abort(404, 'Documento no encontrado.');
+        }
+        
         if (!$documento->encriptado) {
             // Lógica para documentos no encriptados con Spatie
             $media = $documento->getFirstMedia('archivos');

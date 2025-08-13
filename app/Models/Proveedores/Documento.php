@@ -107,4 +107,22 @@ class Documento extends Model implements HasMedia
         $noVencido = !$this->vencimiento || $this->vencimiento->gte($fecha);
         return $validado && $noVencido;
     }
+
+    /**
+     * Obtiene la URL del archivo usando Spatie Media Library
+     */
+    public function getFileUrlAttribute()
+    {
+        $media = $this->getFirstMedia('archivos');
+        return $media ? $media->getUrl() : null;
+    }
+
+    /**
+     * Obtiene el nombre del archivo usando Spatie Media Library
+     */
+    public function getFileNameAttribute()
+    {
+        $media = $this->getFirstMedia('archivos');
+        return $media ? $media->file_name : $this->archivo;
+    }
 }

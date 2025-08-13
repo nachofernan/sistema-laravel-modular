@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Concursos\Concurso\Show;
 
-use App\Models\Concursos\Documento;
+use App\Models\Concursos\OfertaDocumento;
 use App\Models\Concursos\Invitacion;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -35,7 +35,7 @@ class VerOferta extends Component
         }
         
         // Nombre de archivo más predecible
-        $zipFileName = 'documentos_' . $this->invitacion->id . '_' . now()->format('YmdHis') . '.zip';
+        $zipFileName = 'oferta_' . $this->concurso->id . '_' . $this->invitacion->proveedor->id . '_' . now()->format('YmdHis') . '.zip';
         $zipPath = $tempDir . '/' . $zipFileName;
 
         // Depuración de permisos y existencia de directorio
@@ -48,59 +48,67 @@ class VerOferta extends Component
         $resultado = $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
         if ($resultado === TRUE) {
-            /* // Obtener todos los documentos de la invitación
-            $documentos = $this->invitacion->documentos;
+            $documentosAgregados = 0;
             
-            foreach ($documentos as $documento) {
-                // Verificar existencia del archivo
-                $filePath = Storage::disk('concursos')->path($documento->file_storage);
-                
-                if (file_exists($filePath)) {
-                    // Usar nombre descriptivo en el ZIP
-                    $nombreEnZip = $documento->nombre ? $documento->nombre : 'documento_' . $documento->id . '.pdf';
-                    $zip->addFile($filePath, $nombreEnZip);
-                } else {
-                    Log::warning('Archivo no encontrado: ' . $filePath);
-                }
-            } */
-            $documentosTiposIncluidos = [];
+            // CRÍTICO: Para mantener consistencia auditable, solo se incluyen documentos del proveedor
+            // que estaban válidos y cargados ANTES del cierre del concurso
+            // Los documentos de oferta se incluyen todos sin restricción de fecha
+            Log::info("Generando ZIP para oferta - Fecha de cierre: " . $this->concurso->fecha_cierre);
 
-            // Documentos específicos de la invitación (prioridad máxima)
+            // 1. Documentos de oferta (OfertaDocumento) - Prioridad máxima
+            // Los documentos de oferta se incluyen todos, sin filtro de fecha, porque son parte de la oferta específica
             foreach ($this->invitacion->documentos as $documento) {
-                // Solo incluir si es válido para la oferta (validado, no vencido, cargado antes del cierre)
-                if (method_exists($documento, 'esValidoParaOferta') && $documento->esValidoParaOferta($this->concurso->fecha_cierre)) {
-                    $filePath = Storage::disk('concursos')->path($documento->file_storage);
-                    if (file_exists($filePath)) {
-                        if($documento->documento_tipo_id) {
-                            $tipo_documento = Str::slug($documento->documentoTipo->nombre, '_');
-                        } else {
-                            $tipo_documento = 'otros_documentos';
-                            if($documento->user_id_created) {
-                                $tipo_documento .= '_baesa';
-                            }
-                        }
-                        $nombreEnZip = $documento->nombre ? $documento->nombre : $tipo_documento . '_' . $documento->id . '.pdf';
-                        $zip->addFile($filePath, 'Concurso_' . $nombreEnZip);
-                        $documentosTiposIncluidos[] = $documento->documento_tipo_id;
+                $media = $documento->getFirstMedia('archivos');
+                if ($media && $media->getPath()) {
+                    // Determinar el tipo de documento
+                    $tipoDocumento = 'otros';
+                    if ($documento->documento_tipo_id && $documento->documentoTipo) {
+                        $tipoDocumento = Str::slug($documento->documentoTipo->nombre, '_');
+                    } elseif ($documento->user_id_created) {
+                        $tipoDocumento = 'adicional_baesa';
+                    } else {
+                        $tipoDocumento = 'adicional_proveedor';
                     }
+                    
+                    // Limitar a 20 caracteres
+                    $tipoDocumento = substr($tipoDocumento, 0, 20);
+                    
+                    // Generar nombre del archivo: Concurso-{tipo}-{id_media}
+                    $nombreEnZip = 'Concurso-' . $tipoDocumento . '-' . $media->id . '.' . $media->getExtensionAttribute();
+                    
+                    $zip->addFile($media->getPath(), $nombreEnZip);
+                    $documentosAgregados++;
+                    Log::info("Documento de oferta agregado: {$nombreEnZip} (cargado: {$documento->created_at})");
                 }
             }
-    
-            // Documentos del proveedor para completar
+
+            // 2. Documentos del proveedor para completar los requeridos
             foreach ($this->concurso->documentos_requeridos as $documentoTipo) {
-                // Si ya no está incluido
-                if (!in_array($documentoTipo->id, $documentosTiposIncluidos)) {
-                    if ($documentoTipo->tipo_documento_proveedor) {
-                        // Usar el nuevo método para traer el documento válido a la fecha de cierre
-                        $documentoProveedor = $this->invitacion->proveedor->traer_documento_valido($documentoTipo->tipo_documento_proveedor->id, $this->concurso->fecha_cierre);
-                        if ($documentoProveedor && file_exists(Storage::disk('proveedores')->path($documentoProveedor->file_storage))) {
-                            $filePath = Storage::disk('proveedores')->path($documentoProveedor->file_storage);
-                            if (file_exists($filePath)) {
-                                $tipo_documento = Str::slug($documentoProveedor->documentoTipo->nombre, '_');
-                                $nombreEnZip = $documentoProveedor->nombre ? $documentoProveedor->nombre : $tipo_documento . '_' . $documentoProveedor->id . '.pdf';
-                                $zip->addFile($filePath, 'Proveedor_' . $nombreEnZip);
-                                $documentosTiposIncluidos[] = $documentoProveedor->documento_tipo_id;
-                            }
+                // Verificar si ya existe un documento de oferta para este tipo
+                $documentoOfertaExistente = $this->invitacion->documentos()
+                    ->where('documento_tipo_id', $documentoTipo->id)
+                    ->first();
+                
+                // Solo agregar documento de proveedor si no hay documento de oferta
+                if (!$documentoOfertaExistente && $documentoTipo->tipo_documento_proveedor) {
+                    $documentoProveedor = $this->invitacion->proveedor->traer_documento_valido(
+                        $documentoTipo->tipo_documento_proveedor->id, 
+                        $this->concurso->fecha_cierre
+                    );
+                    
+                    if ($documentoProveedor) {
+                        $media = $documentoProveedor->getFirstMedia('archivos');
+                        if ($media && $media->getPath()) {
+                            // Obtener el nombre del tipo de documento del proveedor
+                            $tipoDocumento = Str::slug($documentoProveedor->documentoTipo->nombre, '_');
+                            $tipoDocumento = substr($tipoDocumento, 0, 20);
+                            
+                            // Generar nombre del archivo: Proveedor-{tipo}-{id_media}
+                            $nombreEnZip = 'Proveedor-' . $tipoDocumento . '-' . $media->id . '.' . $media->getExtensionAttribute();
+                            
+                            $zip->addFile($media->getPath(), $nombreEnZip);
+                            $documentosAgregados++;
+                            Log::info("Documento de proveedor agregado: {$nombreEnZip} (cargado: {$documentoProveedor->created_at})");
                         }
                     }
                 }
@@ -108,12 +116,13 @@ class VerOferta extends Component
             
             $zip->close();
             
-            // Verificar que el ZIP se creó correctamente
-            if (file_exists($zipPath)) {
+            // Verificar que el ZIP se creó correctamente y tiene contenido
+            if (file_exists($zipPath) && $documentosAgregados > 0) {
+                Log::info("ZIP creado exitosamente con {$documentosAgregados} documentos");
                 return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
             } else {
-                Log::error('No se pudo crear el archivo ZIP');
-                return back()->with('error', 'No se pudo crear el archivo de descarga');
+                Log::error('No se pudo crear el archivo ZIP o está vacío');
+                return back()->with('error', 'No se encontraron documentos para descargar');
             }
         } else {
             // Depurar el error específico de ZipArchive

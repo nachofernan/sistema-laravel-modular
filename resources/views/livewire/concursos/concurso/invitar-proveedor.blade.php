@@ -27,7 +27,6 @@
                                     class="hover:text-blue-600">
                                     {{ $invitacion->proveedor->razonsocial }}
                                 </a>
-                                <span class="text-gray-500 text-xs">{{ $invitacion->proveedor->cuit }}</span>
                             </div>
                             <div class="text-xs text-gray-500">
                                 <a href="mailto:{{ $invitacion->proveedor->correo }}"
@@ -35,6 +34,7 @@
                                 <br>
                                 <span class="font-medium text-red-600">
                                     {{ $invitacion->proveedor->estado->estado }}
+                                    <span class="text-gray-500 text-xs"> - {{ $invitacion->proveedor->cuit }}</span>
                                 </span>
                                 @if ($invitacion->proveedor->falta_a_vencimiento() < 0)
                                     <span class="ml-2 text-red-600 font-bold text-xs">Doc.

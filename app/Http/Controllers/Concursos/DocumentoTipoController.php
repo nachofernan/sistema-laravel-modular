@@ -40,7 +40,6 @@ class DocumentoTipoController extends Controller
             [
                 'nombre' =>'required',
                 'descripcion' => '',
-                'encriptado' => 'required',
                 'obligatorio' => 'required',
                 'de_concurso' => 'required',
             ]
@@ -81,7 +80,6 @@ class DocumentoTipoController extends Controller
             [
                 'nombre' =>'required',
                 'descripcion' => '',
-                'encriptado' => 'required',
                 'obligatorio' => 'required',
                 'de_concurso' => 'required',
             ]

@@ -48,8 +48,9 @@
                             @endif
                         </div>
                         @if ($proveedorDocumento)
+                            @if ($proveedorDocumento->file_url)
                             <a 
-                            href="{{Storage::disk('proveedores')->url($proveedorDocumento->file_storage)}}" 
+                            href="{{$proveedorDocumento->file_url}}" 
                             class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center" 
                             target="_blank">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,30 +58,44 @@
                                 </svg>
                                 Descargar
                             </a>
+                            @else
+                            <span class="text-red-500 text-sm">Archivo no disponible</span>
+                            @endif
                         @endif
                     </div>
                     @endif
                     
                     <div class="px-6 py-2">
-                        @foreach ($invitacion->documentos_con_tipo_id($documento_tipo->id) as $documento)
-                            @if (method_exists($documento, 'esValidoParaOferta') && $documento->esValidoParaOferta($concurso->fecha_cierre))
-                            <div class="flex justify-between items-center py-2 border-t border-gray-100">
-                                <div class="text-sm text-gray-600">
-                                    Cargado {{$documento->created_at->format('d-m-Y H:i')}}
-                                    <span class="ml-2 px-2 py-1 bg-green-500 text-white rounded-full text-xs">Válido</span>
+                        @php
+                            $documentosOferta = $invitacion->documentos_con_tipo_id($documento_tipo->id);
+                        @endphp
+                        @if($documentosOferta->count() > 0)
+                            @foreach ($documentosOferta as $documento)
+                                <div class="flex justify-between items-center py-2 border-t border-gray-100">
+                                    <div class="text-sm text-gray-600">
+                                        Cargado {{$documento->created_at->format('d-m-Y H:i')}}
+                                        <span class="ml-2 px-2 py-1 bg-green-500 text-white rounded-full text-xs">Documento de Oferta</span>
+                                    </div>
+                                    @if ($documento->file_url)
+                                    <a 
+                                    href="{{$documento->file_url}}" 
+                                    class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center" 
+                                    target="_blank">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Descargar
+                                    </a>
+                                    @else
+                                    <span class="text-red-500 text-sm">Archivo no disponible</span>
+                                    @endif
                                 </div>
-                                <a 
-                                href="{{Storage::disk('concursos')->url($documento->file_storage)}}" 
-                                class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center" 
-                                target="_blank">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Descargar
-                                </a>
+                            @endforeach
+                        @else
+                            <div class="text-sm text-gray-500 py-2">
+                                No se han cargado documentos para este tipo
                             </div>
-                            @endif
-                        @endforeach
+                        @endif
                     </div>
                 </div>
                 @endforeach
@@ -94,14 +109,14 @@
                     
                     <div class="px-6 py-2">
                         @foreach ($invitacion->documentos_sin_tipo_id() as $documento)
-                            @if (method_exists($documento, 'esValidoParaOferta') && $documento->esValidoParaOferta($concurso->fecha_cierre))
                             <div class="flex justify-between items-center py-2 border-t border-gray-100">
                                 <div class="text-sm text-gray-600">
                                     Cargado {{$documento->created_at->format('d-m-Y H:i')}}
-                                    <span class="ml-2 px-2 py-1 bg-green-500 text-white rounded-full text-xs">Válido</span>
+                                    <span class="ml-2 px-2 py-1 bg-green-500 text-white rounded-full text-xs">Documento Adicional</span>
                                 </div>
+                                @if ($documento->file_url)
                                 <a 
-                                href="{{Storage::disk('concursos')->url($documento->file_storage)}}" 
+                                href="{{$documento->file_url}}" 
                                 class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center" 
                                 target="_blank">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,8 +124,10 @@
                                     </svg>
                                     Descargar
                                 </a>
+                                @else
+                                <span class="text-red-500 text-sm">Archivo no disponible</span>
+                                @endif
                             </div>
-                            @endif
                         @endforeach
                     </div>
                 </div>
@@ -132,8 +149,9 @@
                                 <span class="bg-yellow-100 text-yellow-800 text-xs font-medium ml-2 px-2 py-0.5 rounded">BAESA</span>
                                 @endif
                             </div>
+                            @if ($documento->file_url)
                             <a 
-                            href="{{Storage::disk('concursos')->url($documento->file_storage)}}" 
+                            href="{{$documento->file_url}}" 
                             class="text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center" 
                             target="_blank">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,6 +159,9 @@
                                 </svg>
                                 Descargar
                             </a>
+                            @else
+                            <span class="text-red-500 text-sm">Archivo no disponible</span>
+                            @endif
                         </div>
                         @endforeach
                     </div>

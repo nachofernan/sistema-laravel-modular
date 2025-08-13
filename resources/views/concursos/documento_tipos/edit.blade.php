@@ -54,15 +54,6 @@
                                         <small class="text-xs italic text-gray-600">Las siguientes opciones sólo se utilizan para los documentos de ofertas</small>
                                     </div>
                                     <div class="atributo-edit">
-                                        Encriptado por defecto
-                                    </div>
-                                    <div class="valor-edit">
-                                        <select name="encriptado" class="input-full">
-                                            <option value="0" @selected($documento_tipo->encriptado == 0)>No</option>
-                                            <option value="1" @selected($documento_tipo->encriptado == 1)>Si</option>
-                                        </select>
-                                    </div>
-                                    <div class="atributo-edit">
                                         Obligatorio en Ofertas
                                     </div>
                                     <div class="valor-edit">

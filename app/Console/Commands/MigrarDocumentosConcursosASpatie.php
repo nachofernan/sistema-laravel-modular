@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Concursos\Documento;
+use App\Models\Concursos\ConcursoDocumento;
+use App\Models\Concursos\OfertaDocumento;
 use Illuminate\Support\Facades\Storage;
 
 class MigrarDocumentosConcursosASpatie extends Command
@@ -14,7 +15,7 @@ class MigrarDocumentosConcursosASpatie extends Command
     public function handle()
     {
         $this->info('Iniciando migración de documentos de concursos a Spatie Media Library...');
-        $documentos = Documento::all();
+        $documentos = ConcursoDocumento::all()->merge(OfertaDocumento::all());
         $migrados = 0;
         $errores = 0;
         $encriptados = 0;

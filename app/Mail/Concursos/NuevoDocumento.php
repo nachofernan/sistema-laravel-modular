@@ -3,7 +3,8 @@
 namespace App\Mail\Concursos;
 
 use App\Models\Concursos\Concurso;
-use App\Models\Concursos\Documento;
+use App\Models\Concursos\ConcursoDocumento;
+use App\Models\Concursos\OfertaDocumento;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -18,7 +19,7 @@ class NuevoDocumento extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public Documento $documento,)
+    public function __construct(public $documento,)
     {
         //
     }

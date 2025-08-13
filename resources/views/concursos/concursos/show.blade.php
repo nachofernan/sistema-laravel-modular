@@ -276,7 +276,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <a 
-                                        href="{{ route('concursos.documentos.show', $documento) }}" 
+                                        href="{{ route('concursos.documentos.show', $documento->id) }}" 
                                         target="_blank"
                                         class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
                                         aria-label="Descargar documento {{$documento->documentoTipo->nombre}}"
@@ -288,7 +288,7 @@
                                         Descargar
                                     </a>
                                     @if ($concurso->estado->id == 1)
-                                        <form action="{{ route('concursos.documentos.destroy', $documento) }}" method="post" class="inline">
+                                        <form action="{{ route('concursos.documentos.destroy', $documento->id) }}" method="post" class="inline">
                                             @csrf
                                             @method('delete')
                                             <button 

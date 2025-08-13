@@ -25,8 +25,17 @@ Route::middleware('verify.jwt')->group(function () {
 
     // CONCURSOS
     Route::get('/concursos', [ConcursoController::class, 'index']);
+    Route::get('/concursos/tipos-documentos', [ConcursoController::class, 'tiposDocumentos']);
+    Route::get('/concursos/{concurso_id}/tipos-documentos-oferta', [ConcursoController::class, 'tiposDocumentosOferta']);
     Route::get('/concursos/{concurso_id}', [ConcursoController::class, 'show']);
     Route::patch('/concursos/{concurso_id}/invitacion', [ConcursoController::class, 'cambiarIntencion']);
     Route::post('/concursos/{concurso_id}/documentos', [ConcursoController::class, 'subirDocumento']);
+    Route::delete('/concursos/{concurso_id}/documentos/{documento_id}', [ConcursoController::class, 'eliminarDocumento']);
+    Route::delete('/concursos/{concurso_id}/oferta', [ConcursoController::class, 'darBajaOferta']);
+    Route::get('/concursos/{concurso_id}/documentos', [ConcursoController::class, 'documentosInvitacion']);
+    Route::get('/concursos/{concurso_id}/documentos/{documento_id}/descargar', [ConcursoController::class, 'descargarDocumento']);
     Route::get('/concursos/{concurso_id}/documentos/{documento_tipo_id}/verificar', [ConcursoController::class, 'verificarDocumentoProveedor']);
+    
+    // DOCUMENTOS ADICIONALES
+    Route::get('/concursos/{concurso_id}/documentos-adicionales', [ConcursoController::class, 'documentosAdicionales']);
 }); 
