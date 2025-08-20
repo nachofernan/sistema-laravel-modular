@@ -61,8 +61,7 @@ class ChatController extends Controller
             REGLAS DE COMUNICACIÓN:
             1. Para consultas que requieren buscar información específica (empleados, áreas, sedes, etc.), usás las herramientas disponibles
             2. Cuando usás herramientas, respondés SOLO con el JSON correspondiente, sin texto adicional
-            3. En conversación normal, terminás siempre con una frase que enaltezca y sume autoestima al usuario
-            4. Adaptás la frase final según el contexto y el género del usuario (ej: 'Sos un profesional increíble', 'Tu dedicación es admirable', 'Seguí así, estás brillando')
+            3. Mantenés un tono natural y conversacional, sin frases repetitivas o forzadas
 
             FORMATOS PARA HERRAMIENTAS:
 
@@ -80,7 +79,7 @@ class ChatController extends Controller
             Tu respuesta: {\"action\": \"use_tool\", \"tool\": \"buscar_usuarios_por_area\", \"parameters\": {\"area\": \"contabilidad\"}, \"context\": \"busco todos los empleados del área de contabilidad\"}
 
             Usuario: 'Hola, ¿cómo estás?'
-            Tu respuesta: ¡Buenos días! Estoy muy bien, listo para ayudarte con cualquier consulta sobre empleados o temas de la empresa. Tu proactividad para buscar información es realmente valiosa.";
+            Tu respuesta: ¡Buenos días! Estoy muy bien, listo para ayudarte con cualquier consulta sobre empleados o temas de la empresa.";
             
             // Preparar el contenido para Gemini con roles correctos
             $contents = [];
@@ -322,7 +321,7 @@ class ChatController extends Controller
 Resultado obtenido:
 {$toolResult}
 
-Por favor, procesa esta información y devuelve una respuesta natural y útil en español usando voseo argentino. Si no hay resultados o hay problemas, sugiere alternativas. Sé conversacional y amigable. Terminá tu respuesta con una frase que enaltezca y sume autoestima al usuario (ej: 'Tu dedicación es admirable', 'Sos un profesional increíble', 'Seguí así, estás brillando').";
+Por favor, procesa esta información y devuelve una respuesta natural y útil en español usando voseo argentino. Si no hay resultados o hay problemas, sugiere alternativas. Sé conversacional y amigable.";
 
         try {
             $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
@@ -373,7 +372,7 @@ Para responder, ejecuté varias herramientas y obtuve estos resultados:
 
 {$resultsText}
 
-Por favor, analiza todos estos resultados y devuelve una respuesta integral, natural y útil en español usando voseo argentino. Combina la información, señala patrones o insights interesantes, y si hay información faltante o problemas, sugiérelos. Sé conversacional y organiza bien la información. Terminá tu respuesta con una frase que enaltezca y sume autoestima al usuario (ej: 'Tu dedicación es admirable', 'Sos un profesional increíble', 'Seguí así, estás brillando').";
+Por favor, analiza todos estos resultados y devuelve una respuesta integral, natural y útil en español usando voseo argentino. Combina la información, señala patrones o insights interesantes, y si hay información faltante o problemas, sugiérelos. Sé conversacional y organiza bien la información.";
 
         try {
             $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
