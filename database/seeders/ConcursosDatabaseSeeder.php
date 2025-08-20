@@ -40,7 +40,7 @@ class ConcursosDatabaseSeeder extends Seeder
         DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Planos', ]);
         DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Anexo I - Seguros', ]);
         DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Anexo III  Requerimientos SH, Salud Ocupacional y Ambiente', ]);
-        DocumentoTipo::create(['de_concurso' => false, 'encriptado' => true, 'nombre' => 'Planilla de Cotización', ]);
+        DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Planilla de Cotización', ]);
         DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Formulario de Declaración Jurada de Garantía Técnica', ]);
         DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Formulario de Declaración Jurada de Datos del Proveedor.', ]);
         DocumentoTipo::create(['de_concurso' => false, 'nombre' => 'Formulario de DDJJ Programa de Integridad y Política de Anticorrupción', ]);
