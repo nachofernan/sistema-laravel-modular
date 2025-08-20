@@ -48,7 +48,7 @@
                 @livewire('dashboard.mis-tickets')
             
             <!-- Componente: Chat Assistant -->
-                @livewire('dashboard.chat-assistant')
+               {{--  @livewire('dashboard.chat-assistant') --}}
             
         </div>
     </div>

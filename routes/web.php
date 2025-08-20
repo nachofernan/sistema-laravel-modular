@@ -80,6 +80,9 @@ Route::middleware(['auth', 'PasswordExpiryCheck'])->group(function () {
             require base_path("routes/{$moduloLower}.php");
         }
     }
+    
+    // Ruta para TitoBot
+    Route::get('/titobot', [ChatController::class, 'titobot'])->name('titobot');
 });
 
 Route::get('/forgot-password', [PasswordResetController::class, 'forgotPassword'])
@@ -99,5 +102,5 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])
     ->name('password.update');
 
 
-    Route::post('/chat/send', [ChatController::class, 'send']);
-    Route::post('/chat/clear', [ChatController::class, 'clearHistory']);
+    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+    Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');

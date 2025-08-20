@@ -14,6 +14,11 @@ class ChatController extends Controller
         return view('chat');
     }
 
+    public function titobot()
+    {
+        return view('titobot');
+    }
+
     public function send(Request $request)
     {
         $message = $request->input('message');
@@ -66,26 +71,39 @@ class ChatController extends Controller
             Usuario: 'Hola, ¿cómo estás?'
             Tu respuesta: ¡Hola! Estoy bien, listo para ayudarte con cualquier consulta sobre empleados. Sos un tigre.";
             
-            $messages = [
-                ['role' => 'system', 'content' => $systemPrompt]
+            // Preparar el contenido para Gemini con roles correctos
+            $contents = [];
+            
+            // Agregar el prompt del sistema como primer mensaje del usuario
+            $contents[] = [
+                'role' => 'user',
+                'parts' => [
+                    ['text' => $systemPrompt]
+                ]
             ];
             
-            // Agregar todo el historial de conversación
-            $messages = array_merge($messages, $conversation);
+            // Agregar el historial de conversación con roles correctos
+            foreach ($conversation as $msg) {
+                $contents[] = [
+                    'role' => $msg['role'] === 'user' ? 'user' : 'model',
+                    'parts' => [
+                        ['text' => $msg['content']]
+                    ]
+                ];
+            }
             
-            $response = $client->post('https://openrouter.ai/api/v1/chat/completions', [
+            $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+                    'X-goog-api-key' => env('GEMINI_API_KEY'),
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'deepseek/deepseek-r1-0528:free',
-                    'messages' => $messages
+                    'contents' => $contents
                 ]
             ]);
 
             $data = json_decode($response->getBody(), true);
-            $reply = $data['choices'][0]['message']['content'];
+            $reply = $data['candidates'][0]['content']['parts'][0]['text'];
             
             // Verificar si la IA quiere usar una herramienta
             $finalReply = $this->processAIResponse($reply);
@@ -296,22 +314,31 @@ Resultado obtenido:
 Por favor, procesa esta información y devuelve una respuesta natural y útil en español. Si no hay resultados o hay problemas, sugiere alternativas. Sé conversacional y amigable. Terminá tu respuesta con \"Sos un Tigre\" o algo que lo enaltezca (en relación al género).";
 
         try {
-            $response = $client->post('https://openrouter.ai/api/v1/chat/completions', [
+            $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+                    'X-goog-api-key' => env('GEMINI_API_KEY'),
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'deepseek/deepseek-r1-0528:free',
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'Eres un asistente útil que procesa resultados de consultas y los presenta de manera amigable en español.'],
-                        ['role' => 'user', 'content' => $prompt]
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => 'Eres un asistente útil que procesa resultados de consultas y los presenta de manera amigable en español.']
+                            ]
+                        ],
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => $prompt]
+                            ]
+                        ]
                     ]
                 ]
             ]);
 
             $data = json_decode($response->getBody(), true);
-            return $data['choices'][0]['message']['content'];
+            return $data['candidates'][0]['content']['parts'][0]['text'];
             
         } catch (\Exception $e) {
             return $toolResult . "\n\n(Error al procesar la respuesta con IA: " . $e->getMessage() . ")";
@@ -338,22 +365,31 @@ Para responder, ejecuté varias herramientas y obtuve estos resultados:
 Por favor, analiza todos estos resultados y devuelve una respuesta integral, natural y útil en español. Combina la información, señala patrones o insights interesantes, y si hay información faltante o problemas, sugiérelos. Sé conversacional y organiza bien la información. Terminá tu respuesta con \"Sos un Tigre\" o algo que lo enaltezca (en relación al género).";
 
         try {
-            $response = $client->post('https://openrouter.ai/api/v1/chat/completions', [
+            $response = $client->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . env('OPENROUTER_API_KEY'),
+                    'X-goog-api-key' => env('GEMINI_API_KEY'),
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'model' => 'deepseek/deepseek-r1-0528:free',
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'Eres un asistente útil que analiza múltiples resultados de consultas y los presenta de manera integral y amigable en español.'],
-                        ['role' => 'user', 'content' => $prompt]
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => 'Eres un asistente útil que analiza múltiples resultados de consultas y los presenta de manera integral y amigable en español.']
+                            ]
+                        ],
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => $prompt]
+                            ]
+                        ]
                     ]
                 ]
             ]);
 
             $data = json_decode($response->getBody(), true);
-            return $data['choices'][0]['message']['content'];
+            return $data['candidates'][0]['content']['parts'][0]['text'];
             
         } catch (\Exception $e) {
             $fallback = "Resultados obtenidos:\n\n";
