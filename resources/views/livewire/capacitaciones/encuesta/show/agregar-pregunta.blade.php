@@ -78,7 +78,7 @@
 
                 <!-- Formulario -->
                 <form action="{{ route('capacitaciones.preguntas.store') }}" method="POST" 
-                      @submit="console.log('Enviando formulario:', { pregunta: pregunta_texto, tipo_pregunta: tipo_pregunta, opciones: opciones })"
+                      @submit="console.log('Enviando formulario:', { pregunta: pregunta_texto, tipo_pregunta: tipo_pregunta, opciones: opciones })">
                     @csrf
                     <input type="hidden" name="encuesta_id" value="{{ $encuesta->id }}">
                     
