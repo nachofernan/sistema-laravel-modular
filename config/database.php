@@ -139,9 +139,15 @@ return [
             'database' => 'mesadeentradas',
         ]),
 
-        'fichadas' => array_merge(require __DIR__.'/database_prod.php', [
-            'database' => 'fichadas',
+        'fichadas' => array_merge(require __DIR__.'/database_default.php', [
+            'database' => env('DB_DATABASE_FICHADAS', 'forge'),
+            'username' => env('DB_USERNAME_FICHADAS', 'forge'),
+            'password' => env('DB_PASSWORD_FICHADAS', ''),
         ]),
+
+        /* 'fichadas' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'fichadas',
+        ]), */
 
         /* 'fichadas' => [
             'driver' => 'mysql',
