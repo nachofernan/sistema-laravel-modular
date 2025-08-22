@@ -116,7 +116,7 @@
             <nav class="mt-4 px-3 space-y-1 overflow-y-auto h-full pb-20 flex-1 flex flex-col"
                  :class="{ 'px-1': !isContentVisible() }">
                 <div class="flex-1" x-show="isContentVisible()">
-                    @include('layouts.partials.sidebar-navigation')
+                    @include('layouts.partials.sidebar-navigation-new')
                 </div>
                 
                 {{-- FOOTER PEGADO AL FONDO --}}

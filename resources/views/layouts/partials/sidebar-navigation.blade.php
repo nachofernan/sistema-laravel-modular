@@ -107,11 +107,19 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 
 {{-- Módulo: Usuarios --}}
 @canany(['Usuarios/Usuarios/Ver', 'Usuarios/Areas/Ver', 'Usuarios/Sedes/Ver', 'Usuarios/Modulos/Ver'])
+@php
+$moduloUsuarios = App\Models\Usuarios\Modulo::where('nombre', 'Usuarios')->first();
+@endphp
 <div>
     <button @click="openModule = openModule === 'usuarios' ? null : 'usuarios'" 
             class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                    {{ $currentModule === 'usuarios' ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-        <span>Usuarios</span>
+        <div class="flex items-center">
+            <span>Usuarios</span>
+            @if ($moduloUsuarios && $moduloUsuarios->estado == 'mantenimiento')
+            <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+            @endif
+        </div>
         <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === 'usuarios'}" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
         </svg>
@@ -157,11 +165,19 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 
 {{-- Módulo: Proveedores --}}
 @canany(['Proveedores/Proveedores/Ver', 'Proveedores/DocumentoTipos/Ver', 'Proveedores/Rubros/Ver'])
+@php
+$moduloProveedores = App\Models\Usuarios\Modulo::where('nombre', 'Proveedores')->first();
+@endphp
 <div>
     <button @click="openModule = openModule === 'proveedores' ? null : 'proveedores'" 
             class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                    {{ $currentModule === 'proveedores' ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-        <span>Proveedores</span>
+        <div class="flex items-center">
+            <span>Proveedores</span>
+            @if ($moduloProveedores && $moduloProveedores->estado == 'mantenimiento')
+            <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+            @endif
+        </div>
         <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === 'proveedores'}" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
         </svg>
@@ -205,11 +221,19 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 
 {{-- Módulo: Concursos --}}
 @canany(['Concursos/Concursos/Ver', 'Concursos/DocumentoTipos/Ver'])
+@php
+$moduloConcursos = App\Models\Usuarios\Modulo::where('nombre', 'Concursos')->first();
+@endphp
 <div>
     <button @click="openModule = openModule === 'concursos' ? null : 'concursos'" 
             class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                    {{ $currentModule === 'concursos' ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-        <span>Concursos</span>
+        <div class="flex items-center">
+            <span>Concursos</span>
+            @if ($moduloConcursos && $moduloConcursos->estado == 'mantenimiento')
+            <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+            @endif
+        </div>
         <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === 'concursos'}" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
         </svg>
@@ -241,11 +265,19 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 
 {{-- Módulo: Inventario --}}
 @canany(['Inventario/Elementos/Ver', 'Inventario/Categorias/Ver', 'Inventario/Usuarios/Ver', 'Inventario/Perifericos/Ver'])
+@php
+$moduloInventario = App\Models\Usuarios\Modulo::where('nombre', 'Inventario')->first();
+@endphp
 <div>
     <button @click="openModule = openModule === 'inventario' ? null : 'inventario'" 
             class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                    {{ $currentModule === 'inventario' ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-        <span>Inventario</span>
+        <div class="flex items-center">
+            <span>Inventario</span>
+            @if ($moduloInventario && $moduloInventario->estado == 'mantenimiento')
+            <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+            @endif
+        </div>
         <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === 'inventario'}" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
         </svg>
@@ -281,11 +313,19 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 
 {{-- Módulo: Documentos --}}
 @canany(['Documentos/Documentos/Ver', 'Documentos/Categorias/Ver'])
+@php
+$moduloDocumentos = App\Models\Usuarios\Modulo::where('nombre', 'Documentos')->first();
+@endphp
 <div>
     <button @click="openModule = openModule === 'documentos' ? null : 'documentos'" 
             class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                    {{ $currentModule === 'documentos' ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-        <span>Documentos</span>
+        <div class="flex items-center">
+            <span>Documentos</span>
+            @if ($moduloDocumentos && $moduloDocumentos->estado == 'mantenimiento')
+            <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+            @endif
+        </div>
         <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === 'documentos'}" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
         </svg>
@@ -309,9 +349,17 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 
 {{-- Módulos sin submenu (enlaces directos) --}}
 @can('Tickets/Tickets/Ver')
+@php
+$moduloTickets = App\Models\Usuarios\Modulo::where('nombre', 'Tickets')->first();
+@endphp
 <a href="{{ route('tickets.tickets.index') }}" 
-   class="block px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('tickets.tickets.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-    Tickets
+   class="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('tickets.tickets.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
+    <div class="flex items-center">
+        <span>Tickets</span>
+        @if ($moduloTickets && $moduloTickets->estado == 'mantenimiento')
+        <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+        @endif
+    </div>
 </a>
 @endcan
 
@@ -323,23 +371,47 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
 @endcan --}}
 
 @can('Capacitaciones/Capacitaciones/Ver')
+@php
+$moduloCapacitaciones = App\Models\Usuarios\Modulo::where('nombre', 'Capacitaciones')->first();
+@endphp
 <a href="{{ route('capacitaciones.capacitacions.index') }}" 
-   class="block px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('capacitaciones.capacitacions.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-    Capacitaciones
+   class="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('capacitaciones.capacitacions.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
+    <div class="flex items-center">
+        <span>Capacitaciones</span>
+        @if ($moduloCapacitaciones && $moduloCapacitaciones->estado == 'mantenimiento')
+        <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+        @endif
+    </div>
 </a>
 @endcan
 
 @can('Fichadas/Fichadas/Ver')
+@php
+$moduloFichadas = App\Models\Usuarios\Modulo::where('nombre', 'Fichadas')->first();
+@endphp
 <a href="{{ route('fichadas.fichadas.index') }}" 
-   class="block px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('fichadas.fichadas.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-    Fichadas
+   class="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('fichadas.fichadas.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
+    <div class="flex items-center">
+        <span>Fichadas</span>
+        @if ($moduloFichadas && $moduloFichadas->estado == 'mantenimiento')
+        <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+        @endif
+    </div>
 </a>
 @endcan
 
 @can('AdminIP/IPS/Ver')
+@php
+$moduloAdminIP = App\Models\Usuarios\Modulo::where('nombre', 'AdminIP')->first();
+@endphp
 <a href="{{ route('adminip.ips.index') }}" 
-   class="block px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('adminip.ips.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-    Admin IP
+   class="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('adminip.ips.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
+    <div class="flex items-center">
+        <span>Admin IP</span>
+        @if ($moduloAdminIP && $moduloAdminIP->estado == 'mantenimiento')
+        <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
+        @endif
+    </div>
 </a>
 @endcan
 

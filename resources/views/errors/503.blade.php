@@ -142,11 +142,7 @@
             <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
                 <div class="flex items-center pt-8 sm:justify-start sm:pt-0">
                     <div class="px-4 text-xl text-gray-500 border-r border-gray-400 tracking-wider font-semibold">
-                        <img src="http://172.17.9.231/plataforma/public/img/logo-g.png" class="v-align-text-bottom">
-                    </div>
-
-                    <div class="px-4 text-xl text-gray-500 border-r border-gray-400 tracking-wider font-semibold">
-                        Oops!
+                        <img src="https://buenosairesenergia.com.ar/img/logo_50g.png" class="v-align-text-bottom">
                     </div>
 
                     <div class="ml-4 text-lg text-gray-500 uppercase tracking-wider">
