@@ -33,7 +33,7 @@ class PreguntaController extends Controller
         // Validar los datos
         $request->validate([
             'pregunta' => 'required|string',
-            'encuesta_id' => 'required|exists:encuestas,id',
+            'encuesta_id' => 'required',
             'tipo_pregunta' => 'required|in:opcion_multiple,texto_libre'
         ]);
 

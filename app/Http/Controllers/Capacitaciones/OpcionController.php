@@ -32,7 +32,7 @@ class OpcionController extends Controller
         // Validar los datos
         $request->validate([
             'opcion' => 'required|string|max:255',
-            'pregunta_id' => 'required|exists:preguntas,id'
+            'pregunta_id' => 'required'
         ]);
 
         $opcion = Opcion::create([
