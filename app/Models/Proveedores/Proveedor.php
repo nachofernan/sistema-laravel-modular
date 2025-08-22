@@ -112,8 +112,8 @@ class Proveedor extends Model
             if($documento->documentoTipo->vencimiento && $documento->vencimiento && $td != $documento->documentoTipo->id) {
                 $td = $documento->documentoTipo->id;
                 if($documento->vencimiento) {
-                    //$dif = $ahora->diffInDays(\Carbon\Carbon::create($documento->vencimiento), false);
-					$dif = $ahora->diff(\Carbon\Carbon::create($documento->vencimiento))->days;
+                    //$dif = $ahora->diffInDays($documento->vencimiento, false);
+					$dif = $ahora->diff($documento->vencimiento)->days;
                     if($fecha > $dif) {
                         $fecha = $dif;
                     }
@@ -133,7 +133,7 @@ class Proveedor extends Model
                 $td = $documento->documentoTipo->id;
                 if($documento->documentoTipo->vencimiento && $documento->vencimiento) {
                     if($documento->vencimiento && $documento->vencimiento < $now) {
-                        $vencimiento = \Carbon\Carbon::create($documento->vencimiento);
+                        $vencimiento = $documento->vencimiento;
                         if($vencimiento->isPast()) {
                             return -1;
                         } else {

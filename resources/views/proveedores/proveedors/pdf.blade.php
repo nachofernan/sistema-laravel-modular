@@ -108,8 +108,8 @@
                         <strong>
                             @if ($documento->vencimiento)
                                 {{ \Carbon\Carbon::parse($documento->vencimiento)->format('d/m/Y') }}
-                                @if (\Carbon\Carbon::now()->addYear() > \Carbon\Carbon::create($documento->vencimiento))
-                                    @if (\Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::create($documento->vencimiento), false) < 0)
+                                @if (\Carbon\Carbon::now()->addYear() > $documento->vencimiento)
+                                    @if ($documento->vencimiento->isPast())
                                         <span class="text-white bg-red-400 px-1 rounded-full text-xs"
                                         title="Documentación Vencida">Vencido</span>
                                     @endif
@@ -165,8 +165,8 @@
                         <strong>
                             @if ($apoderado->lastDocumento->vencimiento)
                                 {{ \Carbon\Carbon::parse($apoderado->lastDocumento->vencimiento)->format('d/m/Y') }}
-                                @if (\Carbon\Carbon::now()->addYear() > \Carbon\Carbon::create($apoderado->lastDocumento->vencimiento))
-                                    @if (\Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::create($apoderado->lastDocumento->vencimiento), false) < 0)
+                                @if (\Carbon\Carbon::now()->addYear() > $apoderado->lastDocumento->vencimiento)
+                                    @if ($apoderado->lastDocumento->vencimiento->isPast())
                                         <span class="text-white bg-red-400 px-1 rounded-full text-xs"
                                         title="Documentación Vencida">Vencido</span>
                                     @endif

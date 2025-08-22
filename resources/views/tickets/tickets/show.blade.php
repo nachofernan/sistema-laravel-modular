@@ -172,8 +172,8 @@
                             <span class="text-sm text-gray-600">Tiempo activo:</span>
                             <span class="text-sm font-medium text-gray-900">
                                 {{ $ticket->finalizado ? 
-                                    Carbon\Carbon::create($ticket->created_at)->diffInDays(Carbon\Carbon::create($ticket->finalizado)) . ' días' :
-                                    Carbon\Carbon::create($ticket->created_at)->diffForHumans() 
+                                    $ticket->created_at->diffInDays($ticket->finalizado) . ' días' :
+                                    $ticket->created_at->diffForHumans() 
                                 }}
                             </span>
                         </div>
