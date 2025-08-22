@@ -32,8 +32,24 @@ class EncuestaController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $encuesta = Encuesta::create($request->all());
+        // Validar los datos del request
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'capacitacion_id' => 'required|exists:capacitacions,id',
+        ]);
+
+        // Determinar el estado basado en el checkbox
+        $estado = $request->has('publicar_inmediatamente') ? '1' : '0';
+
+        // Crear la encuesta con solo los campos necesarios
+        $encuesta = Encuesta::create([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'capacitacion_id' => $request->capacitacion_id,
+            'estado' => $estado,
+        ]);
+
         return redirect()->route('capacitaciones.encuestas.show', $encuesta);
     }
 

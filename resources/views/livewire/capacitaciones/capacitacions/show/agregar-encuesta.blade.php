@@ -110,6 +110,7 @@
                                 <input type="checkbox" 
                                        name="publicar_inmediatamente" 
                                        id="publicar_inmediatamente"
+                                       value="1"
                                        class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
                                 <label for="publicar_inmediatamente" class="text-sm text-gray-700">
                                     Publicar inmediatamente (disponible para responder)
