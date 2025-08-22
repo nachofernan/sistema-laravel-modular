@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Capacitaciones;
 
 use App\Http\Controllers\Controller;
 use App\Models\Capacitaciones\Pregunta;
+use App\Models\Capacitaciones\Opcion;
 use Illuminate\Http\Request;
 
 class PreguntaController extends Controller
@@ -29,8 +30,34 @@ class PreguntaController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $pregunta = Pregunta::create($request->all());
+        // Validar los datos
+        $request->validate([
+            'pregunta' => 'required|string',
+            'encuesta_id' => 'required|exists:encuestas,id',
+            'tipo_pregunta' => 'required|in:opcion_multiple,texto_libre'
+        ]);
+
+        // Determinar si la pregunta tiene opciones basado en el tipo
+        $con_opciones = $request->tipo_pregunta === 'opcion_multiple';
+
+        // Crear la pregunta
+        $pregunta = Pregunta::create([
+            'pregunta' => $request->pregunta,
+            'encuesta_id' => $request->encuesta_id,
+            'con_opciones' => $con_opciones
+        ]);
+
+        // Si es de opción múltiple y hay opciones, crearlas
+        if ($con_opciones && $request->has('opciones')) {
+            foreach ($request->opciones as $opcionTexto) {
+                if (!empty(trim($opcionTexto))) {
+                    $pregunta->opciones()->create([
+                        'opcion' => trim($opcionTexto)
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('capacitaciones.encuestas.show', [$pregunta->encuesta]);
     }
 
@@ -55,8 +82,16 @@ class PreguntaController extends Controller
      */
     public function update(Request $request, Pregunta $pregunta)
     {
-        //
-        $pregunta->update($request->all());
+        // Validar los datos
+        $request->validate([
+            'pregunta' => 'required|string'
+        ]);
+
+        // Actualizar solo el texto de la pregunta
+        $pregunta->update([
+            'pregunta' => $request->pregunta
+        ]);
+        
         return redirect()->route('capacitaciones.encuestas.show', [$pregunta->encuesta]);
     }
 

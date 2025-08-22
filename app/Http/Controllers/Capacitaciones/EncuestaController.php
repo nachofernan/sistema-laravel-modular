@@ -39,15 +39,13 @@ class EncuestaController extends Controller
             'capacitacion_id' => 'required',
         ]);
 
-        // Determinar el estado basado en el checkbox
-        $estado = $request->has('publicar_inmediatamente') ? '1' : '0';
-
-        // Crear la encuesta con solo los campos necesarios
+        // Crear la encuesta siempre en estado borrador (0)
+        // para permitir agregar preguntas antes de publicar
         $encuesta = Encuesta::create([
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
             'capacitacion_id' => $request->capacitacion_id,
-            'estado' => $estado,
+            'estado' => '0', // Siempre crear en borrador
         ]);
 
         return redirect()->route('capacitaciones.encuestas.show', $encuesta);

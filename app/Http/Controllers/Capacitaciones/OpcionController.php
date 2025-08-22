@@ -29,8 +29,17 @@ class OpcionController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $opcion = Opcion::create($request->all());
+        // Validar los datos
+        $request->validate([
+            'opcion' => 'required|string|max:255',
+            'pregunta_id' => 'required|exists:preguntas,id'
+        ]);
+
+        $opcion = Opcion::create([
+            'opcion' => $request->opcion,
+            'pregunta_id' => $request->pregunta_id
+        ]);
+        
         return redirect()->route('capacitaciones.encuestas.show', $opcion->pregunta->encuesta);
     }
 
@@ -55,8 +64,15 @@ class OpcionController extends Controller
      */
     public function update(Request $request, Opcion $opcion)
     {
-        //
-        $opcion->update($request->all());
+        // Validar los datos
+        $request->validate([
+            'opcion' => 'required|string|max:255'
+        ]);
+
+        $opcion->update([
+            'opcion' => $request->opcion
+        ]);
+        
         return redirect()->route('capacitaciones.encuestas.show', $opcion->pregunta->encuesta);
     }
 

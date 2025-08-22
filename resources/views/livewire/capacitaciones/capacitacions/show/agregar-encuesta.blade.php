@@ -101,26 +101,7 @@
                             </p>
                         </div>
 
-                        <!-- Opciones de configuración -->
-                        <div class="space-y-4">
-                            <h4 class="text-sm font-medium text-gray-900">Configuración inicial:</h4>
-                            
-                            <!-- Estado inicial -->
-                            <div class="flex items-center space-x-3">
-                                <input type="checkbox" 
-                                       name="publicar_inmediatamente" 
-                                       id="publicar_inmediatamente"
-                                       value="1"
-                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
-                                <label for="publicar_inmediatamente" class="text-sm text-gray-700">
-                                    Publicar inmediatamente (disponible para responder)
-                                </label>
-                            </div>
-                            
-                            <p class="text-xs text-gray-500 ml-7">
-                                Si no se marca, la encuesta se creará en estado "borrador" y deberás activarla manualmente
-                            </p>
-                        </div>
+
 
                         <!-- Próximos pasos -->
                         <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
@@ -134,9 +115,10 @@
                                     <h3 class="text-sm font-medium text-blue-800">Próximos pasos:</h3>
                                     <div class="mt-1 text-sm text-blue-700">
                                         <ol class="list-decimal pl-5 space-y-1">
-                                            <li>Se creará la encuesta con la información básica</li>
+                                            <li>Se creará la encuesta en estado "borrador"</li>
                                             <li>Podrás agregar preguntas desde la vista de la encuesta</li>
-                                            <li>Una vez completa, puedes activarla para los participantes</li>
+                                            <li>Una vez completa, debes activarla manualmente para los participantes</li>
+                                            <li>Solo las encuestas activas pueden ser respondidas por los usuarios</li>
                                         </ol>
                                     </div>
                                 </div>
