@@ -12,6 +12,7 @@
     <div x-data="{ 
             open: @entangle('open'),
             tipo_pregunta: 'opcion_multiple',
+            pregunta_texto: '',
             opciones: [''],
             agregarOpcion() {
                 this.opciones.push('');
@@ -76,7 +77,8 @@
                 </div>
 
                 <!-- Formulario -->
-                <form action="{{ route('capacitaciones.preguntas.store') }}" method="POST">
+                <form action="{{ route('capacitaciones.preguntas.store') }}" method="POST" 
+                      @submit="console.log('Enviando formulario:', { pregunta: pregunta_texto, tipo_pregunta: tipo_pregunta, opciones: opciones })"
                     @csrf
                     <input type="hidden" name="encuesta_id" value="{{ $encuesta->id }}">
                     
@@ -88,6 +90,7 @@
                             </label>
                             <textarea name="pregunta" 
                                       id="pregunta"
+                                      x-model="pregunta_texto"
                                       rows="3" 
                                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                                       placeholder="Escribe aquí tu pregunta..."
@@ -120,6 +123,7 @@
                                            x-model="tipo_pregunta"
                                            value="texto_libre" 
                                            name="tipo_pregunta" 
+                                           @change="opciones = ['']"
                                            class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
                                     <div class="ml-3">
                                         <div class="text-sm font-medium text-gray-900">Texto libre</div>
@@ -140,11 +144,11 @@
                                     <div class="flex items-center space-x-2">
                                         <div class="flex-1">
                                             <input type="text" 
-                                                   :name="'opciones[]'"
+                                                   :name="tipo_pregunta === 'opcion_multiple' ? 'opciones[]' : ''"
                                                    x-model="opciones[index]"
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" 
                                                    :placeholder="'Opción ' + (index + 1)"
-                                                   required>
+                                                   :required="tipo_pregunta === 'opcion_multiple'">
                                         </div>
                                         <button type="button" 
                                                 @click="eliminarOpcion(index)"
@@ -178,8 +182,7 @@
                                         {{ $encuesta->preguntas->count() + 1 }}
                                     </span>
                                     <div class="flex-1">
-                                        <h5 class="text-sm font-medium text-gray-900 mb-2">
-                                            [La pregunta aparecerá aquí]
+                                        <h5 class="text-sm font-medium text-gray-900 mb-2" x-text="pregunta_texto || 'Escribe tu pregunta arriba para ver la vista previa'">
                                         </h5>
                                         
                                         <div x-show="tipo_pregunta === 'opcion_multiple'">
@@ -235,7 +238,8 @@
                             Cancelar
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-md transition-colors">
+                                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-md transition-colors"
+                                :disabled="!pregunta_texto.trim() || (tipo_pregunta === 'opcion_multiple' && opciones.filter(o => o.trim()).length === 0)">
                             <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>

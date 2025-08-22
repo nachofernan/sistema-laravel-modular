@@ -169,6 +169,28 @@
                         </div>
                     </div>
 
+                    <!-- Mensajes de estado -->
+                    @if(session('success'))
+                        <div class="mx-6 mt-4 p-3 bg-green-100 border border-green-200 text-green-700 rounded-md">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    
+                    @if(session('error') || $errors->any())
+                        <div class="mx-6 mt-4 p-3 bg-red-100 border border-red-200 text-red-700 rounded-md">
+                            @if(session('error'))
+                                {{ session('error') }}
+                            @endif
+                            @if($errors->any())
+                                <ul class="list-disc list-inside">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    @endif
+
                     <div class="px-6 py-4 space-y-6">
                         @forelse ($encuesta->preguntas as $key => $pregunta)
                         <div class="border border-gray-200 rounded-lg p-4">

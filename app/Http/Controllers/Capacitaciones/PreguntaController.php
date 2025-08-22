@@ -30,14 +30,14 @@ class PreguntaController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos
+        // Validar los datos básicos
         $request->validate([
             'pregunta' => 'required|string',
             'encuesta_id' => 'required',
             'tipo_pregunta' => 'required|in:opcion_multiple,texto_libre'
         ]);
 
-        // Determinar si la pregunta tiene opciones basado en el tipo
+        // Determinar si la pregunta tiene opciones
         $con_opciones = $request->tipo_pregunta === 'opcion_multiple';
 
         // Crear la pregunta
@@ -47,8 +47,8 @@ class PreguntaController extends Controller
             'con_opciones' => $con_opciones
         ]);
 
-        // Si es de opción múltiple y hay opciones, crearlas
-        if ($con_opciones && $request->has('opciones')) {
+        // Solo crear opciones si es de opción múltiple Y hay opciones válidas
+        if ($con_opciones && $request->has('opciones') && is_array($request->opciones)) {
             foreach ($request->opciones as $opcionTexto) {
                 if (!empty(trim($opcionTexto))) {
                     $pregunta->opciones()->create([
