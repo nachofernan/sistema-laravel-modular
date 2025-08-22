@@ -150,13 +150,13 @@
                                                 <div class="text-xs text-gray-500">
                                                     Vencimiento: {{ $documento->vencimiento ? $documento->vencimiento->format('d-m-Y') : 'Sin especificar' }}
                                                     @if ($documento->vencimiento)
-                                                        @if (\Carbon\Carbon::now()->diffInDays($documento->vencimiento, false) < 0)
+                                                        @if ($documento->vencimiento->isPast())
                                                             <span class="text-red-500 ml-1" title="Documentación Vencida">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3 inline">
                                                                     <path fill-rule="evenodd" d="M6.701 2.25c.577-1 2.02-1 2.598 0l5.196 9a1.5 1.5 0 0 1-1.299 2.25H2.804a1.5 1.5 0 0 1-1.3-2.25l5.197-9ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 1 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
                                                                 </svg>
                                                             </span>
-                                                        @elseif (\Carbon\Carbon::now()->diffInDays($documento->vencimiento, false) < 30)
+                                                        @elseif ($documento->vencimiento->diffInDays() <= 30)
                                                             <span class="text-yellow-500 ml-1" title="Documentación a Vencer">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-3 h-3 inline">
                                                                     <path fill-rule="evenodd" d="M6.701 2.25c.577-1 2.02-1 2.598 0l5.196 9a1.5 1.5 0 0 1-1.299 2.25H2.804a1.5 1.5 0 0 1-1.3-2.25l5.197-9ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 1 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
