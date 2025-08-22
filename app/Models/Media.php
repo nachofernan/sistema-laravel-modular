@@ -17,7 +17,7 @@ class Media extends BaseMedia
     public function getConnectionName()
     {
         // Fuerza siempre 127.0.0.1 sin importar el contexto
-        config(['database.connections.mysql.host' => '127.0.0.1']);
+        config(['database.connections.mysql.host' => env('DB_HOST')]);
         DB::purge('mysql');
         return 'mysql';
     }
