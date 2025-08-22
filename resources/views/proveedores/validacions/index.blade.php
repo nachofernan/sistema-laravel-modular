@@ -5,32 +5,32 @@
     <div class="w-full mb-12 xl:mb-0 mx-auto">
         <div class="relative flex flex-col min-w-0 break-words w-full mb-6">
             
-            <!-- Tabla responsive -->
+            <!-- Tabla -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
                                     Proveedor
                                 </div>
                             </th>
-                            <th class="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
                                     Documento
                                 </div>
                             </th>
-                            <th class="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
                                     Estado / Vencimiento
                                 </div>
                             </th>
-                            <th class="px-3 sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 <div class="flex items-center">
                                     Fecha Carga
                                 </div>
                             </th>
-                            <th class="px-3 sm:px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Acciones
                             </th>
                         </tr>
@@ -49,10 +49,10 @@
                             :class="{ 'bg-red-50': '{{ $estadoVencimiento }}' === 'vencido' }">
                             
                             <!-- Proveedor -->
-                            <td class="px-3 sm:px-6 py-4">
+                            <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-gray-900 max-w-xs break-words">
                                     <a href="{{route('proveedores.proveedors.show', $validacion->documento->documentable_type == 'App\Models\Proveedores\Proveedor' ? $validacion->documento->documentable : $validacion->documento->documentable->proveedor)}}" 
-                                       class="link-azul hover:text-blue-700 transition-colors block">
+                                       class="link-azul hover:text-blue-700 transition-colors">
                                         {{$validacion->documento->documentable_type == 'App\Models\Proveedores\Proveedor' ? 
                                           $validacion->documento->documentable->razonsocial : 
                                           $validacion->documento->documentable->proveedor->razonsocial}}
@@ -61,49 +61,19 @@
                             </td>
 
                             <!-- Documento -->
-                            <td class="px-3 sm:px-6 py-4">
-                                <div class="space-y-1">
-                                    <a href="{{ route('proveedores.documentos.show', $validacion->documento) }}" 
-                                        class="link-azul hover:text-blue-700 text-sm transition-colors block max-w-xs break-words" 
-                                        target="_blank"
-                                        x-tooltip="Ver documento">
-                                            {{$validacion->documento->documentoTipo ? 
-                                                $validacion->documento->documentoTipo->nombre : 
-                                                ($validacion->documento->documentable->tipo == 'representante' ? 'Representante Legal' : 'Apoderado')}}
-                                     </a>
-                                     
-                                     <!-- Estado/Vencimiento para móviles -->
-                                     <div class="md:hidden">
-                                        @if ($tieneVencimiento)
-                                            @if ($estadoVencimiento == 'vencido')
-                                                <div class="flex items-center text-red-600">
-                                                    <span class="text-xs">Vencido: {{$validacion->documento->vencimiento->format('d/m/Y')}}</span>
-                                                </div>
-                                            @elseif ($estadoVencimiento == 'proximo')
-                                                <div class="flex items-center text-yellow-600">
-                                                    <span class="text-xs">Vence: {{$validacion->documento->vencimiento->format('d/m/Y')}}</span>
-                                                </div>
-                                            @else
-                                                <div class="flex items-center text-green-600">
-                                                    <span class="text-xs">Vigente: {{$validacion->documento->vencimiento->format('d/m/Y')}}</span>
-                                                </div>
-                                            @endif
-                                        @else
-                                            <div class="flex items-center text-gray-500">
-                                                <span class="text-xs">Sin vencimiento</span>
-                                            </div>
-                                        @endif
-                                        
-                                        <!-- Fecha Carga para tablets -->
-                                        <div class="lg:hidden text-xs text-gray-500">
-                                            Cargado: {{$validacion->documento->created_at->format('d/m/Y')}}
-                                        </div>
-                                     </div>
-                                </div>
+                            <td class="px-6 py-4">
+                                <a href="{{ route('proveedores.documentos.show', $validacion->documento) }}" 
+                                    class="link-azul hover:text-blue-700 text-sm transition-colors max-w-xs break-words block" 
+                                    target="_blank"
+                                    x-tooltip="Ver documento">
+                                        {{$validacion->documento->documentoTipo ? 
+                                            $validacion->documento->documentoTipo->nombre : 
+                                            ($validacion->documento->documentable->tipo == 'representante' ? 'Representante Legal' : 'Apoderado')}}
+                                 </a>
                             </td>
 
-                            <!-- Estado/Vencimiento (oculto en móviles) -->
-                            <td class="px-3 sm:px-6 py-4 hidden md:table-cell">
+                            <!-- Estado/Vencimiento -->
+                            <td class="px-6 py-4">
                                 @if ($tieneVencimiento)
                                     <div class="flex items-center">
                                         @if ($estadoVencimiento == 'vencido')
@@ -133,13 +103,13 @@
                                 @endif
                             </td>
 
-                            <!-- Fecha Carga (oculto en tablets y móviles) -->
-                            <td class="px-3 sm:px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">
+                            <!-- Fecha Carga -->
+                            <td class="px-6 py-4 text-sm text-gray-500">
                                 {{$validacion->documento->created_at->format('d/m/Y')}}
                             </td>
 
                             <!-- Acciones -->
-                            <td class="px-3 sm:px-6 py-4 text-center">
+                            <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center">                                   
                                     @livewire('proveedores.validacions.validar-modal', ['validacion' => $validacion], key($validacion->id))
                                 </div>
@@ -147,7 +117,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-3 sm:px-6 py-12 text-center">
+                            <td colspan="5" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center">
                                     <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
