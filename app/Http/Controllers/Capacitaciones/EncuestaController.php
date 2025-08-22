@@ -36,7 +36,7 @@ class EncuestaController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'capacitacion_id' => 'required|exists:capacitacions,id',
+            'capacitacion_id' => 'required',
         ]);
 
         // Determinar el estado basado en el checkbox
