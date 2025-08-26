@@ -4,6 +4,7 @@
             {{ $modulo->descripcion ?: 'Módulo del sistema' }}
         </x-slot:subtitle>
         <x-slot:actions>
+            @livewire('usuarios.modulos.show.module-users-summary', ['modulo' => $modulo], key($modulo->id.'-summary-'.microtime(true)))
             @can('Usuarios/Modulos/Editar')
                 <a href="{{ route('usuarios.modulos.edit', $modulo) }}" 
                    class="inline-flex items-center px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-md transition-colors">
@@ -19,7 +20,7 @@
     <div class="w-full mb-12 xl:mb-0 mx-auto">
         <!-- Información del módulo -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-gray-900">{{ $modulo->id }}</div>
                     <div class="text-sm text-gray-500">ID del Módulo</div>
@@ -31,6 +32,16 @@
                 <div class="text-center">
                     <div class="text-2xl font-bold text-green-600">{{ $modulo->permisos()->count() }}</div>
                     <div class="text-sm text-gray-500">Permisos Disponibles</div>
+                </div>
+                <div class="text-center">
+                    @php
+                        $totalUsers = 0;
+                        foreach ($modulo->roles() as $role) {
+                            $totalUsers += $role->users()->count();
+                        }
+                    @endphp
+                    <div class="text-2xl font-bold text-purple-600">{{ $totalUsers }}</div>
+                    <div class="text-sm text-gray-500">Usuarios Asignados</div>
                 </div>
                 <div class="text-center">
                     @switch($modulo->estado)
@@ -88,6 +99,7 @@
                                         <div class="flex items-center justify-between">
                                             <h4 class="text-sm font-medium text-gray-900">{{ $role->name }}</h4>
                                             <div class="flex items-center space-x-2">
+                                                @livewire('usuarios.modulos.show.role-users', ['modulo' => $modulo, 'role' => $role], key($role->id.'-users-'.microtime(true)))
                                                 @livewire('usuarios.modulos.show.edit-role', ['modulo' => $modulo, 'role' => $role], key($role->id.'-edit-'.microtime(true)))
                                             </div>
                                         </div>

@@ -32,7 +32,19 @@ class CapacitacionController extends Controller
     public function store(Request $request)
     {
         //
-        $capacitacion = Capacitacion::create($request->all());
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'fecha_inicio' => 'required|date',
+            'fecha_final' => 'required|date|after_or_equal:fecha_inicio',
+            'descripcion' => 'nullable|string',
+        ], [
+            'nombre.required' => 'El nombre de la capacitación es obligatorio.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_final.required' => 'La fecha final es obligatoria.',
+            'fecha_final.after_or_equal' => 'La fecha final no puede ser anterior a la fecha de inicio.',
+        ]);
+
+        $capacitacion = Capacitacion::create($validated);
         return redirect()->route('capacitaciones.capacitacions.show', $capacitacion);
     }
 
@@ -60,7 +72,19 @@ class CapacitacionController extends Controller
     public function update(Request $request, Capacitacion $capacitacion)
     {
         //
-        $capacitacion->update($request->all());
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'fecha_inicio' => 'required|date',
+            'fecha_final' => 'required|date|after_or_equal:fecha_inicio',
+            'descripcion' => 'nullable|string',
+        ], [
+            'nombre.required' => 'El nombre de la capacitación es obligatorio.',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_final.required' => 'La fecha final es obligatoria.',
+            'fecha_final.after_or_equal' => 'La fecha final no puede ser anterior a la fecha de inicio.',
+        ]);
+
+        $capacitacion->update($validated);
         return redirect()->route('capacitaciones.capacitacions.show', $capacitacion);
     }
 

@@ -38,20 +38,37 @@
                         @enderror
                     </div>
 
-                    <!-- Fecha -->
-                    <div>
-                        <label for="fecha" class="block text-sm font-medium text-gray-700 mb-2">
-                            Fecha *
-                        </label>
-                        <input type="date" 
-                               name="fecha" 
-                               id="fecha"
-                               value="{{ old('fecha') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha') border-red-500 @enderror" 
-                               required>
-                        @error('fecha')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <!-- Fechas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fecha de Inicio *
+                            </label>
+                            <input type="date" 
+                                   name="fecha_inicio" 
+                                   id="fecha_inicio"
+                                   value="{{ old('fecha_inicio') }}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha_inicio') border-red-500 @enderror" 
+                                   required>
+                            @error('fecha_inicio')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="fecha_final" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fecha Final *
+                            </label>
+                            <input type="date" 
+                                   name="fecha_final" 
+                                   id="fecha_final"
+                                   value="{{ old('fecha_final') }}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha_final') border-red-500 @enderror" 
+                                   required>
+                            @error('fecha_final')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <!-- Descripción -->
@@ -61,9 +78,9 @@
                         </label>
                         <textarea name="descripcion" 
                                   id="descripcion"
-                                  rows="5" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('descripcion') border-red-500 @enderror"
-                                  placeholder="Ingrese una descripción para la capacitación (opcional)">{{ old('descripcion') }}</textarea>
+                                  rows="4"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('descripcion') border-red-500 @enderror" 
+                                  placeholder="Descripción de la capacitación (opcional)">{{ old('descripcion') }}</textarea>
                         @error('descripcion')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -71,15 +88,15 @@
                 </div>
 
                 <!-- Botones de acción -->
-                <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
                     <a href="{{ route('capacitaciones.capacitacions.index') }}" 
-                       class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium rounded-md transition-colors">
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                         Cancelar
                     </a>
                     <button type="submit" 
-                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors">
-                        <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <svg class="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                         Crear Capacitación
                     </button>
@@ -87,4 +104,34 @@
             </div>
         </form>
     </div>
+
+    <!-- JavaScript para validación de fechas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInicioInput = document.getElementById('fecha_inicio');
+            const fechaFinalInput = document.getElementById('fecha_final');
+
+            /* // Establecer fecha mínima para fecha_inicio como hoy
+            const today = new Date().toISOString().split('T')[0];
+            fechaInicioInput.min = today; */
+
+            // Actualizar fecha mínima de fecha_final cuando cambie fecha_inicio
+            fechaInicioInput.addEventListener('change', function() {
+                fechaFinalInput.min = this.value;
+                
+                // Si fecha_final es anterior a fecha_inicio, limpiar fecha_final
+                if (fechaFinalInput.value && fechaFinalInput.value < this.value) {
+                    fechaFinalInput.value = '';
+                }
+            });
+
+            // Validar que fecha_final no sea anterior a fecha_inicio
+            fechaFinalInput.addEventListener('change', function() {
+                if (this.value && fechaInicioInput.value && this.value < fechaInicioInput.value) {
+                    alert('La fecha final no puede ser anterior a la fecha de inicio');
+                    this.value = '';
+                }
+            });
+        });
+    </script>
 </x-app-layout>

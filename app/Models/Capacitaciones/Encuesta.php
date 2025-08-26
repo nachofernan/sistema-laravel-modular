@@ -24,8 +24,8 @@ class Encuesta extends Model
     }
 
     public function respondida_por($user_id)
-    {
-        return Respuesta::where('user_id', $user_id)->where('pregunta_id', $this->preguntas()->first()->id)->get();
+    {   
+        return $this->preguntas->isEmpty() ? collect([]) : Respuesta::where('user_id', $user_id)->where('pregunta_id', $this->preguntas()->first()->id)->get();
     }
 
     public function estado()

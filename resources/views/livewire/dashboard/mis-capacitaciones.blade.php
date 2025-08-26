@@ -33,19 +33,24 @@
                     @foreach ($capacitaciones as $invitacion)
                     @php
                         $capacitacion = $invitacion->capacitacion;
-                        $fechaCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha);
-                        $esProxima = $fechaCapacitacion->isFuture();
-                        $esHoy = $fechaCapacitacion->isToday();
-                        $yaOcurrio = $fechaCapacitacion->isPast() && !$esHoy;
+                        $fechaInicioCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_inicio);
+                        $fechaFinalCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_final);
+                        $esProxima = $fechaInicioCapacitacion->isFuture();
+                        $esHoy = $fechaInicioCapacitacion->isToday() || $fechaFinalCapacitacion->isToday();
+                        $yaOcurrio = $fechaFinalCapacitacion->isPast() && !$esHoy;
                     @endphp
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex flex-col">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $fechaCapacitacion->format('d/m/Y') }}
+                                    {{ $fechaInicioCapacitacion->format('d/m/Y') }} - {{ $fechaFinalCapacitacion->format('d/m/Y') }}
                                 </div>
                                 <div class="text-xs text-gray-500">
-                                    {{ $fechaCapacitacion->format('H:i') }}
+                                    @if($fechaInicioCapacitacion->format('Y-m-d') === $fechaFinalCapacitacion->format('Y-m-d'))
+                                        {{ $fechaInicioCapacitacion->format('H:i') }}
+                                    @else
+                                        {{ $fechaInicioCapacitacion->diffForHumans() }} - {{ $fechaFinalCapacitacion->diffForHumans() }}
+                                    @endif
                                 </div>
                             </div>
                         </td>

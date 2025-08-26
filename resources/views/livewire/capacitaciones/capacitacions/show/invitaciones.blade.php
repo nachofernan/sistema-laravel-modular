@@ -52,7 +52,7 @@
                     <div class="text-2xl font-bold text-blue-600">
                         {{ $capacitacion->invitaciones->count() }}
                     </div>
-                    <div class="text-sm text-blue-600">Invitados</div>
+                    <div class="text-sm text-blue-600">Total</div>
                 </div>
                 <div class="bg-green-50 rounded-lg p-4 text-center">
                     <div class="text-2xl font-bold text-green-600">
@@ -68,6 +68,26 @@
                 </div>
             </div>
 
+            <!-- Información de tipos -->
+            @php
+                $presenciales = $capacitacion->invitaciones->where('tipo', 'presencial')->count();
+                $virtuales = $capacitacion->invitaciones->where('tipo', 'virtual')->count();
+            @endphp
+            @if($presenciales > 0 || $virtuales > 0)
+            <div class="mb-4 text-sm text-gray-600">
+                <span class="font-medium">Tipos de participación:</span>
+                @if($presenciales > 0)
+                    <span class="text-purple-600">{{ $presenciales }} presencial{{ $presenciales > 1 ? 'es' : '' }}</span>
+                @endif
+                @if($presenciales > 0 && $virtuales > 0)
+                    <span class="mx-1">•</span>
+                @endif
+                @if($virtuales > 0)
+                    <span class="text-orange-600">{{ $virtuales }} virtual{{ $virtuales > 1 ? 'es' : '' }}</span>
+                @endif
+            </div>
+            @endif
+
             <!-- Lista de usuarios -->
             <div class="space-y-3">
                 @foreach($capacitacion->invitaciones as $invitacion)
@@ -79,21 +99,56 @@
                                 {{ $invitacion->usuario->realname }}
                             </h4>
                             <p class="text-gray-500 text-xs">Legajo: {{ $invitacion->usuario->legajo }}</p>
-                            @if($invitacion->presente)
-                                <p class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                    Presente
-                                </p>
-                            @else
-                                <p class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                    Ausente
-                                </p>
-                            @endif
+                            <div class="flex flex-wrap gap-2 mt-1">
+                                @if($invitacion->presente)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Presente
+                                    </span>
+                                    
+                                    <!-- Mostrar tipo solo cuando está presente -->
+                                    @if($invitacion->tipo === 'presencial')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            Presencial
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                            </svg>
+                                            Virtual
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        Ausente
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 
                     <!-- Acciones -->
                     @can('Capacitaciones/Capacitaciones/Editar')
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                        <!-- Cambiar tipo solo cuando está presente -->
+                        @if($invitacion->presente)
+                        <select wire:change="cambiarTipo({{ $invitacion->id }}, $event.target.value)" 
+                                class="text-xs px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="presencial" {{ $invitacion->tipo === 'presencial' ? 'selected' : '' }}>Presencial</option>
+                            <option value="virtual" {{ $invitacion->tipo === 'virtual' ? 'selected' : '' }}>Virtual</option>
+                        </select>
+                        @endif
+                        
                         <button wire:click="presente({{ $invitacion->id }})"
                             class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors
                                    {{ $invitacion->presente ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200' }}">
@@ -125,34 +180,7 @@
                 @endforeach
             </div>
 
-            <!-- Acciones masivas -->
-            @can('Capacitaciones/Capacitaciones/Editar')
-            @if($capacitacion->invitaciones->count() > 1)
-            <div class="mt-6 pt-6 border-t border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-sm font-medium text-gray-900">Acciones masivas:</h4>
-                    <div class="flex space-x-2">
-                        <button wire:click="marcarTodosPresentes" 
-                                onclick="return confirm('¿Marcar todos como presentes?')"
-                                class="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-md hover:bg-green-200 transition-colors">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Todos Presentes
-                        </button>
-                        <button wire:click="marcarTodosAusentes" 
-                                onclick="return confirm('¿Marcar todos como ausentes?')"
-                                class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 text-xs font-medium rounded-md hover:bg-red-200 transition-colors">
-                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            Todos Ausentes
-                        </button>
-                    </div>
-                </div>
-            </div>
-            @endif
-            @endcan
+            
 
         @else
             <!-- Estado vacío -->

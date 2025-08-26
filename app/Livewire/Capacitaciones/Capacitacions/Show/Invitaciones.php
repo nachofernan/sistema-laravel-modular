@@ -17,6 +17,7 @@ class Invitaciones extends Component
             Invitacion::create([
                 'user_id' => $this->user_id,
                 'capacitacion_id' => $this->capacitacion->id,
+                'tipo' => 'presencial', // Por defecto presencial
             ]);
             $this->user_id = null;
             $this->render();
@@ -34,6 +35,11 @@ class Invitaciones extends Component
         $invitacion->presente ? $invitacion->update(['presente' => '0']) : $invitacion->update(['presente' => '1']);
     }
 
+    public function cambiarTipo($invitacion_id, $nuevoTipo)
+    {
+        $invitacion = Invitacion::find($invitacion_id);
+        $invitacion->update(['tipo' => $nuevoTipo]);
+    }
 
     public function render()
     {

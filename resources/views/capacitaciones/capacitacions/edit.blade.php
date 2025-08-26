@@ -67,44 +67,58 @@
                         @enderror
                     </div>
 
-                    <!-- Fecha -->
-                    <div>
-                        <label for="fecha" class="block text-sm font-medium text-gray-700 mb-2">
-                            Fecha de la capacitación *
-                        </label>
-                        <input type="date" 
-                               name="fecha" 
-                               id="fecha"
-                               value="{{ old('fecha', $capacitacion->fecha) }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha') border-red-500 @enderror" 
-                               required>
-                        @error('fecha')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <!-- Fechas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fecha_inicio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fecha de Inicio *
+                            </label>
+                            <input type="date" 
+                                   name="fecha_inicio" 
+                                   id="fecha_inicio"
+                                   value="{{ old('fecha_inicio', $capacitacion->fecha_inicio) }}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha_inicio') border-red-500 @enderror" 
+                                   required>
+                            @error('fecha_inicio')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="fecha_final" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fecha Final *
+                            </label>
+                            <input type="date" 
+                                   name="fecha_final" 
+                                   id="fecha_final"
+                                   value="{{ old('fecha_final', $capacitacion->fecha_final) }}" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha_final') border-red-500 @enderror" 
+                                   required>
+                            @error('fecha_final')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
                         
                         @php
-                            $fechaCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha);
-                            $yaOcurrio = $fechaCapacitacion->isPast();
+                            $fechaInicioCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_inicio);
+                            $fechaFinalCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_final);
+                            $yaOcurrio = $fechaFinalCapacitacion->isPast();
                         @endphp
                         
                         @if($yaOcurrio)
                         <div class="mt-2 bg-yellow-50 border border-yellow-200 rounded-md p-3">
                             <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <h3 class="text-sm font-medium text-yellow-800">Cambio de fecha</h3>
-                                    <div class="mt-1 text-sm text-yellow-700">
-                                        Esta capacitación ya ocurrió. Cambiar la fecha puede afectar reportes y estadísticas existentes.
-                                    </div>
+                                <svg class="h-5 w-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-yellow-800">Capacitación Finalizada</h3>
+                                    <p class="text-sm text-yellow-700 mt-1">Esta capacitación ya ha finalizado. Los cambios en las fechas no afectarán las invitaciones existentes.</p>
                                 </div>
                             </div>
                         </div>
                         @endif
-                    </div>
 
                     <!-- Descripción -->
                     <div>
@@ -202,7 +216,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const nombreInput = document.getElementById('nombre');
-            const fechaInput = document.getElementById('fecha');
+            const fechaInicioInput = document.getElementById('fecha_inicio');
+            const fechaFinalInput = document.getElementById('fecha_final');
             const descripcionInput = document.getElementById('descripcion');
             
             const previewNombre = document.getElementById('preview-nombre');
@@ -213,10 +228,21 @@
                 previewNombre.textContent = this.value || 'Nombre de la capacitación';
             });
             
-            fechaInput.addEventListener('input', function() {
+            fechaInicioInput.addEventListener('input', function() {
                 if (this.value) {
                     const fecha = new Date(this.value);
                     previewFecha.textContent = fecha.toLocaleDateString('es-ES');
+                }
+            });
+            
+            fechaFinalInput.addEventListener('input', function() {
+                if (this.value && fechaInicioInput.value) {
+                    const fechaInicio = new Date(fechaInicioInput.value);
+                    const fechaFinal = new Date(this.value);
+                    if (fechaFinal < fechaInicio) {
+                        alert('La fecha final no puede ser anterior a la fecha de inicio');
+                        this.value = '';
+                    }
                 }
             });
             

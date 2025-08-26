@@ -25,9 +25,10 @@
                 </div>
                 <div class="text-right">
                     @php
-                        $fechaCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha);
-                        $esHoy = $fechaCapacitacion->isToday();
-                        $esProxima = $fechaCapacitacion->isFuture();
+                        $fechaInicioCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_inicio);
+                        $fechaFinalCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_final);
+                        $esHoy = $fechaInicioCapacitacion->isToday() || $fechaFinalCapacitacion->isToday();
+                        $esProxima = $fechaInicioCapacitacion->isFuture();
                     @endphp
                     @if($esHoy)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">

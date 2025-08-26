@@ -110,19 +110,24 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach ($capacitacions as $capacitacion)
                         @php
-                            $fechaCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha);
-                            $esHoy = $fechaCapacitacion->isToday();
-                            $esProxima = $fechaCapacitacion->isFuture();
-                            $yaOcurrio = $fechaCapacitacion->isPast() && !$esHoy;
+                            $fechaInicioCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_inicio);
+                            $fechaFinalCapacitacion = \Carbon\Carbon::parse($capacitacion->fecha_final);
+                            $esHoy = $fechaInicioCapacitacion->isToday() || $fechaFinalCapacitacion->isToday();
+                            $esProxima = $fechaInicioCapacitacion->isFuture();
+                            $yaOcurrio = $fechaFinalCapacitacion->isPast() && !$esHoy;
                         @endphp
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-col">
                                     <div class="text-sm font-medium text-gray-900">
-                                        {{ $fechaCapacitacion->format('d/m/Y') }}
+                                        {{ $fechaInicioCapacitacion->format('d/m/Y') }} - {{ $fechaFinalCapacitacion->format('d/m/Y') }}
                                     </div>
                                     <div class="text-xs text-gray-500">
-                                        {{ $fechaCapacitacion->diffForHumans() }}
+                                        @if($fechaInicioCapacitacion->format('Y-m-d') === $fechaFinalCapacitacion->format('Y-m-d'))
+                                            {{ $fechaInicioCapacitacion->diffForHumans() }}
+                                        @else
+                                            {{ $fechaInicioCapacitacion->diffForHumans() }} - {{ $fechaFinalCapacitacion->diffForHumans() }}
+                                        @endif
                                     </div>
                                 </div>
                             </td>

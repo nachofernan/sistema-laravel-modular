@@ -13,6 +13,11 @@ class Capacitacion extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'fecha_inicio' => 'date',
+        'fecha_final' => 'date',
+    ];
+
     public function invitaciones()
     {
         return $this->hasMany(Invitacion::class);

@@ -69,7 +69,7 @@ class ToolsController extends Controller
                 ]
             ],
             [
-                'name' => 'buscar_usuarios_con_roles',
+                'name' => 'buscar_usuarios_con_roles', // Revisar sólo para administradores
                 'description' => 'Busca usuarios que tienen roles específicos en el sistema',
                 'parameters' => [
                     'rol' => 'string - nombre del rol (opcional)',
@@ -177,7 +177,7 @@ class ToolsController extends Controller
                 'interno' => $user->interno ?? 'Sin interno asignado',
                 'area' => $user->area->nombre ?? 'Sin área asignada',
                 'sede' => $user->sede->nombre ?? 'Sin sede asignada',
-                'visible' => $user->visible ? 'Sí' : 'No'
+                //'visible' => $user->visible ? 'Sí' : 'No'
             ];
         });
 
@@ -223,8 +223,8 @@ class ToolsController extends Controller
                 'interno' => $user->interno ?? 'Sin interno asignado',
                 'area' => $user->area->nombre ?? 'Sin área asignada',
                 'sede' => $user->sede->nombre ?? 'Sin sede asignada',
-                'visible' => $user->visible ? 'Sí' : 'No',
-                'roles' => method_exists($user, 'getRoleNames') ? $user->getRoleNames()->toArray() : []
+                //'visible' => $user->visible ? 'Sí' : 'No',
+                //'roles' => method_exists($user, 'getRoleNames') ? $user->getRoleNames()->toArray() : []
             ]
         ]);
     }
