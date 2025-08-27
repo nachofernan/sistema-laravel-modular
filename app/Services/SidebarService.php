@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\Usuarios\Modulo;
+use App\Models\Usuarios\Permission;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -42,9 +44,10 @@ class SidebarService
         if (!Auth::check()) {
             return false;
         }
+        $user = User::find(Auth::id());
         
         foreach ($permissions as $permission) {
-            if (Auth::user()->hasPermissionTo($permission)) {
+            if (Permission::where('name', $permission)->exists() && $user->hasPermissionTo($permission)) {
                 return true;
             }
         }
