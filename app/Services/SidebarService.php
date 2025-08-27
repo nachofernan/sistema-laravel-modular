@@ -6,6 +6,7 @@ use App\Models\Usuarios\Modulo;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SidebarService
 {
@@ -41,9 +42,9 @@ class SidebarService
         if (!Auth::check()) {
             return false;
         }
-
+        
         foreach ($permissions as $permission) {
-            if (Auth::user()->can($permission)) {
+            if (Auth::user()->hasPermissionTo($permission)) {
                 return true;
             }
         }
@@ -158,6 +159,7 @@ class SidebarService
             'capacitaciones.' => 'capacitaciones',
             'fichadas.' => 'fichadas',
             'adminip.' => 'adminip',
+            'automotores.' => 'automotores',
             'home.' => 'plataforma',
             'home' => 'plataforma',
             'titobot' => 'plataforma'

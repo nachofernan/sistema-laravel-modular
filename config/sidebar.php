@@ -202,6 +202,27 @@ return [
             ]
         ],
 
+        'automotores' => [
+            'name' => 'Automotores',
+            'type' => 'dropdown',
+            'permission_check' => ['Automotores/Vehículos/Ver', 'Automotores/COPRES/Ver'],
+            'order' => 55,
+            'submenu' => [
+                [
+                    'name' => 'Vehículos',
+                    'route' => 'automotores.vehiculos.index',
+                    'permission' => 'Automotores/Vehículos/Ver',
+                    'active_when' => 'automotores.vehiculos.*'
+                ],
+                [
+                    'name' => 'COPRES',
+                    'route' => 'automotores.copres.index',
+                    'permission' => 'Automotores/COPRES/Ver',
+                    'active_when' => 'automotores.copres.*'
+                ]
+            ]
+        ],
+
         // Módulos de enlace directo
         'tickets' => [
             'name' => 'Tickets',

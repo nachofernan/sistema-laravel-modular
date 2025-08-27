@@ -129,6 +129,16 @@ return [
             'database' => 'concursos',
         ]),
 
+        'automotores' => array_merge(require __DIR__.'/database_default.php', [
+            'database' => env('DB_DATABASE_AUTOMOTORES', 'forge'),
+            'username' => env('DB_USERNAME_AUTOMOTORES', 'forge'),
+            'password' => env('DB_PASSWORD_AUTOMOTORES', ''),
+        ]),
+
+        'automotores_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'automotores',
+        ]),
+
         'mesadeentradas' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_MESADEENTRADAS', 'forge'),
             'username' => env('DB_USERNAME_MESADEENTRADAS', 'forge'),
