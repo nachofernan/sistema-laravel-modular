@@ -25,16 +25,13 @@ class Modal extends Component
     public $kz;
     public $salida;
     public $reentrada;
-    public $user_id_chofer;
-    
     // Datos para los selects
     public $vehiculos;
-    public $usuarios;
 
     protected $rules = [
         'fecha' => 'required|date',
-        'numero_ticket_factura' => 'required|string|max:255',
-        'cuit' => 'required|string|max:20',
+        'numero_ticket_factura' => 'nullable|string|max:255',
+        'cuit' => 'nullable|string|max:20',
         'vehiculo_id' => 'required|exists:automotores.vehiculos,id',
         'litros' => 'nullable|numeric|min:0',
         'precio_x_litro' => 'nullable|numeric|min:0',
@@ -43,7 +40,6 @@ class Modal extends Component
         'kz' => 'nullable|integer',
         'salida' => 'nullable|date',
         'reentrada' => 'nullable|date',
-        'user_id_chofer' => 'required',
     ];
 
     protected $listeners = ['openEditModal' => 'openModal'];
@@ -51,7 +47,6 @@ class Modal extends Component
     public function mount()
     {
         $this->vehiculos = Vehiculo::orderBy('marca')->orderBy('modelo')->get();
-        $this->usuarios = User::orderBy('name')->get();
     }
 
     public function openModal($copresId)
@@ -65,7 +60,7 @@ class Modal extends Component
     public function closeModal()
     {
         $this->showModal = false;
-        $this->reset(['copresId', 'copres', 'fecha', 'numero_ticket_factura', 'cuit', 'vehiculo_id', 'litros', 'precio_x_litro', 'importe_final', 'km_vehiculo', 'kz', 'salida', 'reentrada', 'user_id_chofer']);
+        $this->reset(['copresId', 'copres', 'fecha', 'numero_ticket_factura', 'cuit', 'vehiculo_id', 'litros', 'precio_x_litro', 'importe_final', 'km_vehiculo', 'kz', 'salida', 'reentrada']);
     }
 
     public function loadData()
@@ -81,7 +76,6 @@ class Modal extends Component
         $this->kz = $this->copres->kz;
         $this->salida = $this->copres->salida;
         $this->reentrada = $this->copres->reentrada;
-        $this->user_id_chofer = $this->copres->user_id_chofer;
     }
 
     public function save()
@@ -100,7 +94,6 @@ class Modal extends Component
             'kz' => $this->kz,
             'salida' => $this->salida,
             'reentrada' => $this->reentrada,
-            'user_id_chofer' => $this->user_id_chofer,
         ]);
 
         // Actualizar kilometraje del vehículo si se proporcionó

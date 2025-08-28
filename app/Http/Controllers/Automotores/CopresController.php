@@ -28,7 +28,7 @@ class CopresController extends Controller
      */
     public function index(): View
     {
-        $copres = Copres::with(['vehiculo', 'creator', 'chofer'])
+        $copres = Copres::with(['vehiculo', 'creator'])
             ->orderBy('fecha', 'desc')
             ->paginate(15);
         
@@ -41,9 +41,8 @@ class CopresController extends Controller
     public function create(): View
     {
         $vehiculos = Vehiculo::orderBy('marca')->orderBy('modelo')->get();
-        $usuarios = User::orderBy('name')->get();
         
-        return view('automotores.copres.create', compact('vehiculos', 'usuarios'));
+        return view('automotores.copres.create', compact('vehiculos'));
     }
 
     /**
@@ -53,8 +52,8 @@ class CopresController extends Controller
     {
         $request->validate([
             'fecha' => 'required|date',
-            'numero_ticket_factura' => 'required|string|max:255',
-            'cuit' => 'required|string|max:20',
+            'numero_ticket_factura' => 'nullable|string|max:255',
+            'cuit' => 'nullable|string|max:20',
             'vehiculo_id' => 'required|exists:automotores.vehiculos,id',
             'litros' => 'nullable|numeric|min:0',
             'precio_x_litro' => 'nullable|numeric|min:0',
@@ -63,7 +62,6 @@ class CopresController extends Controller
             'kz' => 'nullable|integer',
             'salida' => 'nullable|date',
             'reentrada' => 'nullable|date',
-            'user_id_chofer' => 'required',
         ]);
 
         $data = $request->all();
@@ -85,7 +83,7 @@ class CopresController extends Controller
      */
     public function show(Copres $copres): View
     {
-        $copres->load(['vehiculo', 'creator', 'chofer']);
+        $copres->load(['vehiculo', 'creator']);
         return view('automotores.copres.show', compact('copres'));
     }
 

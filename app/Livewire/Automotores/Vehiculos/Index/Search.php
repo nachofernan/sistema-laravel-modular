@@ -65,8 +65,7 @@ class Search extends Component
             ->when($this->modelo_filter, function ($query) {
                 $query->where('modelo', 'like', '%' . $this->modelo_filter . '%');
             })
-            ->orderBy('marca')
-            ->orderBy('modelo')
+            ->orderBy('patente')
             ->paginate(15);
 
         $marcas = Vehiculo::distinct()->pluck('marca')->sort()->values();

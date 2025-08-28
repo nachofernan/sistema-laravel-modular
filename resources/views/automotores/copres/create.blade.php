@@ -1,8 +1,5 @@
 <x-app-layout>
     <x-page-header title="Registrar Nueva COPRES">
-        <x-slot:subtitle>
-            Registro de Compra de Combustible
-        </x-slot:subtitle>
         <x-slot:actions>
             <a href="{{ route('automotores.copres.index') }}" 
                class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
@@ -65,7 +62,7 @@
                     <!-- Número de Ticket/Factura -->
                     <div>
                         <label for="numero_ticket_factura" class="block text-sm font-medium text-gray-700 mb-2">
-                            Número de Ticket/Factura *
+                            Número de Ticket/Factura
                         </label>
                         <input type="text" 
                                name="numero_ticket_factura" 
@@ -73,7 +70,7 @@
                                value="{{ old('numero_ticket_factura') }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('numero_ticket_factura') border-red-500 @enderror" 
                                placeholder="Ej: 001-00000001"
-                               required>
+                               maxlength="13">
                         @error('numero_ticket_factura')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -82,7 +79,7 @@
                     <!-- CUIT -->
                     <div>
                         <label for="cuit" class="block text-sm font-medium text-gray-700 mb-2">
-                            CUIT *
+                            CUIT
                         </label>
                         <input type="text" 
                                name="cuit" 
@@ -90,7 +87,7 @@
                                value="{{ old('cuit') }}" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('cuit') border-red-500 @enderror" 
                                placeholder="Ej: 20-12345678-9"
-                               required>
+                               maxlength="13">
                         @error('cuit')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -216,27 +213,7 @@
 
 
 
-                    <!-- Chofer -->
-                    <div>
-                        <label for="user_id_chofer" class="block text-sm font-medium text-gray-700 mb-2">
-                            Chofer *
-                        </label>
-                        <select name="user_id_chofer" 
-                                id="user_id_chofer"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors @error('user_id_chofer') border-red-500 @enderror" 
-                                required>
-                            <option value="">Seleccionar chofer</option>
-                            @foreach($usuarios as $usuario)
-                                <option value="{{ $usuario->id }}" 
-                                        {{ old('user_id_chofer') == $usuario->id ? 'selected' : '' }}>
-                                    {{ $usuario->realname }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('user_id_chofer')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+
                 </div>
 
                 <!-- Botones de acción -->
@@ -256,4 +233,67 @@
             </div>
         </form>
     </div>
+
+    <!-- Scripts para formateo automático -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Formateo del número de ticket/factura (XXXX-XXXXXXXX)
+            const ticketInput = document.getElementById('numero_ticket_factura');
+            if (ticketInput) {
+                ticketInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, ''); // Solo números
+                    
+                    if (value.length > 0) {
+                        if (value.length <= 4) {
+                            value = value;
+                        } else {
+                            value = value.substring(0, 4) + '-' + value.substring(4, 12);
+                        }
+                    }
+                    
+                    e.target.value = value;
+                });
+
+                // Formatear valor inicial si existe
+                if (ticketInput.value) {
+                    let value = ticketInput.value.replace(/\D/g, '');
+                    if (value.length > 4) {
+                        ticketInput.value = value.substring(0, 4) + '-' + value.substring(4, 12);
+                    }
+                }
+            }
+
+            // Formateo del CUIT (XX-XXXXXXXX-X)
+            const cuitInput = document.getElementById('cuit');
+            if (cuitInput) {
+                cuitInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, ''); // Solo números
+                    
+                    if (value.length > 0) {
+                        if (value.length <= 2) {
+                            value = value;
+                        } else if (value.length <= 10) {
+                            value = value.substring(0, 2) + '-' + value.substring(2, 10);
+                        } else {
+                            value = value.substring(0, 2) + '-' + value.substring(2, 10) + '-' + value.substring(10, 11);
+                        }
+                    }
+                    
+                    e.target.value = value;
+                });
+
+                // Formatear valor inicial si existe
+                if (cuitInput.value) {
+                    let value = cuitInput.value.replace(/\D/g, '');
+                    if (value.length > 2) {
+                        if (value.length <= 10) {
+                            cuitInput.value = value.substring(0, 2) + '-' + value.substring(2, 10);
+                        } else {
+                            cuitInput.value = value.substring(0, 2) + '-' + value.substring(2, 10) + '-' + value.substring(10, 11);
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </x-app-layout>

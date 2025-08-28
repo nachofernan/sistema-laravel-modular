@@ -28,7 +28,6 @@ class Copres extends Model
         'salida',
         'reentrada',
         'user_id_creator',
-        'user_id_chofer',
     ];
 
     protected $casts = [
@@ -58,11 +57,5 @@ class Copres extends Model
         return $this->belongsTo(User::class, 'user_id_creator');
     }
 
-    /**
-     * Obtiene el chofer asociado a esta COPRES
-     */
-    public function chofer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id_chofer');
-    }
+
 }

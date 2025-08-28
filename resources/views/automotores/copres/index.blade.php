@@ -1,8 +1,5 @@
 <x-app-layout>
     <x-page-header title="Gestión de COPRES">
-        <x-slot:subtitle>
-            Registro de Compras de Combustible
-        </x-slot:subtitle>
         <x-slot:actions>
             @can('Automotores/COPRES/Crear')
                 <a href="{{ route('automotores.copres.create') }}" 

@@ -14,6 +14,35 @@
         </x-slot:actions>
     </x-page-header>
 
+    <!-- Banner de alerta de service -->
+    @if($vehiculo->necesita_service)
+    <div class="w-full max-w-7xl mx-auto mb-6">
+        <div class="bg-red-50 border-l-4 border-red-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-red-800">
+                                ¡Atención! El vehículo necesita service
+                            </h3>
+                                                         <div class="mt-1 text-sm text-red-700">
+                                 <p>
+                                     Han pasado {{ number_format($vehiculo->kilometraje - ($vehiculo->services->sortByDesc('fecha_service')->first()->kilometros ?? 0)) }} km desde el último service. 
+                                 </p>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <div class="w-full max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Información Principal -->
@@ -95,29 +124,49 @@
                     <div class="px-6 py-4">
                         @forelse ($vehiculo->copres as $copres)
                             <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex-shrink-0">
-                                        <svg class="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
+                                <div class="flex-1">
+                                    <!-- Fecha, Ticket y CUIT -->
+                                    <div class="flex items-center justify-between mb-2">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $copres->fecha->format('d/m/Y') }} - {{ $copres->numero_ticket_factura }}
+                                            {{ $copres->fecha->format('d/m/Y') }} - Ticket: {{ $copres->numero_ticket_factura }}
                                         </div>
+                                        @if($copres->cuit)
                                         <div class="text-xs text-gray-500">
-                                            {{ number_format($copres->litros, 2) }} litros - ${{ number_format($copres->importe_final, 2) }}
+                                            CUIT: {{ $copres->cuit }}
+                                        </div>
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Litros y Precio por Litro -->
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="text-sm text-gray-600">
+                                            <span class="font-medium">{{ number_format($copres->litros, 2) }} L</span> 
+                                            <span class="text-xs text-gray-500">@ ${{ number_format($copres->precio_x_litro, 2) }}/L</span>
+                                        </div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            Total: ${{ number_format($copres->importe_final, 2) }}
                                         </div>
                                     </div>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <a href="{{ route('automotores.copres.show', $copres) }}" 
-                                       class="text-blue-600 hover:text-blue-900 transition-colors">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                    </a>
+                                    
+                                    <!-- Información adicional -->
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center space-x-4">
+                                            @if($copres->km_vehiculo)
+                                            <span>KM: {{ number_format($copres->km_vehiculo) }}</span>
+                                            @endif
+                                            @if($copres->kz)
+                                            <span>KZ: {{ $copres->kz }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            @if($copres->salida)
+                                            <span>Salida: {{ $copres->salida->format('d/m/Y') }}</span>
+                                            @endif
+                                            @if($copres->reentrada)
+                                            <span>Reentrada: {{ $copres->reentrada->format('d/m/Y') }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @empty
@@ -159,6 +208,11 @@
                             <span class="text-sm font-medium text-gray-900">{{ $vehiculo->copres->count() }}</span>
                         </div>
                         
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-500">Total Services:</span>
+                            <span class="text-sm font-medium text-gray-900">{{ $vehiculo->services->count() }}</span>
+                        </div>
+                        
                         @if($vehiculo->copres->count() > 0)
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-medium text-gray-500">Total litros:</span>
@@ -166,7 +220,7 @@
                             </div>
                             
                             <div class="flex items-center justify-between">
-                                <span class="text-sm font-medium text-gray-500">Total importe:</span>
+                                <span class="text-sm font-medium text-gray-500">Total importe COPRES:</span>
                                 <span class="text-sm font-medium text-gray-900">${{ number_format($vehiculo->copres->sum('importe_final'), 2) }}</span>
                             </div>
                             
@@ -175,48 +229,24 @@
                                 <span class="text-sm font-medium text-gray-900">${{ number_format($vehiculo->copres->avg('precio_x_litro'), 2) }}</span>
                             </div>
                         @endif
+
+                        @if($vehiculo->services->count() > 0)
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-500">Total costo services:</span>
+                                <span class="text-sm font-medium text-gray-900">${{ number_format($vehiculo->services->sum('costo'), 2) }}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-500">Último service:</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $vehiculo->services->sortByDesc('fecha_service')->first()->fecha_service->format('d/m/Y') }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
+               
 
-                <!-- Acciones Rápidas -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div class="flex items-center mb-4">
-                        <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-                        </svg>
-                        <h3 class="text-lg font-medium text-gray-900">Acciones</h3>
-                    </div>
-
-                    <div class="space-y-3">
-                        @can('Automotores/COPRES/Crear')
-                            <a href="{{ route('automotores.copres.create') }}?vehiculo_id={{ $vehiculo->id }}" 
-                               class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                                <svg class="w-4 h-4 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                Nueva COPRES
-                            </a>
-                        @endcan
-                        
-                        @can('Automotores/Vehículos/Editar')
-                            <a href="{{ route('automotores.vehiculos.edit', $vehiculo) }}" 
-                               class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                                <svg class="w-4 h-4 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                Editar Vehículo
-                            </a>
-                        @endcan
-                        
-                        <a href="{{ route('automotores.vehiculos.index') }}" 
-                           class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                            <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                            </svg>
-                            Volver al Listado
-                        </a>
-                    </div>
-                </div>
+                <!-- Services -->
+                <livewire:automotores.services.service-manager :vehiculo="$vehiculo" />
             </div>
         </div>
     </div>

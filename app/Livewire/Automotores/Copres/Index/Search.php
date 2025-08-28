@@ -69,7 +69,7 @@ class Search extends Component
 
     public function render()
     {
-        $copres = Copres::with(['vehiculo', 'creator', 'chofer'])
+        $copres = Copres::with(['vehiculo', 'creator'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('numero_ticket_factura', 'like', '%' . $this->search . '%')

@@ -70,8 +70,11 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Vehículo
                             </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Patente
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                
                             </th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 COPRES
@@ -109,10 +112,19 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                     {{ $vehiculo->patente }}
                                 </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                @if($vehiculo->necesita_service)
+                                <span title="Necesita service">
+                                    <svg class="inline w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zm7.94-2.5a1 1 0 00.06-2l-2.02-.17a7.03 7.03 0 00-.7-1.7l1.23-1.66a1 1 0 00-1.32-1.5l-1.66 1.23a7.03 7.03 0 00-1.7-.7l-.17-2.02a1 1 0 00-2-.06l-.17 2.02a7.03 7.03 0 00-1.7.7l-1.66-1.23a1 1 0 00-1.5 1.32l1.23 1.66a7.03 7.03 0 00-.7 1.7l-2.02.17a1 1 0 00-.06 2l2.02.17a7.03 7.03 0 00.7 1.7l-1.23 1.66a1 1 0 001.32 1.5l1.66-1.23a7.03 7.03 0 001.7.7l.17 2.02a1 1 0 002 .06l.17-2.02a7.03 7.03 0 001.7-.7l1.66 1.23a1 1 0 001.5-1.32l-1.23-1.66a7.03 7.03 0 00.7-1.7l2.02-.17z"/>
+                                    </svg>
+                                </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">

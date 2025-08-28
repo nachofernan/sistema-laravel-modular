@@ -1,8 +1,5 @@
 <x-app-layout>
     <x-page-header title="Editar Vehículo">
-        <x-slot:subtitle>
-            Modificar información de: {{ $vehiculo->nombre_completo }}
-        </x-slot:subtitle>
         <x-slot:actions>
             <a href="{{ route('automotores.vehiculos.show', $vehiculo) }}" 
                class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">

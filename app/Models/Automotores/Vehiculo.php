@@ -31,10 +31,30 @@ class Vehiculo extends Model
     }
 
     /**
+     * Obtiene todos los services asociados a este vehículo
+     */
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    /**
      * Obtiene el nombre completo del vehículo (marca + modelo)
      */
     public function getNombreCompletoAttribute(): string
     {
         return "{$this->marca} {$this->modelo}";
+    }
+    
+    public function getNecesitaServiceAttribute(): bool
+    {
+        $resto = $this->kilometraje % 10000;
+        if ($resto >= 9000 || $resto <= 3000) { //Estamos en la ventana del service
+            $ultimoService = $this->services()->orderByDesc('fecha_service')->first();
+            if(!$ultimoService || ($this->kilometraje - $ultimoService->kilometros) > 6000) {
+                return true; //Necesita service
+            }
+        }
+        return false;
     }
 }
