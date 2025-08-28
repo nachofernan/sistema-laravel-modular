@@ -58,6 +58,7 @@ class CopresController extends Controller
             'litros' => 'nullable|numeric|min:0',
             'precio_x_litro' => 'nullable|numeric|min:0',
             'importe_final' => 'required|numeric|min:0',
+            'es_original' => 'boolean',
             'km_vehiculo' => 'nullable|integer|min:0',
             'kz' => 'nullable|integer',
             'salida' => 'nullable|date',

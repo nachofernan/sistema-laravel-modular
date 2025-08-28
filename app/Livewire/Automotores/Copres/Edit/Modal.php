@@ -15,31 +15,33 @@ class Modal extends Component
     
     // Campos editables
     public $fecha;
+    public $vehiculo_id;
+    public $km_vehiculo;
     public $numero_ticket_factura;
     public $cuit;
-    public $vehiculo_id;
+    public $es_original;
     public $litros;
     public $precio_x_litro;
     public $importe_final;
-    public $km_vehiculo;
-    public $kz;
     public $salida;
     public $reentrada;
+    public $kz;
     // Datos para los selects
     public $vehiculos;
 
     protected $rules = [
         'fecha' => 'required|date',
+        'vehiculo_id' => 'required|exists:automotores.vehiculos,id',
+        'km_vehiculo' => 'nullable|integer|min:0',
         'numero_ticket_factura' => 'nullable|string|max:255',
         'cuit' => 'nullable|string|max:20',
-        'vehiculo_id' => 'required|exists:automotores.vehiculos,id',
+        'es_original' => 'boolean',
         'litros' => 'nullable|numeric|min:0',
         'precio_x_litro' => 'nullable|numeric|min:0',
         'importe_final' => 'required|numeric|min:0',
-        'km_vehiculo' => 'nullable|integer|min:0',
-        'kz' => 'nullable|integer',
         'salida' => 'nullable|date',
         'reentrada' => 'nullable|date',
+        'kz' => 'nullable|integer',
     ];
 
     protected $listeners = ['openEditModal' => 'openModal'];
@@ -60,22 +62,23 @@ class Modal extends Component
     public function closeModal()
     {
         $this->showModal = false;
-        $this->reset(['copresId', 'copres', 'fecha', 'numero_ticket_factura', 'cuit', 'vehiculo_id', 'litros', 'precio_x_litro', 'importe_final', 'km_vehiculo', 'kz', 'salida', 'reentrada']);
+        $this->reset(['copresId', 'copres', 'fecha', 'vehiculo_id', 'km_vehiculo', 'numero_ticket_factura', 'cuit', 'es_original', 'litros', 'precio_x_litro', 'importe_final', 'salida', 'reentrada', 'kz']);
     }
 
     public function loadData()
     {
-        $this->fecha = $this->copres->fecha;
+        $this->fecha = $this->copres->fecha ? $this->copres->fecha->format('Y-m-d') : null;
+        $this->vehiculo_id = $this->copres->vehiculo_id;
+        $this->km_vehiculo = $this->copres->km_vehiculo;
         $this->numero_ticket_factura = $this->copres->numero_ticket_factura;
         $this->cuit = $this->copres->cuit;
-        $this->vehiculo_id = $this->copres->vehiculo_id;
+        $this->es_original = $this->copres->es_original;
         $this->litros = $this->copres->litros;
         $this->precio_x_litro = $this->copres->precio_x_litro;
         $this->importe_final = $this->copres->importe_final;
-        $this->km_vehiculo = $this->copres->km_vehiculo;
+        $this->salida = $this->copres->salida ? $this->copres->salida->format('Y-m-d') : null;
+        $this->reentrada = $this->copres->reentrada ? $this->copres->reentrada->format('Y-m-d') : null;
         $this->kz = $this->copres->kz;
-        $this->salida = $this->copres->salida;
-        $this->reentrada = $this->copres->reentrada;
     }
 
     public function save()
@@ -84,16 +87,17 @@ class Modal extends Component
 
         $this->copres->update([
             'fecha' => $this->fecha,
+            'vehiculo_id' => $this->vehiculo_id,
+            'km_vehiculo' => $this->km_vehiculo,
             'numero_ticket_factura' => $this->numero_ticket_factura,
             'cuit' => $this->cuit,
-            'vehiculo_id' => $this->vehiculo_id,
+            'es_original' => $this->es_original,
             'litros' => $this->litros,
             'precio_x_litro' => $this->precio_x_litro,
             'importe_final' => $this->importe_final,
-            'km_vehiculo' => $this->km_vehiculo,
-            'kz' => $this->kz,
             'salida' => $this->salida,
             'reentrada' => $this->reentrada,
+            'kz' => $this->kz,
         ]);
 
         // Actualizar kilometraje del vehículo si se proporcionó

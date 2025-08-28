@@ -133,11 +133,11 @@
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                KZ
+                                Salida/Reentrada
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Salida/Reentrada
+                                KZ
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -147,10 +147,21 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach ($copres as $copre)
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors
+                            @if(!$copre->es_original)
+                                bg-red-100 hover:bg-red-200
+                            @endif
+                            ">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-xs font-medium text-gray-900">
                                         {{ $copre->fecha->format('d/m/Y') }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        @if($copre->es_original)
+                                            Original
+                                        @else
+                                            ¡Copia!
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -187,13 +198,6 @@
                                         ${{ number_format($copre->importe_final, 2) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-xs">
-                                    @if ($copre->kz)
-                                        {{ $copre->kz }}
-                                    @else
-                                        <span class="text-xs text-gray-400">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-xs">
                                     @if ($copre->salida)
                                         {{ $copre->salida->format('d/m/Y') }}
                                     @else
@@ -202,6 +206,13 @@
                                 <br>
                                     @if ($copre->reentrada)
                                         {{ $copre->reentrada->format('d/m/Y') }}
+                                    @else
+                                        <span class="text-xs text-gray-400">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-xs">
+                                    @if ($copre->kz)
+                                        {{ $copre->kz }}
                                     @else
                                         <span class="text-xs text-gray-400">-</span>
                                     @endif

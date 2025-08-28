@@ -42,53 +42,56 @@
                                 @error('vehiculo_id') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
-                            <!-- Ticket/Factura -->
+                            <!-- Kilometraje del Vehículo -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Ticket/Factura</label>
-                                <input type="text" wire:model="numero_ticket_factura" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kilometraje del Vehículo</label>
+                                <input type="number" wire:model="km_vehiculo" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0">
+                                @error('km_vehiculo') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Número de Ticket/Factura -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Número de Ticket/Factura</label>
+                                <input type="text" wire:model="numero_ticket_factura" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ej: 001-00000001" maxlength="13">
                                 @error('numero_ticket_factura') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- CUIT -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">CUIT</label>
-                                <input type="text" wire:model="cuit" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <input type="text" wire:model="cuit" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ej: 20-12345678-9" maxlength="13">
                                 @error('cuit') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Tipo de Documento -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Documento</label>
+                                <select wire:model="es_original" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="1">Original</option>
+                                    <option value="0">Copia</option>
+                                </select>
+                                @error('es_original') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Litros -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Litros</label>
-                                <input type="number" step="0.01" wire:model="litros" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <input type="number" step="0.01" wire:model="litros" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0.00">
                                 @error('litros') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Precio por Litro -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Precio/Litro</label>
-                                <input type="number" step="0.01" wire:model="precio_x_litro" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Precio por Litro</label>
+                                <input type="number" step="0.01" wire:model="precio_x_litro" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0.00">
                                 @error('precio_x_litro') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Importe Final -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Importe *</label>
-                                <input type="number" step="0.01" wire:model="importe_final" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Importe Final *</label>
+                                <input type="number" step="0.01" wire:model="importe_final" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0.00" required>
                                 @error('importe_final') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- KM -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">KM</label>
-                                <input type="number" wire:model="km_vehiculo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                @error('km_vehiculo') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
-                            </div>
-
-                            <!-- KZ -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">KZ (Referencia SAP)</label>
-                                <input type="number" wire:model="kz" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                @error('kz') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
                             <!-- Fecha de Salida -->
@@ -105,6 +108,12 @@
                                 @error('reentrada') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
                             </div>
 
+                            <!-- KZ -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">KZ (Referencia SAP)</label>
+                                <input type="number" wire:model="kz" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Referencia SAP">
+                                @error('kz') <span class="text-xs text-red-600">{{ $message }}</span> @enderror
+                            </div>
 
                         </div>
 

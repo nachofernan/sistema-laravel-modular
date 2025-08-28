@@ -121,14 +121,25 @@
                         </div>
                     </div>
 
-                    <div class="px-6 py-4">
+                    <div class="py-4">
                         @forelse ($vehiculo->copres as $copres)
-                            <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                            <div class="flex items-center justify-between py-3 px-6 border-b border-gray-100 last:border-b-0
+                            @if(!$copres->es_original)
+                                bg-red-100
+                            @endif
+                            ">
                                 <div class="flex-1">
                                     <!-- Fecha, Ticket y CUIT -->
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="text-sm font-medium text-gray-900">
                                             {{ $copres->fecha->format('d/m/Y') }} - Ticket: {{ $copres->numero_ticket_factura }}
+                                            <span class="text-xs text-gray-500 ml-2">
+                                                @if($copres->es_original)
+                                                    Original
+                                                @else
+                                                    ¡Copia!
+                                                @endif
+                                            </span>
                                         </div>
                                         @if($copres->cuit)
                                         <div class="text-xs text-gray-500">
@@ -137,16 +148,16 @@
                                         @endif
                                     </div>
                                     
-                                    <!-- Litros y Precio por Litro -->
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="text-sm text-gray-600">
-                                            <span class="font-medium">{{ number_format($copres->litros, 2) }} L</span> 
-                                            <span class="text-xs text-gray-500">@ ${{ number_format($copres->precio_x_litro, 2) }}/L</span>
-                                        </div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            Total: ${{ number_format($copres->importe_final, 2) }}
-                                        </div>
-                                    </div>
+                                                                         <!-- Litros y Precio por Litro -->
+                                     <div class="flex items-center justify-between mb-2">
+                                         <div class="text-sm text-gray-600">
+                                             <span class="font-medium">{{ number_format($copres->litros, 2) }} L</span> 
+                                             <span class="text-xs text-gray-500">@ ${{ number_format($copres->precio_x_litro, 2) }}/L</span>
+                                         </div>
+                                         <div class="text-sm font-medium text-gray-900">
+                                             Total: ${{ number_format($copres->importe_final, 2) }}
+                                         </div>
+                                     </div>
                                     
                                     <!-- Información adicional -->
                                     <div class="flex items-center justify-between text-xs text-gray-500">
