@@ -124,7 +124,7 @@
                     <div class="border-t border-gray-200 mb-2"></div>
                     <div class="px-0 py-2">
                         <p class="text-xs text-gray-400 text-center">
-                            versión 1.0.0 - Nacho
+                            V{{ env('APP_VERSION', '1.0.0') }} - Nacho
                         </p>
                     </div>
                 </div>

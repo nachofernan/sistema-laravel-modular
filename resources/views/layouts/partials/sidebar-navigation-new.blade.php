@@ -6,8 +6,22 @@ $currentModule = $sidebarService->getCurrentModule();
 $visibleModules = $sidebarService->getVisibleModules();
 @endphp
 
-{{-- Inicializar Alpine con el módulo activo --}}
-<div x-data="{ openModule: '{{ $currentModule }}', userMenuOpen: false }">
+{{-- Inicializar Alpine con un array de módulos abiertos --}}
+<div x-data="{ 
+    openModules: ['{{ $currentModule }}'], 
+    userMenuOpen: false,
+    toggleModule(moduleKey) {
+        const index = this.openModules.indexOf(moduleKey);
+        if (index > -1) {
+            this.openModules.splice(index, 1);
+        } else {
+            this.openModules.push(moduleKey);
+        }
+    },
+    isModuleOpen(moduleKey) {
+        return this.openModules.includes(moduleKey);
+    }
+}">
 
 {{-- SECCIÓN USUARIO --}}
 <div class="mb-4">
@@ -46,15 +60,15 @@ $visibleModules = $sidebarService->getVisibleModules();
 
 {{-- SECCIÓN PLATAFORMA --}}
 <div>
-    <button @click="openModule = openModule === 'plataforma' ? null : 'plataforma'" 
+    <button @click="toggleModule('plataforma')" 
             class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors
                    {{ $currentModule === 'plataforma' ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
         <span>Plataforma</span>
-        <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === 'plataforma'}" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': isModuleOpen('plataforma')}" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
         </svg>
     </button>
-    <div x-show="openModule === 'plataforma'" class="ml-6 mt-1 space-y-1">
+    <div x-show="isModuleOpen('plataforma')" class="ml-6 mt-1 space-y-1">
         <a href="{{ route('home') }}" 
            class="block px-3 py-1 text-sm transition-colors {{ request()->routeIs('home') && !request()->has('categoria') ? 'text-blue-600 font-medium border-l-2 border-blue-600 pb-1' : 'text-gray-600 hover:text-gray-900' }}">
             Buscador
@@ -99,18 +113,18 @@ $visibleModules = $sidebarService->getVisibleModules();
     @if ($moduleConfig['type'] === 'dropdown')
         {{-- Módulo con submenú --}}
         <div>
-            <button @click="openModule = openModule === '{{ $moduleKey }}' ? null : '{{ $moduleKey }}'" 
+            <button @click="toggleModule('{{ $moduleKey }}')" 
                     class="{{ $sidebarService->getMenuItemClasses($moduleKey, $currentModule) }}">
                 <div class="flex items-center">
                     <span>{{ $moduleConfig['name'] }}</span>
                     {!! $sidebarService->getMaintenanceIndicator($moduleKey, $moduleConfig) !!}
                 </div>
-                <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': openModule === '{{ $moduleKey }}'}" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-4 h-4 transition-transform" :class="{'rotate-90': isModuleOpen('{{ $moduleKey }}')}" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                 </svg>
             </button>
             
-            <div x-show="openModule === '{{ $moduleKey }}'" class="ml-6 mt-1 space-y-1">
+            <div x-show="isModuleOpen('{{ $moduleKey }}')" class="ml-6 mt-1 space-y-1">
                 @foreach ($sidebarService->getVisibleSubmenuItems($moduleConfig['submenu']) as $item)
                     @if ($sidebarService->routeExists($item['route']))
                         <a href="{{ route($item['route']) }}" 
