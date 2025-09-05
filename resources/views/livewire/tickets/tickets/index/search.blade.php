@@ -70,7 +70,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Categoría
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                         Estado
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -80,7 +80,7 @@
                         Encargado
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Documento
+                        Doc.
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Fecha
@@ -106,7 +106,7 @@
                                 {{ $ticket->categoria->nombre }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                          {{ $ticket->finalizado ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800' }}">
                                 {{ $ticket->estado->nombre }}
@@ -125,17 +125,9 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-xs text-gray-900">
                                 @if($ticket->documento)
-                                    @php $media = $ticket->documento->getFirstMedia('archivos') @endphp
-                                    @if($media)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                            </svg>
-                                            Sí
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400">No disponible</span>
-                                    @endif
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Sí
+                                    </span>
                                 @else
                                     <span class="text-gray-400">No</span>
                                 @endif
