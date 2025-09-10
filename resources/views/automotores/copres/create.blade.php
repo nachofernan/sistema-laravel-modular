@@ -47,7 +47,7 @@
                             @foreach ($vehiculos as $vehiculo)
                                 <option value="{{ $vehiculo->id }}"
                                     {{ old('vehiculo_id', request('vehiculo_id')) == $vehiculo->id ? 'selected' : '' }}>
-                                    {{ $vehiculo->marca }} {{ $vehiculo->modelo }} - {{ $vehiculo->patente }}
+                                    {{ $vehiculo->patente }} - {{ $vehiculo->marca }} {{ $vehiculo->modelo }}
                                     ({{ number_format($vehiculo->kilometraje) }} km)
                                 </option>
                             @endforeach
