@@ -306,7 +306,7 @@
                                         </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
-                                    <a href="{{ route('proveedores.documentos.show', $apoderado->documento) }}" 
+                                    <a href="{{ route('proveedores.documentos.show', $apoderado->last_documento) }}" 
                                         class="text-blue-600 hover:underline" target="_blank">
                                         Descargar
                                     </a>
