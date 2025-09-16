@@ -306,6 +306,10 @@
                                         </div>
                                 </div>
                                 <div class="flex items-center space-x-2">
+                                    <a href="{{ route('proveedores.documentos.show', $apoderado->documento) }}" 
+                                        class="text-blue-600 hover:underline" target="_blank">
+                                        Descargar
+                                    </a>
                                     @can('Proveedores/Proveedores/Editar')
                                         @livewire('proveedores.proveedors.show.editar-apoderados', ['apoderado' => $apoderado], key($apoderado->id.microtime(true)))
                                         @livewire('proveedores.proveedors.show.borrar-apoderado', ['apoderado' => $apoderado], key($apoderado->id.microtime(true)))
