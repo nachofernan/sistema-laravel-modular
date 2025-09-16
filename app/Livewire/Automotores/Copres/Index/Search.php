@@ -11,24 +11,34 @@ class Search extends Component
 {
     use WithPagination;
 
-    public $search = '';
+    // Filtros
     public $fecha_desde = '';
     public $fecha_hasta = '';
     public $vehiculo_filter = '';
     public $cuit_filter = '';
+    public $kz_filter = '';
+    public $ticket_filter = '';
+    public $importe_desde = '';
+    public $importe_hasta = '';
+    public $solo_copias = false;
+    
+    // Ordenamiento
+    public $sortBy = 'fecha';
+    public $sortDirection = 'desc';
 
     protected $queryString = [
-        'search' => ['except' => ''],
         'fecha_desde' => ['except' => ''],
         'fecha_hasta' => ['except' => ''],
         'vehiculo_filter' => ['except' => ''],
         'cuit_filter' => ['except' => ''],
+        'kz_filter' => ['except' => ''],
+        'ticket_filter' => ['except' => ''],
+        'importe_desde' => ['except' => ''],
+        'importe_hasta' => ['except' => ''],
+        'solo_copias' => ['except' => false],
+        'sortBy' => ['except' => 'fecha'],
+        'sortDirection' => ['except' => 'desc'],
     ];
-
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
 
     public function updatingFechaDesde()
     {
@@ -50,9 +60,48 @@ class Search extends Component
         $this->resetPage();
     }
 
+    public function updatingKzFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTicketFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingImporteDesde()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingImporteHasta()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSoloCopias()
+    {
+        $this->resetPage();
+    }
+
     public function limpiarFiltros()
     {
-        $this->reset(['search', 'fecha_desde', 'fecha_hasta', 'vehiculo_filter', 'cuit_filter']);
+        $this->reset([
+            'fecha_desde', 'fecha_hasta', 'vehiculo_filter', 'cuit_filter', 
+            'kz_filter', 'ticket_filter', 'importe_desde', 'importe_hasta', 'solo_copias'
+        ]);
+        $this->resetPage();
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortBy === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $field;
+            $this->sortDirection = 'asc';
+        }
         $this->resetPage();
     }
 
@@ -70,12 +119,6 @@ class Search extends Component
     public function render()
     {
         $copres = Copres::with(['vehiculo', 'creator'])
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('numero_ticket_factura', 'like', '%' . $this->search . '%')
-                      ->orWhere('cuit', 'like', '%' . $this->search . '%');
-                });
-            })
             ->when($this->fecha_desde, function ($query) {
                 $query->where('fecha', '>=', $this->fecha_desde);
             })
@@ -88,7 +131,29 @@ class Search extends Component
             ->when($this->cuit_filter, function ($query) {
                 $query->where('cuit', 'like', '%' . $this->cuit_filter . '%');
             })
-            ->orderBy('fecha', 'desc')
+            ->when($this->kz_filter, function ($query) {
+                $query->where('kz', 'like', '%' . $this->kz_filter . '%');
+            })
+            ->when($this->ticket_filter, function ($query) {
+                $query->where('numero_ticket_factura', 'like', '%' . $this->ticket_filter . '%');
+            })
+            ->when($this->importe_desde, function ($query) {
+                $query->where('importe_final', '>=', $this->importe_desde);
+            })
+            ->when($this->importe_hasta, function ($query) {
+                $query->where('importe_final', '<=', $this->importe_hasta);
+            })
+            ->when($this->solo_copias, function ($query) {
+                $query->where('es_original', false);
+            })
+            ->when($this->sortBy === 'vehiculo', function ($query) {
+                $query->join('vehiculos', 'copres.vehiculo_id', '=', 'vehiculos.id')
+                      ->orderBy('vehiculos.marca', $this->sortDirection)
+                      ->orderBy('vehiculos.modelo', $this->sortDirection)
+                      ->select('copres.*');
+            }, function ($query) {
+                $query->orderBy($this->sortBy, $this->sortDirection);
+            })
             ->paginate(30);
 
         $vehiculos = Vehiculo::orderBy('marca')->orderBy('modelo')->get();

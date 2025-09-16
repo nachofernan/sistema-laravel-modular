@@ -95,9 +95,9 @@ class Modal extends Component
             'litros' => $this->litros,
             'precio_x_litro' => $this->precio_x_litro,
             'importe_final' => $this->importe_final,
-            'salida' => $this->salida,
-            'reentrada' => $this->reentrada,
-            'kz' => $this->kz,
+            'salida' => empty($this->salida) ? null : $this->salida,
+            'reentrada' => empty($this->reentrada) ? null : $this->reentrada,
+            'kz' => empty($this->kz) ? null : $this->kz,
         ]);
 
         // Actualizar kilometraje del vehículo si se proporcionó

@@ -14,25 +14,7 @@
             </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            <!-- Búsqueda general -->
-            <div>
-                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
-                    Búsqueda general
-                </label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <input type="text" wire:model.live="search" id="search"
-                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Ticket, CUIT...">
-                </div>
-            </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             <!-- Fecha desde -->
             <div>
                 <label for="fecha_desde" class="block text-sm font-medium text-gray-700 mb-2">
@@ -75,6 +57,57 @@
                     class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Filtrar por CUIT...">
             </div>
+
+            <!-- KZ -->
+            <div>
+                <label for="kz_filter" class="block text-sm font-medium text-gray-700 mb-2">
+                    KZ
+                </label>
+                <input type="text" wire:model.live="kz_filter" id="kz_filter"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Filtrar por KZ...">
+            </div>
+
+            <!-- Ticket -->
+            <div>
+                <label for="ticket_filter" class="block text-sm font-medium text-gray-700 mb-2">
+                    Ticket
+                </label>
+                <input type="text" wire:model.live="ticket_filter" id="ticket_filter"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Filtrar por ticket...">
+            </div>
+
+            <!-- Importe desde -->
+            <div>
+                <label for="importe_desde" class="block text-sm font-medium text-gray-700 mb-2">
+                    Importe desde
+                </label>
+                <input type="number" step="0.01" wire:model.live="importe_desde" id="importe_desde"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="0.00">
+            </div>
+
+            <!-- Importe hasta -->
+            <div>
+                <label for="importe_hasta" class="block text-sm font-medium text-gray-700 mb-2">
+                    Importe hasta
+                </label>
+                <input type="number" step="0.01" wire:model.live="importe_hasta" id="importe_hasta"
+                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="0.00">
+            </div>
+
+            <!-- Solo copias -->
+            <div class="flex items-end">
+                <div class="flex items-center">
+                    <input type="checkbox" wire:model.live="solo_copias" id="solo_copias"
+                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="solo_copias" class="ml-2 block text-sm font-medium text-gray-700">
+                        Solo copias
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -111,9 +144,26 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Fecha
+                            <th scope="col" wire:click="sortBy('fecha')"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-1">
+                                    <span>Fecha</span>
+                                    @if($sortBy === 'fecha')
+                                        @if($sortDirection === 'asc')
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                                        </svg>
+                                    @endif
+                                </div>
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -265,7 +315,7 @@
                 </svg>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No se encontraron registros de COPRES</h3>
                 <p class="text-gray-500 mb-6">
-                    @if ($search || $fecha_desde || $fecha_hasta || $vehiculo_filter || $cuit_filter)
+                    @if ($fecha_desde || $fecha_hasta || $vehiculo_filter || $cuit_filter || $kz_filter || $ticket_filter || $importe_desde || $importe_hasta || $solo_copias)
                         No hay registros que coincidan con los filtros aplicados
                     @else
                         No hay registros de COPRES en el sistema
