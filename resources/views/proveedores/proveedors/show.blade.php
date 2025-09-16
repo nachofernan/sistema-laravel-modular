@@ -365,6 +365,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     @can('Proveedores/Proveedores/Editar')
+                                        @livewire('proveedores.proveedors.show.editar-contacto', ['contacto' => $contacto], key($contacto->id.microtime(true)))
                                         @livewire('proveedores.proveedors.show.borrar-contacto', ['contacto' => $contacto], key($contacto->id.microtime(true)))
                                     @endcan
                                 </div>
@@ -418,6 +419,7 @@
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     @can('Proveedores/Proveedores/Editar')
+                                        @livewire('proveedores.proveedors.show.editar-direccion', ['direccion' => $direccion], key($direccion->id.microtime(true)))
                                         @livewire('proveedores.proveedors.show.borrar-direccion', ['direccion' => $direccion], key($direccion->id.microtime(true)))
                                     @endcan
                                 </div>

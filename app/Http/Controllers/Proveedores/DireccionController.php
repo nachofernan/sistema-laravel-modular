@@ -68,6 +68,8 @@ class DireccionController extends Controller
     public function update(Request $request, Direccion $direccion)
     {
         //
+        $direccion->update($request->all());
+        return redirect()->route('proveedores.proveedors.show', $direccion->proveedor)->with('info', 'Se actualizó con éxito');
     }
 
     /**
