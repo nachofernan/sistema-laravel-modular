@@ -94,7 +94,7 @@ class Search extends Component
         $this->resetPage();
     }
 
-    public function sortBy($field)
+    public function sortByField($field)
     {
         if ($this->sortBy === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -152,7 +152,13 @@ class Search extends Component
                       ->orderBy('vehiculos.modelo', $this->sortDirection)
                       ->select('copres.*');
             }, function ($query) {
-                $query->orderBy($this->sortBy, $this->sortDirection);
+                // Para ordenamiento por columnas que pueden tener valores NULL, los colocamos al final
+                if (in_array($this->sortBy, ['kz'])) {
+                    $query->orderByRaw("CASE WHEN {$this->sortBy} IS NULL OR {$this->sortBy} = '' THEN 1 ELSE 0 END")
+                          ->orderBy($this->sortBy, $this->sortDirection);
+                } else {
+                    $query->orderBy($this->sortBy, $this->sortDirection);
+                }
             })
             ->paginate(30);
 
