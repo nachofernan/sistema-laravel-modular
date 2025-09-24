@@ -41,13 +41,13 @@
                         <!-- Usuario SSH -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Usuario SSH</label>
-                            <input type="text" wire:model="user" class="input-full" placeholder="usuario">
+                            <input type="text" wire:model="user" class="input-full" placeholder="usuario" autocomplete="off">
                         </div>
 
                         <!-- Contraseña SSH -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña SSH</label>
-                            <input type="password" wire:model="password" class="input-full" placeholder="contraseña">
+                            <input type="text" wire:model="password" class="input-full" placeholder="contraseña" autocomplete="new-password">
                         </div>
 
                         <!-- Usuario Asignado -->
