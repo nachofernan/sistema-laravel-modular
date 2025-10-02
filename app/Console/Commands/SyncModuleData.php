@@ -13,7 +13,7 @@ class SyncModuleData extends Command
     private $availableModules = [
         'usuarios', 'tickets', 'inventario', 'documentos', 
         'adminip', 'capacitaciones', 'proveedores', 
-        'proveedores_externos', 'concursos', 'mesadeentradas'
+        'proveedores_externos', 'concursos', 'mesadeentradas', 'automotores'
     ];
 
     public function handle()

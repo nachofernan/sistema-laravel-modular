@@ -40,6 +40,10 @@ class Search extends Component
         'sortDirection' => ['except' => 'desc'],
     ];
 
+    protected $listeners = [
+        'copresUpdated' => '$refresh'
+    ];
+
     public function updatingFechaDesde()
     {
         $this->resetPage();
@@ -160,7 +164,7 @@ class Search extends Component
                     $query->orderBy($this->sortBy, $this->sortDirection);
                 }
             })
-            ->paginate(30);
+            ->paginate(15);
 
         $vehiculos = Vehiculo::orderBy('marca')->orderBy('modelo')->get();
 

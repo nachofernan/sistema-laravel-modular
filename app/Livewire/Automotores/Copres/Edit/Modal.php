@@ -19,7 +19,7 @@ class Modal extends Component
     public $km_vehiculo;
     public $numero_ticket_factura;
     public $cuit;
-    public $es_original;
+    public int $es_original;
     public $litros;
     public $precio_x_litro;
     public $importe_final;
@@ -106,9 +106,11 @@ class Modal extends Component
             $vehiculo->update(['kilometraje' => $this->km_vehiculo]);
         }
 
+        // Emitir evento para actualizar la lista sin perder filtros
+        $this->dispatch('copresUpdated');
+        
         $this->closeModal();
         session()->flash('info', 'COPRES actualizada exitosamente');
-        return redirect()->route('automotores.copres.index');
     }
 
     public function render()
