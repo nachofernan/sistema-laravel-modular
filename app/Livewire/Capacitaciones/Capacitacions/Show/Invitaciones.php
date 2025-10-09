@@ -9,18 +9,21 @@ use Livewire\Component;
 class Invitaciones extends Component
 {
     public $capacitacion;
-    public $user_id;
+    public $open = false;
+    public $selectedUsers = [];
 
     public function agregar()
     {
-        if($this->user_id) {
-            Invitacion::create([
-                'user_id' => $this->user_id,
-                'capacitacion_id' => $this->capacitacion->id,
-                'tipo' => 'presencial', // Por defecto presencial
-            ]);
-            $this->user_id = null;
-            $this->render();
+        if(count($this->selectedUsers) > 0) {
+            foreach($this->selectedUsers as $userId) {
+                Invitacion::create([
+                    'user_id' => $userId,
+                    'capacitacion_id' => $this->capacitacion->id,
+                    'tipo' => 'presencial', // Por defecto presencial
+                ]);
+            }
+            $this->selectedUsers = [];
+            $this->open = false;
         }
     }
 

@@ -56,7 +56,7 @@
                     // Establecer timeout de 1 segundo
                     this.hoverTimeout = setTimeout(() => {
                         this.sidebarHovered = false;
-                    }, 1000);
+                    }, 1500);
                 }
             },
             getSidebarWidth() {
