@@ -84,6 +84,7 @@ $visibleModules = $sidebarService->getVisibleModules();
         
         {{-- Mi Portal --}}
         @auth
+        <hr>
         <a href="{{ route('home.dashboard') }}" 
            class="block px-3 py-1 text-sm transition-colors {{ (request()->routeIs('home.dashboard') ||  request()->routeIs('home.tickets.*')) ? 'text-blue-600 font-medium border-l-2 border-blue-600 pb-1' : 'text-gray-600 hover:text-gray-900' }}">
             Sistemas
