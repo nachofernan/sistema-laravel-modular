@@ -37,7 +37,7 @@
                 @livewire('dashboard.mi-inventario')
 
             <!-- Componente: Mis Capacitaciones -->
-                @livewire('dashboard.mis-capacitaciones')
+                {{-- @livewire('dashboard.mis-capacitaciones') --}}
 
         </div>
 
