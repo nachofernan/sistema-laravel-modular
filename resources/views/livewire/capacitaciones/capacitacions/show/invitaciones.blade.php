@@ -211,7 +211,7 @@
 
         <!-- Modal panel -->
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl"
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl"
                  x-show="open"
                  x-transition:enter="ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -242,10 +242,25 @@
                 </div>
 
                 <!-- Body scrolleable -->
-                <div class="px-6 py-4 max-h-96 overflow-y-auto">
+                <div class="px-6 py-4 max-h-[75vh] overflow-y-auto">
                     @if($usuarios->count() > 0)
                         <!-- Seleccionar todos -->
                         <div class="mb-4 pb-3 border-b border-gray-200 sticky top-0 bg-white z-10">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-2 mb-2">
+                                <div class="col-span-1 sm:col-span-2">
+                                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Buscar por legajo o nombre..." class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                                </div>
+                                <div>
+                                    <select wire:model.live="sedeId" class="w-full text-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">Todas las sedes</option>
+                                        @isset($sedes)
+                                            @foreach($sedes as $sede)
+                                                <option value="{{ $sede->id }}">{{ $sede->nombre }}</option>
+                                            @endforeach
+                                        @endisset
+                                    </select>
+                                </div>
+                            </div>
                             <label class="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors">
                                 <input type="checkbox" 
                                        x-model="selectAll"
@@ -264,7 +279,7 @@
                         <!-- Lista de usuarios -->
                         <div class="space-y-2">
                             @foreach($usuarios as $usuario)
-                            <label class="flex items-center cursor-pointer hover:bg-gray-50 p-3 rounded-md transition-colors">
+                            <label wire:key="usuario-{{ $usuario->id }}" class="flex items-center cursor-pointer hover:bg-gray-50 p-3 rounded-md transition-colors">
                                 <input type="checkbox" 
                                        value="{{ $usuario->id }}"
                                        wire:model="selectedUsers"
@@ -272,6 +287,9 @@
                                 <div class="ml-3 flex-1">
                                     <span class="text-sm font-medium text-gray-900">{{ $usuario->realname }}</span>
                                     <span class="text-xs text-gray-500 ml-2">Legajo: {{ $usuario->legajo }}</span>
+                                    @if($usuario->sede)
+                                        <span class="text-xs text-gray-500 ml-2">Sede: {{ $usuario->sede->nombre }}</span>
+                                    @endif
                                 </div>
                             </label>
                             @endforeach

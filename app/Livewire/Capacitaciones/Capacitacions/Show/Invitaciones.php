@@ -4,6 +4,7 @@ namespace App\Livewire\Capacitaciones\Capacitacions\Show;
 
 use App\Models\Capacitaciones\Invitacion;
 use App\Models\User;
+use App\Models\Usuarios\Sede;
 use Livewire\Component;
 
 class Invitaciones extends Component
@@ -11,6 +12,8 @@ class Invitaciones extends Component
     public $capacitacion;
     public $open = false;
     public $selectedUsers = [];
+    public $search = '';
+    public $sedeId = '';
 
     public function agregar()
     {
@@ -47,7 +50,24 @@ class Invitaciones extends Component
     public function render()
     {
         $invitados = $this->capacitacion->invitaciones->pluck('user_id');
-        $usuarios = User::whereNotIn('id', $invitados)->where('legajo', '>', 0)->orderBy('legajo')->get();
-        return view('livewire.capacitaciones.capacitacions.show.invitaciones', compact('usuarios'));
+        $query = User::whereNotIn('id', $invitados)
+            ->where('legajo', '>', 0);
+
+        if(trim($this->search) !== '') {
+            $texto = trim($this->search);
+            $query->where(function($q) use ($texto) {
+                $q->where('legajo', 'like', "%$texto%")
+                  ->orWhere('realname', 'like', "%$texto%");
+            });
+        }
+
+        if(!empty($this->sedeId)) {
+            $query->where('sede_id', $this->sedeId);
+        }
+
+        $usuarios = $query->orderBy('legajo')->get();
+        $sedes = Sede::orderBy('nombre')->get();
+
+        return view('livewire.capacitaciones.capacitacions.show.invitaciones', compact('usuarios', 'sedes'));
     }
 }

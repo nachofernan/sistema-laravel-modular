@@ -76,7 +76,7 @@
                             <input type="date" 
                                    name="fecha_inicio" 
                                    id="fecha_inicio"
-                                   value="{{ old('fecha_inicio', $capacitacion->fecha_inicio) }}" 
+                                   value="{{ old('fecha_inicio', \Carbon\Carbon::parse($capacitacion->fecha_inicio)->format('Y-m-d')) }}" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha_inicio') border-red-500 @enderror" 
                                    required>
                             @error('fecha_inicio')
@@ -91,7 +91,7 @@
                             <input type="date" 
                                    name="fecha_final" 
                                    id="fecha_final"
-                                   value="{{ old('fecha_final', $capacitacion->fecha_final) }}" 
+                                   value="{{ old('fecha_final', \Carbon\Carbon::parse($capacitacion->fecha_final)->format('Y-m-d')) }}" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors @error('fecha_final') border-red-500 @enderror" 
                                    required>
                             @error('fecha_final')
