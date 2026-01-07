@@ -183,4 +183,9 @@ class ProveedorController extends Controller
         return (new ProveedorExport)->download($nombre);
     }
 
+    public function anexosolped()
+    {
+        return view('proveedores.anexosolped.create');
+    }
+
 }

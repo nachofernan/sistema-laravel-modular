@@ -104,6 +104,12 @@ return [
                     'route' => 'proveedores.rubros.index',
                     'permission' => 'Proveedores/Rubros/Ver',
                     'active_when' => 'proveedores.rubros.*'
+                ],
+                [
+                    'name' => 'Crear Anexo Solped',
+                    'route' => 'proveedores.anexosolped',
+                    'permission' => 'Proveedores/Proveedores/Ver',
+                    'active_when' => 'proveedores.anexosolped'
                 ]
             ]
         ],

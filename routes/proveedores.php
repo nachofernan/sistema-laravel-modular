@@ -35,6 +35,8 @@ Route::prefix('proveedores')->name('proveedores.')->group(function () {
         Route::resource('rubros', RubroController::class)->names('rubros');
 
         Route::get('eliminados', [ProveedorController::class, 'eliminados'])->name('proveedors.eliminados');
+        
+        Route::get('anexosolped', [ProveedorController::class, 'anexosolped'])->name('anexosolped');
 
         Route::get('export', [ProveedorController::class, 'export'])->name('proveedors.export');
         Route::get('proveedors/{proveedor}/rubros', [ProveedorController::class, 'rubros'])->name('proveedors.rubros');
