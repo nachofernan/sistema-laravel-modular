@@ -93,10 +93,10 @@ $visibleModules = $sidebarService->getVisibleModules();
            class="block px-3 py-1 text-sm transition-colors {{ (request()->routeIs('home.capacitacions.*') || request()->routeIs('home.encuestas.*')) ? 'text-blue-600 font-medium border-l-2 border-blue-600 pb-1' : 'text-gray-600 hover:text-gray-900' }}">
             Capacitaciones
         </a>
-        <a href="{{ route('titobot') }}" 
+        {{-- <a href="{{ route('titobot') }}" 
            class="block px-3 py-1 text-sm transition-colors {{ request()->routeIs('titobot') ? 'text-blue-600 font-medium border-l-2 border-blue-600 pb-1' : 'text-gray-600 hover:text-gray-900' }}">
             TitoBot
-        </a>
+        </a> --}}
         @endauth
     </div>
 </div>
