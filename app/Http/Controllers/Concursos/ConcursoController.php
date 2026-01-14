@@ -42,13 +42,16 @@ class ConcursoController extends Controller
     public function index()
     {
         //
-        $precargas = Concurso::where('estado_id', 1)->orderBy('fecha_cierre', 'desc')->get();
+        //$precargas = Concurso::where('estado_id', 1)->orderBy('fecha_cierre', 'desc')->get();
+        $precargas = Concurso::where('estado_id', 1)->where('fecha_cierre', '>', now())->orderBy('fecha_cierre', 'desc')->get();
+        $vencidos = Concurso::where('estado_id', 1)->where('fecha_cierre', '<=', now())->orderBy('fecha_cierre', 'desc')->get();
         $activos = Concurso::where('estado_id', 2)->where('fecha_cierre', '>', now())->orderBy('fecha_cierre', 'desc')->get();
-        $cerrados = Concurso::where('estado_id', 2)->where('fecha_cierre', '<', now())->orderBy('fecha_cierre', 'desc')->get();
+        $cerrados = Concurso::where('estado_id', 2)->where('fecha_cierre', '<=', now())->orderBy('fecha_cierre', 'desc')->get();
         $analisis = Concurso::where('estado_id', 3)->orderBy('fecha_cierre', 'desc')->get();
         return view('concursos.concursos.index', 
             compact(
                 'precargas', 
+                'vencidos', 
                 'activos', 
                 'cerrados',
                 'analisis',

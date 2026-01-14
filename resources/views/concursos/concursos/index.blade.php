@@ -303,6 +303,54 @@
                 @endforeach
             </div>
         </div>
+
+        <!-- Concursos Vencidos -->
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                    <span class="h-4 w-4 rounded-full bg-gray-600 mr-3"></span>
+                    Vencidos
+                    <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">{{ $precargas->count() }}</span>
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                @foreach($vencidos as $concurso)
+                <a href="{{ route('concursos.concursos.show', $concurso) }}" 
+                   class="group block transition-all duration-200 ease-in-out hover:scale-[1.02]">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 overflow-hidden">
+                        <!-- Header con gradiente -->
+                        <div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold text-lg leading-tight truncate">{{ $concurso->nombre }}</h3>
+                                    <p class="text-gray-100 text-sm">#{{ $concurso->numero }}</p>
+                                </div>
+                                <div class="ml-3 flex-shrink-0">
+                                    <svg class="w-5 h-5 text-gray-200 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contenido -->
+                        <div class="p-6 space-y-4">
+                            <!-- Descripción -->
+                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                                {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
+                            </p>
+
+                            <!-- Fecha de cierre -->
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                                <span class="text-xs text-gray-500 uppercase tracking-wide">Cierre</span>
+                                <span class="font-medium text-gray-900">{{ $concurso->fecha_cierre->format('d/m/Y H:i') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
     </div>
 
     <style>

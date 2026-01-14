@@ -1,310 +1,87 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <title>Proveedor: {{ $proveedor->razonsocial }}</title>
     <style>
-        @page {
-            margin: 0cm 0cm;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-        }
-
-        body {
-            margin: 3cm 2cm 2cm;
-        }
-
-        header {
-            position: fixed;
-            padding: 30px;
-            top: 0cm;
-            left: 0cm;
-            right: 0cm;
-            background-color: #1a264e;
-            color: white;
-            text-align: center;
-            line-height: 30px;
-        }
-
-        footer {
-            position: fixed;
-            bottom: 0cm;
-            left: 0cm;
-            right: 0cm;
-            height: 2cm;
-            background-color: #1a264e;
-            color: white;
-            text-align: center;
-            line-height: 35px;
-        }
+        body { font-family: sans-serif; font-size: 11px; color: #333; margin-top: 80px; }
+        .membrete-container { position: fixed; top: -20px; left: 0; right: 0; text-align: center; height: 71px; }
+        .membrete-img { width: 625px; height: 71px; }
+        
+        .header { text-align: center; border-bottom: 2px solid #ed1c24; padding-bottom: 5px; margin-bottom: 15px; }
+        .section-title { background-color: #f4f4f4; padding: 5px 10px; font-weight: bold; margin-top: 12px; border-left: 4px solid #ed1c24; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        th { background-color: #f9f9f9; font-weight: bold; }
+        .label { font-weight: bold; width: 30%; background-color: #fcfcfc; }
+        
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 9px; color: #777; border-top: 1px solid #eee; padding-top: 5px; }
+        .salto-pagina { page-break-before: always; }
+        .doc-vencido { color: #ed1c24; font-weight: bold; font-size: 8px; border: 1px solid #ed1c24; padding: 1px 3px; border-radius: 3px; text-transform: uppercase; }
     </style>
 </head>
 <body>
-<header>
-    <img src="img/logo-pdf.png" alt="" style="height: 50px;">
-</header>
-<main>
-    <div>
-        <h1>
-            {{$proveedor->razonsocial}}
-        </h1>
-        <div>
-            <h2>
-                Datos Generales
-            </h2>
-            <div> 
-                Razón social <strong>{{$proveedor->razonsocial}}</strong>
-            </div>
-            <div>
-                Nombre Fantasía <strong>{{$proveedor->fantasia}}</strong>
-            </div>
-            <div>
-                CUIT <strong>{{$proveedor->cuit}}</strong>
-            </div>
-            <div>
-                Correo Institucional <strong>{{$proveedor->correo}}</strong>
-            </div>
-            <hr>
-            <div>
-                Teléfono <strong>{{$proveedor->telefono}}</strong>
-            </div>
-            <div>
-                Horario <strong>{{$proveedor->horario}}</strong>
-            </div>
-            <div>
-                Sitio Web <strong>{{$proveedor->webpage}}</strong>
-            </div>
-            <hr>
-            <div>
-                Proveedor ID <strong>{{$proveedor->id}}</strong>
-            </div>
-            <div>
-                Estado <strong>Nivel {{$proveedor->estado_id}}</strong>
-            </div>
-            <hr>
-            <h2>
-                Documentos
-            </h2>
-            @if(count($proveedor->documentos) == 0)
-            <i>No existen documentos asociados al proveedor</i>
-            @endif
-            @php
-            $td_id = 0;
-            @endphp
-            @foreach($proveedor->documentos as $documento)
-                @if($documento->documentoTipo->id != $td_id)
-                    <hr>
-                    <div>
-                        <div>
-                            {{$documento->documentoTipo->codigo}} - 
-                            <strong>{{$documento->documentoTipo->nombre}}</strong>
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            Cargado 
-                            <strong>{{ \Carbon\Carbon::parse($documento->created_at)->format('d/m/Y') }}</strong>
-                        </div>
-                    </div>
-                    @if($documento->documentoTipo->vencimiento)
-                    <div>
-                        Vencimiento
-                        <strong>
-                            @if ($documento->vencimiento)
-                                {{ \Carbon\Carbon::parse($documento->vencimiento)->format('d/m/Y') }}
-                                @if (\Carbon\Carbon::now()->addYear() > $documento->vencimiento)
-                                    @if ($documento->vencimiento->isPast())
-                                        <span class="text-white bg-red-400 px-1 rounded-full text-xs"
-                                        title="Documentación Vencida">Vencido</span>
-                                    @endif
-                                @endif
-                            @else
-                            <i>Sin especificar</i>
-                            @endif
-                        </strong>
-                    </div>
-                    @endif
-                    
-                @else
-                    <div>
-                        <div>
-                            {{ \Carbon\Carbon::parse($documento->created_at)->format('d/m/Y') }}
-                        </div>
-                        <div>
-                            <i>Archivado</i>
-                        </div>
-                    </div>
-                    <hr>
-                @endif
-                @php
-                $td_id = $documento->documentoTipo->id;
-                @endphp
-            @endforeach
-            <h2>
-                Apoderados
-            </h2>
-            @if(count($proveedor->apoderados) == 0)
-            <i>No existen apoderados asociados al proveedor</i>
-            @endif
-            @foreach($proveedor->apoderados->sortBy('tipo') as $apoderado)
-                    <hr>
-                    <div>
-                        <div>
-                            @if($apoderado->tipo == 'apoderado')
-                            Apoderado
-                            @else
-                            Representante Legal: <strong>{{$apoderado->nombre}}</strong>
-                            @endif
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            Cargado 
-                            <strong>{{ \Carbon\Carbon::parse($apoderado->lastDocumento->created_at)->format('d/m/Y') }}</strong>
-                        </div>
-                    </div>
-                    @if($apoderado->lastDocumento->vencimiento)
-                    <div>
-                        Vencimiento
-                        <strong>
-                            @if ($apoderado->lastDocumento->vencimiento)
-                                {{ \Carbon\Carbon::parse($apoderado->lastDocumento->vencimiento)->format('d/m/Y') }}
-                                @if (\Carbon\Carbon::now()->addYear() > $apoderado->lastDocumento->vencimiento)
-                                    @if ($apoderado->lastDocumento->vencimiento->isPast())
-                                        <span class="text-white bg-red-400 px-1 rounded-full text-xs"
-                                        title="Documentación Vencida">Vencido</span>
-                                    @endif
-                                @endif
-                            @else
-                            <i>Sin especificar</i>
-                            @endif
-                        </strong>
-                    </div>
-                    @endif
-            @endforeach
-        </div>
-        <hr>
-        <div>
-            <div>
-                <h2>
-                    Datos de Contacto
-                </h2>
-                <p>
-                    @if(count($proveedor->contactos) == 0)
-                    <i>No existen contactos asociados al proveedor</i>
-                    @endif
-                    @foreach($proveedor->contactos as $contacto)
-                        <div>
-                            <div>
-                                @if($contacto->nombre)
-                                <div>
-                                    Nombre
-                                    <strong>{{$contacto->nombre}}</strong>
-                                </div>
-                                @endif
-                                @if($contacto->telefono)
-                                <div>
-                                    Teléfono
-                                    <strong>{{$contacto->telefono}}</strong>
-                                </div>
-                                @endif
-                                @if($contacto->correo)
-                                <div>
-                                    Correo
-                                    <strong>{{$contacto->correo}}</strong>
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                        <hr>
-                    @endforeach
-                </p>
-            </div>
-            <div>
-                <h2>
-                    Direcciones
-                </h2>
-                <p>
-                    @if(count($proveedor->direcciones) == 0)
-                    <i>No existen direcciones asociadas al proveedor</i>
-                    @endif
-                    @foreach($proveedor->direcciones as $direccion)
-                    <div>
-                        <div>
-                            <div>
-                                Tipo
-                                <div>
-                                    {{$direccion->tipo}}
-                                </div>
-                            </div>
-                            <div>
-                                Dirección
-                                <strong>
-                                    {{$direccion->calle}} #{{$direccion->altura}}, {{$direccion->piso}}, {{$direccion->departamento}}
-                                </strong>
-                            </div>
-                            <div>
-                                Ciudad
-                                <strong>{{$direccion->ciudad}} ({{$direccion->codigopostal}})</strong>
-                            </div>
-                            <div>
-                                Provincia
-                                <strong>{{$direccion->provincia}}, {{$direccion->pais}}</strong>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    @endforeach
-                </p>
-            </div>
-            <div>
-                <h2>
-                    Registros Bancarios
-                </h2>
-                <p>
-                    @if(count($proveedor->datos_bancarios) == 0)
-                    <i>No existen datos bancarios asociados al proveedor</i>
-                    @endif
-                    @foreach($proveedor->datos_bancarios as $cuenta)
-                    <div>
-                        <div>
-                            <div>
-                                Tipo de Cuenta
-                                <strong>
-                                    {{$cuenta->tipocuenta}}
-                                </strong>
-                            </div>
-                            <div>
-                                Número de Cuenta
-                                <strong>{{$cuenta->numerocuenta}}</strong>
-                            </div>
-                            <div>
-                                CBU/CVU
-                                <strong>{{$cuenta->cbu}}</strong>
-                            </div>
-                            <div>
-                                Alias
-                                <strong>{{$cuenta->alias}}</strong>
-                            </div>
-                            <div>
-                                Banco
-                                <strong>{{$cuenta->banco}}</strong>
-                            </div>
-                            <div>
-                                Sucursal
-                                <strong>{{$cuenta->sucursal}}</strong>
-                            </div>
-                            <div>
-                                Fecha
-                                <strong>{{ \Carbon\Carbon::parse($cuenta->created_at)->format('d/m/Y, H:i') }}hs.</strong>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    @endforeach
-                </p>
-            </div>
-        </div>
+    <div class="membrete-container">
+        <img src="{{ public_path('img/membrete.png') }}" class="membrete-img">
     </div>
-</main>
-<footer>
-    Fecha de creación del PDF: <strong>{{ \Carbon\Carbon::now()->format('d-m-Y H:i')}}</strong>
-</footer>
+
+    <div class="header">
+        <h2 style="margin: 0;">FICHA REGISTRO DE PROVEEDOR (ID: {{ $proveedor->id }})</h2>
+    </div>
+
+    <div class="section-title">Información Institucional</div>
+    <table>
+        <tr>
+            <td class="label">Razón Social:</td>
+            <td style="font-size: 13px; font-weight: bold;">{{ $proveedor->razonsocial }}</td>
+        </tr>
+        <tr><td class="label">Nombre Fantasía:</td><td>{{ $proveedor->fantasia ?: '-' }}</td></tr>
+        <tr><td class="label">CUIT:</td><td>{{ $proveedor->cuit }}</td></tr>
+        <tr><td class="label">Estado:</td><td>Nivel {{ $proveedor->estado_id }}</td></tr>
+    </table>
+
+    <div class="section-title">Documentación Presentada</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Documento / Tipo</th>
+                <th>Cargado</th>
+                <th>Vencimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($proveedor->documentos as $doc)
+            <tr>
+                <td>{{ $doc->documentoTipo->nombre }}</td>
+                <td>{{ \Carbon\Carbon::parse($doc->created_at)->format('d/m/Y') }}</td>
+                <td>
+                    {{ $doc->vencimiento ? \Carbon\Carbon::parse($doc->vencimiento)->format('d/m/Y') : 'Sin vencer' }}
+                    @if($doc->vencimiento && \Carbon\Carbon::parse($doc->vencimiento)->isPast())
+                        <span class="doc-vencido">Vencido</span>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <div class="section-title">Datos de Contacto y Ubicación</div>
+    <table>
+        @foreach($proveedor->direcciones as $dir)
+        <tr>
+            <td class="label">{{ $dir->tipo }}:</td>
+            <td>{{ $dir->calle }} #{{ $dir->altura }}, {{ $dir->ciudad }} ({{ $dir->provincia }})</td>
+        </tr>
+        @endforeach
+        <tr>
+            <td class="label">Teléfono / Email:</td>
+            <td>{{ $proveedor->telefono }} | {{ $proveedor->correo }}</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        Generado el {{ date('d/m/Y H:i') }} - Registro de Proveedores - BAESA
+    </div>
 </body>
 </html>

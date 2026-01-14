@@ -21,7 +21,19 @@ class Concurso extends Model
     protected $guarded = false;
 
     public function editable() : bool {
-        return $this->estado_id == 1 || ($this->estado_id == 2 && $this->fecha_cierre > now());
+        // Un concurso VENCIDO (precarga + fecha pasada) NO debe ser editable
+        if ($this->estado_id == 1 && $this->fecha_cierre->isPast()) {
+            return false;
+        }
+
+        // Un concurso CERRADO (activo + fecha pasada) NO debe ser editable
+        if ($this->estado_id == 2 && $this->fecha_cierre->isPast()) {
+            return false;
+        }
+
+        // Lógica original para los demás casos
+        return $this->estado_id == 1 || ($this->estado_id == 2 && $this->fecha_cierre->isFuture());
+        //return $this->estado_id == 1 || ($this->estado_id == 2 && $this->fecha_cierre > now());
     }
 
     /* public function proveedores()
@@ -128,6 +140,13 @@ class Concurso extends Model
         
         // Obtenemos el ID del estado del concurso
         $estadoId = $this->estado->id;
+
+        // --- LÓGICA VIRTUAL ---
+    
+        // Si está en precarga pero ya pasó la fecha: VENCIDO
+        if ($estadoId == 1 && $this->fecha_cierre->isPast()) {
+            return 'vencido';
+        }
         
         // Caso especial: si es activo (id=2) pero ya pasó la fecha de cierre, es "cerrado"
         if ($estadoId == 2 && $this->fecha_cierre->isPast()) {

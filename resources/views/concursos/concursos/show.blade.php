@@ -25,7 +25,11 @@
         <div class="rounded-lg shadow-sm border-2 border-gray-200 p-2
         @switch($concurso->estado->id)
             @case(1)
-                bg-gradient-to-r from-orange-800 to-orange-500
+                @if ($concurso->fecha_cierre > now())
+                    bg-gradient-to-r from-orange-800 to-orange-500
+                @else
+                    bg-gradient-to-r from-gray-800 to-gray-500
+                @endif
                 @break
             @case(2)
                 @if ($concurso->fecha_cierre > now())
@@ -50,6 +54,13 @@
                     <div class="flex items-center">
                         <span class="inline-flex items-center px-3 py-1 rounded-full font-bold text-white tracking-wider">
                             @switch($concurso->estado->id)
+                                @case(1)
+                                    @if ($concurso->fecha_cierre > now())
+                                        Pre-Carga
+                                    @else
+                                        Vencido
+                                    @endif
+                                    @break
                                 @case(2)
                                     @if ($concurso->fecha_cierre > now())
                                         Activo
@@ -287,7 +298,7 @@
                                         </svg>
                                         Descargar
                                     </a>
-                                    @if ($concurso->estado->id == 1)
+                                    @if ($concurso->estado->id == 1 && $concurso->fecha_cierre > now())
                                         <form action="{{ route('concursos.documentos.destroy', $documento->id) }}" method="post" class="inline">
                                             @csrf
                                             @method('delete')

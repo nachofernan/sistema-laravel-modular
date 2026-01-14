@@ -33,6 +33,13 @@ class CalendarioController extends Controller
         
         // Consultar concursos que cierran en el rango del calendario
         $concursos = Concurso::whereBetween('fecha_cierre', [$primerDia, $ultimoDia])
+            ->where(function($query) {
+                $query->where('estado_id', '!=', 1) // Todo lo que NO sea precarga entra
+                    ->orWhere(function($q) {
+                        $q->where('estado_id', 1)
+                            ->where('fecha_cierre', '>=', now()); // Precargas solo si son futuras
+                    });
+            })
             ->orderBy('fecha_cierre')
             ->get();
         
@@ -67,6 +74,7 @@ class CalendarioController extends Controller
         // Obtener próximos 30 días de cierres para mostrar debajo del calendario
         $proximosCierres = Concurso::where('fecha_cierre', '>=', Carbon::now())
             ->where('fecha_cierre', '<=', Carbon::now()->addDays(30))
+            ->where('estado_id', '!=', 5)
             ->orderBy('fecha_cierre')
             ->get();
         
@@ -93,6 +101,13 @@ class CalendarioController extends Controller
         
         // Obtener concursos que cierran en la fecha específica
         $concursos = Concurso::whereDate('fecha_cierre', $fecha)
+            ->where(function($query) {
+                $query->where('estado_id', '!=', 1)
+                    ->orWhere(function($q) {
+                        $q->where('estado_id', 1)
+                            ->where('fecha_cierre', '>=', now());
+                    });
+            })
             ->orderBy('fecha_cierre')
             ->get();
         
