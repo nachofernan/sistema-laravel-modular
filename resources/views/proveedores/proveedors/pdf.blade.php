@@ -38,6 +38,8 @@
         </tr>
         <tr><td class="label">Nombre Fantasía:</td><td>{{ $proveedor->fantasia ?: '-' }}</td></tr>
         <tr><td class="label">CUIT:</td><td>{{ $proveedor->cuit }}</td></tr>
+        <tr><td class="label">Correo:</td><td>{{ $proveedor->correo }}</td></tr>
+        <tr><td class="label">Teléfono:</td><td>{{ $proveedor->telefono }}</td></tr>
         <tr><td class="label">Estado:</td><td>Nivel {{ $proveedor->estado_id }}</td></tr>
     </table>
 
@@ -74,10 +76,12 @@
             <td>{{ $dir->calle }} #{{ $dir->altura }}, {{ $dir->ciudad }} ({{ $dir->provincia }})</td>
         </tr>
         @endforeach
-        <tr>
-            <td class="label">Teléfono / Email:</td>
-            <td>{{ $proveedor->telefono }} | {{ $proveedor->correo }}</td>
-        </tr>
+        @foreach ($proveedor->contactos as $contacto)
+            <tr>
+                <td class="label">{{ $contacto->nombre }}</td>
+                <td>{{ $contacto->telefono }} | {{ $contacto->correo }}</td>
+            </tr>
+        @endforeach
     </table>
 
     <div class="footer">
