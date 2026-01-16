@@ -55,7 +55,10 @@ class ProrrogaController extends Controller
                 Mail::to($mail)->send(new NuevaProrroga($prorroga));
             }
         } */
-        $proveedores = $concurso->obtenerProveedoresParticipantes();
+        $proveedores = $concurso->obtenerProveedoresInvitados();
+        foreach($concurso->contactos as $contacto) {
+            $proveedores[] = $contacto->correo;
+        }
         EmailHelper::reprogramarEmailsProrroga($prorroga, $proveedores);
     
 

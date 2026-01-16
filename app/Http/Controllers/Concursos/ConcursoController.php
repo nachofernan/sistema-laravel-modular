@@ -113,6 +113,7 @@ class ConcursoController extends Controller
         $concurso->fecha_inicio = $request->input('fecha_inicio');
         $concurso->fecha_cierre = $request->input('fecha_cierre');
         $concurso->user_id = Auth::id();
+        $concurso->permite_carga = false;
 
         $lastNum = Concurso::orderBy('numero', 'desc')->first();
         $concurso->numero = $lastNum ? $lastNum->numero + 1 : 1;
@@ -179,6 +180,9 @@ class ConcursoController extends Controller
     public function programarEmailsConcurso($concurso)
     {
         $proveedores = $concurso->proveedores()->pluck('email')->toArray();
+        foreach($concurso->contactos as $contacto) {
+            $proveedores[] = $contacto->correo;
+        }
         
         // Job para 48hs antes
         EmailDispatcher::enviarMasivoConTracking(
