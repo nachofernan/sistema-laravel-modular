@@ -13,7 +13,7 @@ class ContactoConcursoResource extends JsonResource
             'concurso_id' => $this->concurso_id,
             'tipo' => $this->tipo,
             'nombre' => $this->nombre,
-            'email' => $this->email,
+            'correo' => $this->correo,
             'telefono' => $this->telefono,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
