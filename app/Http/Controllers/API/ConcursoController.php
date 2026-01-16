@@ -438,100 +438,74 @@ class ConcursoController extends Controller
         $proveedor_id = $request->attributes->get('proveedor_id');
         Log::info('Info recibida', ['concurso_id' => $concurso_id, 'documento_id' => $documento_id, 'proveedor_id' => $proveedor_id]);
         
-        // Verificar que el proveedor tiene acceso al concurso
+        // 1. Verificar acceso
         $invitacion = Invitacion::where('concurso_id', $concurso_id)
             ->where('proveedor_id', $proveedor_id)
             ->firstOrFail();
 
-        Log::info('Invitación encontrada', ['invitacion' => $invitacion]);
-
-        // El documento_id recibido es un id de media, no de documento.
-        // Buscamos directamente en la tabla media
+        // 2. Buscar el media
         $media = Media::find($documento_id);
-        
         if (!$media) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Archivo no encontrado.'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Archivo no encontrado.'], 404);
         }
 
-        // Determinar el tipo de documento basado en el media
+        // 3. Identificar el modelo (Oferta o Concurso)
         $documento = null;
-        
-        // Buscar en documentos de oferta
+        $esDocumentoConcurso = false;
+
+        // Intentar buscar en Oferta primero
         $documento = OfertaDocumento::where('id', $media->model_id)
             ->whereHas('invitacion', function($q) use ($concurso_id) {
                 $q->where('concurso_id', $concurso_id);
-            })
-            ->first();
+            })->first();
 
         if (!$documento) {
-            // Buscar en documentos de concurso
+            // Si no es oferta, buscamos en ConcursoDocumento
             $documento = ConcursoDocumento::where('id', $media->model_id)
                 ->where('concurso_id', $concurso_id)
                 ->first();
+            
+            if ($documento) {
+                $esDocumentoConcurso = true;
+            }
         }
 
         if (!$documento) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No se encontró el documento asociado al archivo solicitado.'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'No se encontró el documento asociado.'], 404);
         }
         
-        Log::info('Documento encontrado', ['documento' => $documento]);
-        
-        // Usar el media que ya encontramos
-        if (!$media) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Archivo no encontrado.'
-            ], 404);
-        }
-        
-        // Verificar si el archivo está encriptado
-        $encryptionService = new ConcursoEncryptionService();
         $filePath = $media->getPath();
-        $isEncrypted = $encryptionService->isEncrypted($filePath);
-        
-        Log::info('Verificando archivo para descarga', [
-            'media_id' => $media->id,
-            'media_file_name' => $media->file_name,
-            'file_path' => $filePath,
-            'file_exists' => file_exists($filePath),
-            'file_size' => file_exists($filePath) ? filesize($filePath) : 'N/A',
-            'is_encrypted' => $isEncrypted,
-            'documento_file_storage' => $documento->file_storage,
-            'documento_encriptado' => $documento->encriptado
-        ]);
-        
-        // Determinar el nombre de archivo para la descarga
         $downloadFileName = $documento->file_storage ?: $media->file_name;
+
+        // --- LÓGICA DE DESCARGA SEGURA ---
+
+        // CASO A: Es de concurso -> Descarga directa (Nunca encriptado)
+        if ($esDocumentoConcurso) {
+            Log::info('Descargando archivo de concurso (público)', ['id' => $documento->id]);
+            return response()->download($filePath, $downloadFileName);
+        }
+
+        // CASO B: Es de oferta -> Verificar bandera en BD o servicio
+        $encryptionService = new ConcursoEncryptionService();
         
-        // Si el archivo está encriptado, desencriptar y enviar como stream
-        if ($isEncrypted) {
-            Log::info('Descargando archivo encriptado con streaming', [
-                'documento_id' => $documento->id,
-                'archivo_encriptado' => $media->file_name,
-                'archivo_descarga' => $downloadFileName
-            ]);
-            
+        // Aquí priorizamos la base de datos si el campo existe, 
+        // sino dejamos que el service verifique el archivo
+        $debeDesencriptar = isset($documento->encriptado) ? $documento->encriptado : $encryptionService->isEncrypted($filePath);
+
+        if ($debeDesencriptar) {
+            Log::info('Descargando archivo de oferta encriptado', ['id' => $documento->id]);
             return $encryptionService->decryptAndStream(
                 $filePath,
                 $downloadFileName,
                 $media->mime_type
             );
-        } else {
-            // Si no está encriptado, descargar normalmente
-            Log::info('Descargando archivo sin encriptar', [
-                'documento_id' => $documento->id,
-                'archivo' => $media->file_name
-            ]);
-            
-            return response()->download($filePath, $downloadFileName);
         }
+
+        // Por defecto, descarga normal
+        Log::info('Descargando archivo de oferta sin encriptar', ['id' => $documento->id]);
+        return response()->download($filePath, $downloadFileName);
     }
+
 
     /**
      * Obtener documentos de la invitación del proveedor al concurso.

@@ -233,9 +233,8 @@ class ConcursoEncryptionService
     public function bulkDecryptOfertas($concursoId)
     {
         try {
-            // Obtener todas las ofertas válidas (intención = 3) del concurso
             $invitaciones = \App\Models\Concursos\Invitacion::where('concurso_id', $concursoId)
-                ->where('intencion', 3) // Oferta presentada
+                ->where('intencion', 3)
                 ->with(['documentos' => function($q) {
                     $q->where('encriptado', true);
                 }])
@@ -247,50 +246,44 @@ class ConcursoEncryptionService
             foreach ($invitaciones as $invitacion) {
                 foreach ($invitacion->documentos as $documento) {
                     try {
-                        // Obtener el media del documento
                         $media = $documento->getFirstMedia('archivos');
-                        if (!$media) {
-                            continue;
-                        }
+                        if (!$media) continue;
 
-                        $encryptedPath = $media->getPath();
+                        $encryptedPath = $media->getPath(); // Ruta completa al .enc
+                        // Definimos la ruta de salida quitando el .enc
                         $decryptedPath = str_replace('.enc', '', $encryptedPath);
 
-                        // Desencriptar archivo
+                        // 1. Desencriptar archivo físicamente
                         $this->decryptFile($encryptedPath, $decryptedPath);
 
-                        // Actualizar media para que apunte al archivo desencriptado
-                        $media->update([
-                            'file_name' => str_replace('.enc', '', $media->file_name),
-                            'disk' => 'concursos_desencriptados'
-                        ]);
+                        // 2. IMPORTANTE: Borrar el archivo encriptado original para que no queden duplicados
+                        if (file_exists($decryptedPath) && file_exists($encryptedPath)) {
+                            unlink($encryptedPath);
+                        }
 
-                        // Marcar documento como desencriptado
-                        $documento->update(['encriptado' => false]);
+                        // 3. Actualizar el registro de Media
+                        // Quitamos el cambio de 'disk' para evitar el error del driver
+                        $media->file_name = str_replace('.enc', '', $media->file_name);
+                        $media->save();
+
+                        // 4. Marcar documento como desencriptado en la tabla de negocios
+                        $documento->encriptado = false;
+                        $documento->save();
 
                         $decryptedCount++;
 
-                        Log::info('Documento desencriptado en bulk', [
-                            'documento_id' => $documento->id,
-                            'concurso_id' => $concursoId
+                        Log::info('Documento desencriptado y actualizado', [
+                            'id' => $documento->id,
+                            'archivo' => $media->file_name
                         ]);
 
                     } catch (\Exception $e) {
-                        $errors[] = [
-                            'documento_id' => $documento->id,
-                            'error' => $e->getMessage()
-                        ];
-                        
-                        Log::error('Error al desencriptar documento en bulk', [
-                            'documento_id' => $documento->id,
-                            'concurso_id' => $concursoId,
-                            'error' => $e->getMessage()
-                        ]);
+                        $errors[] = ['documento_id' => $documento->id, 'error' => $e->getMessage()];
+                        Log::error('Error individual en bulkDecrypt', ['id' => $documento->id, 'error' => $e->getMessage()]);
                     }
                 }
             }
 
-            // Eliminar documentos de ofertas no presentadas
             $this->eliminarDocumentosOfertasNoPresentadas($concursoId);
 
             return [
@@ -300,10 +293,7 @@ class ConcursoEncryptionService
             ];
 
         } catch (\Exception $e) {
-            Log::error('Error en desencriptación masiva', [
-                'concurso_id' => $concursoId,
-                'error' => $e->getMessage()
-            ]);
+            Log::error('Error general en bulkDecrypt', ['error' => $e->getMessage()]);
             throw $e;
         }
     }
@@ -375,22 +365,36 @@ class ConcursoEncryptionService
             return false;
         }
 
+        // 1. Verificación por extensión (Filtro rápido)
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        // Si es un PDF, generalmente en tu sistema de concursos no estará encriptado
+        // Pero para estar 100% seguros, chequeamos el contenido abajo.
+
         $handle = fopen($filePath, 'rb');
         if (!$handle) {
             return false;
         }
 
-        // Leer IV del inicio
+        // 2. Verificación de "Magic Numbers" (Firma del archivo)
+        // Leemos los primeros 4 bytes para ver si es un PDF estándar (%PDF)
+        $fileSignature = fread($handle, 4);
+        if ($fileSignature === "%PDF") {
+            fclose($handle);
+            return false; // Es un PDF plano, salir de acá.
+        }
+
+        // 3. Lógica original de IV (para archivos que sí están encriptados)
+        // Reposicionamos el puntero al inicio por si las moscas
+        rewind($handle);
         $ivLength = openssl_cipher_iv_length($this->cipher);
         $iv = fread($handle, $ivLength);
         fclose($handle);
 
-        // Si el archivo es más pequeño que el IV, no está encriptado
         if (filesize($filePath) <= $ivLength) {
             return false;
         }
 
-        // Verificar que el IV es válido (no es texto plano)
+        // Solo si no es PDF y tiene caracteres no imprimibles, asumimos encriptación
         return strlen($iv) === $ivLength && !ctype_print($iv);
     }
 } 
