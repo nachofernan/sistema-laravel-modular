@@ -7,60 +7,51 @@ use Illuminate\Support\Facades\DB;
 
 class SyncMediaTable extends Command
 {
-    // El comando acepta un flag opcional para filtrar por "model_type" si solo quieres media de un módulo
-    protected $signature = 'sync:media {--model= : Filtrar por tipo de modelo (ej. App\Models\User)}';
-    protected $description = 'Sincroniza la tabla de Spatie Media de producción al entorno local';
+    protected $signature = 'sync:media-table';
+    protected $description = 'Clona la tabla media de producción a la base de datos local de la plataforma';
 
     public function handle()
     {
-        $environment = app()->environment();
-        $modelFilter = $this->option('model');
-
-        if ($environment === 'production') {
-            $this->error('¡Peligro! No puedes correr este comando en producción.');
+        // Seguridad: No ejecutar en producción
+        if (app()->environment('production')) {
+            $this->error('Este comando NO puede ejecutarse en el entorno de producción.');
             return;
         }
 
-        $this->info("Iniciando sincronización de tabla 'media' desde producción...");
+        $this->info('Iniciando clonación de tabla media...');
 
         try {
-            // 1. Verificar conexiones (Asegúrate de tener 'landlord_prod' o 'main_prod' en config/database.php)
-            // Usaré 'main_prod' y 'mysql' (o tu conexión local principal)
-            $prodConn = DB::connection('main_prod'); 
-            $localConn = DB::connection('mysql'); 
+            // Conexiones basadas en tu config/database.php
+            $prodConn = DB::connection('plataforma_prod');
+            $localConn = DB::connection('mysql'); // Tu conexión por defecto (plataforma_dev)
 
-            $query = $prodConn->table('media');
+            // 1. Verificar conexión remota
+            $prodConn->getPdo();
             
-            if ($modelFilter) {
-                $query->where('model_type', $modelFilter);
-                $this->comment("Filtrando por modelo: {$modelFilter}");
-            }
-
-            $total = $query->count();
-
-            if ($total === 0) {
-                $this->warn('No se encontraron registros en la tabla media de producción.');
+            // 2. Obtener total de registros
+            $totalRecords = $prodConn->table('media')->count();
+            
+            if ($totalRecords === 0) {
+                $this->warn('La tabla media en producción está vacía.');
                 return;
             }
 
-            if ($this->confirm("Se borrarán los datos locales de la tabla 'media' y se copiarán {$total} registros. ¿Continuar?", true)) {
+            $this->warn("Se eliminarán los registros locales y se copiarán {$totalRecords} registros.");
+            
+            if ($this->confirm('¿Estás seguro de continuar?', true)) {
                 
-                // Desactivar FK y limpiar tabla local
+                // Desactivar constraints para evitar errores de integridad temporal
                 $localConn->statement('SET FOREIGN_KEY_CHECKS=0;');
-                
-                if (!$modelFilter) {
-                    $localConn->table('media')->truncate();
-                } else {
-                    $localConn->table('media')->where('model_type', $modelFilter)->delete();
-                }
+                $localConn->table('media')->truncate();
 
-                $bar = $this->output->createProgressBar($total);
+                $bar = $this->output->createProgressBar($totalRecords);
                 $bar->start();
 
-                // Sincronizar en chunks para no saturar la memoria
-                $query->orderBy('id')->chunk(500, function ($records) use ($localConn, $bar) {
-                    $data = $records->map(function ($item) {
-                        return (array) $item;
+                // Usamos chunk para no agotar la memoria de PHP
+                $prodConn->table('media')->orderBy('id')->chunk(500, function ($records) use ($localConn, $bar) {
+                    // Convertimos a array para el insert masivo
+                    $data = $records->map(function ($record) {
+                        return (array) $record;
                     })->toArray();
 
                     $localConn->table('media')->insert($data);
@@ -69,13 +60,13 @@ class SyncMediaTable extends Command
 
                 $bar->finish();
                 $localConn->statement('SET FOREIGN_KEY_CHECKS=1;');
-                
+
                 $this->newLine();
-                $this->info('✓ Tabla media sincronizada correctamente.');
+                $this->info('✓ Tabla media sincronizada con éxito.');
             }
 
         } catch (\Exception $e) {
-            $this->error("Error: " . $e->getMessage());
+            $this->error('Error durante la sincronización: ' . $e->getMessage());
         }
     }
 }

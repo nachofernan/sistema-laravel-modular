@@ -39,6 +39,10 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
+        'plataforma_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'plataforma', // Nombre de la BD principal en producción
+        ]),
+
         'usuarios' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_USUARIOS', 'forge'),
             'username' => env('DB_USERNAME_USUARIOS', 'forge'),
