@@ -70,12 +70,15 @@ class Concurso extends Model
     } */
     public function sedes()
     {
-        $pivotTable = DB::connection($this->getConnectionName() ?: 'concursos')->getDatabaseName().'.concurso_sede';
+        // Usamos el nombre de la conexión definido en el modelo pivot directamente
+        $pivotModel = new ConcursoSede;
+        $database = $pivotModel->getConnection()->getDatabaseName();
+        
         return $this->belongsToMany(Sede::class, 
-            $pivotTable, // Solo el nombre de la tabla
-            'concurso_id', 
-            'sede_id')
-            ->using(ConcursoSede::class) // Especifica el modelo pivot
+                "{$database}.concurso_sede", 
+                'concurso_id', 
+                'sede_id')
+            ->using(ConcursoSede::class)
             ->withPivot(['id', 'concurso_id', 'sede_id'])
             ->orderBy('sede_id');
     }
