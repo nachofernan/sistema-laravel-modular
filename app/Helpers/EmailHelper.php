@@ -177,19 +177,6 @@ class EmailHelper
         // para la nueva fecha de cierre.
         return self::programarEmailsAutomaticosConcurso($prorroga->concurso, $destinatarios);
     }
-    /* public static function reprogramarEmailsProrroga($prorroga, array $destinatarios)
-    {
-        $mailable = new \App\Mail\Concursos\NuevaProrroga($prorroga);
-
-        self::reprogramarEmailsConcurso($prorroga->concurso, $destinatarios);
-
-        return self::enviarMasivo(
-            $destinatarios,
-            $mailable,
-            'prorroga',
-            "Notificación de prorroga - Concurso #{$prorroga->concurso->numero}"
-        );
-    } */
 
     /**
      * Programar notificación de cierre automática
