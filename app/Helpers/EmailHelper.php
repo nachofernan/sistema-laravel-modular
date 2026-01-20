@@ -155,6 +155,30 @@ class EmailHelper
      */
     public static function reprogramarEmailsProrroga($prorroga, array $destinatarios)
     {
+        // 1. CANCELAR TODO LO ANTERIOR (Limpiar la mesa)
+        // Esto es vital para que la tabla 'jobs' quede libre de este concurso 
+        // y el Dispatcher no mande el mail de prórroga al final del tiempo.
+        EmailDispatcher::cancelarJobsPorEntidad('concurso', $prorroga->concurso->id);
+
+        // 2. ENVIAR AVISO DE PRÓRROGA (Inmediato)
+        $mailable = new \App\Mail\Concursos\NuevaProrroga($prorroga);
+        
+        // Forzamos el envío ahora mismo. 
+        // Como cancelamos todo arriba, obtenerProximoTiempo() devolverá 'ahora'.
+        self::enviarMasivo(
+            $destinatarios,
+            $mailable,
+            'prorroga',
+            "Notificación de prórroga - Concurso #{$prorroga->concurso->numero}"
+        );
+
+        // 3. REPROGRAMAR CIERRES (Futuro)
+        // Ahora que el aviso ya se encoló para 'ya', creamos los recordatorios 
+        // para la nueva fecha de cierre.
+        return self::programarEmailsAutomaticosConcurso($prorroga->concurso, $destinatarios);
+    }
+    /* public static function reprogramarEmailsProrroga($prorroga, array $destinatarios)
+    {
         $mailable = new \App\Mail\Concursos\NuevaProrroga($prorroga);
 
         self::reprogramarEmailsConcurso($prorroga->concurso, $destinatarios);
@@ -165,7 +189,7 @@ class EmailHelper
             'prorroga',
             "Notificación de prorroga - Concurso #{$prorroga->concurso->numero}"
         );
-    }
+    } */
 
     /**
      * Programar notificación de cierre automática
