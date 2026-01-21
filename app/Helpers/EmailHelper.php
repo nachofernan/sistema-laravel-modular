@@ -125,6 +125,25 @@ class EmailHelper
     }
 
     /**
+     * Notificar apertura de concurso (inmediato, con tracking por si se cancela)
+     */
+    public static function notificarNuevoDocumentoConcurso($documento, array $destinatarios)
+    {
+        $mailable = new \App\Mail\Concursos\NuevoDocumento($documento);
+        
+        return self::programarConTracking(
+            $destinatarios,
+            $mailable,
+            'concurso',
+            $documento->concurso_id,
+            'notificacion_nuevo_documento',
+            null, // inmediato
+            "Nuevo documento - Concurso #{$documento->concurso->numero}",
+            ['concurso', 'nuevo_documento']
+        );
+    }
+
+    /**
      * Programar recordatorio 48hs antes del cierre
      */
     public static function programarRecordatorio48hs($concurso, array $destinatarios)

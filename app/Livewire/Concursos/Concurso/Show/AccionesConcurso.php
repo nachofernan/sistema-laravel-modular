@@ -60,13 +60,22 @@ class AccionesConcurso extends Component
                 $this->concurso->save(); */
                 
                 // Obtener proveedores invitados
-                $proveedores = $this->concurso->obtenerProveedoresInvitados();
+                $correos = $this->concurso->obtenerProveedoresInvitados();
+                foreach($this->concurso->contactos as $contacto) {
+                    $correos[] = $contacto->correo;
+                }
+                foreach($this->concurso->proveedores as $proveedor) {
+                    foreach($proveedor->contactos as $contacto) {
+                        $correos[] = $contacto->correo;
+                    }
+                }
+                $correos = array_unique($correos);
 
                 // Notificación inmediata de apertura (con tracking por si se cancela)
-                EmailHelper::notificarAperturaConcurso($this->concurso, $proveedores);
+                EmailHelper::notificarAperturaConcurso($this->concurso, $correos);
 
                 // Programar emails automáticos (recordatorio + cierre)
-                EmailHelper::programarEmailsAutomaticosConcurso($this->concurso, $proveedores);
+                EmailHelper::programarEmailsAutomaticosConcurso($this->concurso, $correos);
                 break;
                 
             case '3': //En análisis
@@ -94,10 +103,20 @@ class AccionesConcurso extends Component
                 }
                 
                 // Obtener proveedores que participaron (intencion != 2)
-                $proveedores = $this->concurso->obtenerProveedoresParticipantes();
+                $correos = $this->concurso->obtenerProveedoresParticipantes();
+
+                foreach($this->concurso->contactos as $contacto) {
+                    $correos[] = $contacto->correo;
+                }
+                foreach($this->concurso->proveedores as $proveedor) {
+                    foreach($proveedor->contactos as $contacto) {
+                        $correos[] = $contacto->correo;
+                    }
+                }
+                $correos = array_unique($correos);
             
                 // Notificación inmediata de finalización
-                EmailHelper::notificarFinalizacionConcurso($this->concurso, $proveedores);
+                EmailHelper::notificarFinalizacionConcurso($this->concurso, $correos);
                 break;
         }
         
@@ -106,10 +125,20 @@ class AccionesConcurso extends Component
 
     public function mailsRecordatorios() {
 
-        $proveedores = $this->concurso->obtenerProveedoresParticipantes();
+        $correos = $this->concurso->obtenerProveedoresParticipantes();
+
+        foreach($this->concurso->contactos as $contacto) {
+            $correos[] = $contacto->correo;
+        }
+        foreach($this->concurso->proveedores as $proveedor) {
+            foreach($proveedor->contactos as $contacto) {
+                $correos[] = $contacto->correo;
+            }
+        }
+        $correos = array_unique($correos);
     
         // Recordatorio manual inmediato
-        EmailHelper::enviarRecordatorioManual($this->concurso, $proveedores);
+        EmailHelper::enviarRecordatorioManual($this->concurso, $correos);
         
         $this->open = false;
     }
@@ -131,10 +160,20 @@ class AccionesConcurso extends Component
      */
     public function reprogramarEmails()
     {
-        $proveedores = $this->concurso->obtenerProveedoresParticipantes();
+        $correos = $this->concurso->obtenerProveedoresParticipantes();
+
+        foreach($this->concurso->contactos as $contacto) {
+            $correos[] = $contacto->correo;
+        }
+        foreach($this->concurso->proveedores as $proveedor) {
+            foreach($proveedor->contactos as $contacto) {
+                $correos[] = $contacto->correo;
+            }
+        }
+        $correos = array_unique($correos);
     
         // Una sola línea para cancelar y reprogramar todo
-        EmailHelper::reprogramarEmailsConcurso($this->concurso, $proveedores);
+        EmailHelper::reprogramarEmailsConcurso($this->concurso, $correos);
         
         session()->flash('success', 'Emails reprogramados correctamente.');
         return redirect()->route('concursos.concursos.show', $this->concurso);

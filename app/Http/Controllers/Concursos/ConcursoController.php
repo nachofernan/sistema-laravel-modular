@@ -32,7 +32,7 @@ class ConcursoController extends Controller
         return [
             'auth',
             new Middleware('permission:Concursos/Concursos/Ver', only: ['index', 'search', 'show', 'terminados']),
-            new Middleware('permission:Concursos/Concursos/Crear', only: ['create', 'store']),
+            new Middleware('permission:Concursos/Concursos/Crear', only: ['create', 'store', 'edit', 'update']),
             new Middleware('permission:Concursos/Concursos/Editar', only: ['edit', 'update']),
         ];
     }
@@ -180,14 +180,26 @@ class ConcursoController extends Controller
 
     public function programarEmailsConcurso($concurso)
     {
-        $proveedores = $concurso->proveedores()->pluck('email')->toArray();
+        /* $proveedores = $concurso->proveedores()->pluck('email')->toArray();
         foreach($concurso->contactos as $contacto) {
             $proveedores[] = $contacto->correo;
+        } */
+
+        $correos = $concurso->obtenerProveedoresParticipantes();
+
+        foreach($concurso->contactos as $contacto) {
+            $correos[] = $contacto->correo;
         }
+        foreach($concurso->proveedores as $proveedor) {
+            foreach($proveedor->contactos as $contacto) {
+                $correos[] = $contacto->correo;
+            }
+        }
+        $correos = array_unique($correos);
         
         // Job para 48hs antes
         EmailDispatcher::enviarMasivoConTracking(
-            $proveedores,
+            $correos,
             new ProximoCierre($concurso),
             'concurso',
             $concurso->id,
@@ -200,7 +212,7 @@ class ConcursoController extends Controller
         
         // Job para el cierre
         EmailDispatcher::enviarMasivoConTracking(
-            $proveedores,
+            $correos,
             new ConcursoFinalizado($concurso),
             'concurso',
             $concurso->id,

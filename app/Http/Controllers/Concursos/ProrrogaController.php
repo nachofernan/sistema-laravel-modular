@@ -55,11 +55,22 @@ class ProrrogaController extends Controller
                 Mail::to($mail)->send(new NuevaProrroga($prorroga));
             }
         } */
-        $proveedores = $concurso->obtenerProveedoresInvitados();
+        /* $proveedores = $concurso->obtenerProveedoresInvitados();
         foreach($concurso->contactos as $contacto) {
             $proveedores[] = $contacto->correo;
+        } */
+        $correos = $concurso->obtenerProveedoresParticipantes();
+
+        foreach($concurso->contactos as $contacto) {
+            $correos[] = $contacto->correo;
         }
-        EmailHelper::reprogramarEmailsProrroga($prorroga, $proveedores);
+        foreach($concurso->proveedores as $proveedor) {
+            foreach($proveedor->contactos as $contacto) {
+                $correos[] = $contacto->correo;
+            }
+        }
+        $correos = array_unique($correos);
+        EmailHelper::reprogramarEmailsProrroga($prorroga, $correos);
     
 
         return redirect()->route('concursos.concursos.show', $concurso);

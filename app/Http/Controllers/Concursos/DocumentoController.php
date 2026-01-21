@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Concursos;
 
+use App\Helpers\EmailHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Encrypts\FileController;
 use App\Mail\Concursos\NuevoDocumento;
@@ -75,6 +76,21 @@ class DocumentoController extends Controller
         }
 
         $concurso = $request->input('concurso_id') ? Concurso::find($request->input('concurso_id')) : Invitacion::find($request->input('invitacion_id'))->concurso;
+
+        $correos = $concurso->obtenerProveedoresInvitados();
+        foreach($concurso->contactos as $contacto) {
+            $correos[] = $contacto->correo;
+        }
+        foreach($concurso->proveedores as $proveedor) {
+            foreach($proveedor->contactos as $contacto) {
+                $correos[] = $contacto->correo;
+            }
+        }
+        $correos = array_unique($correos);
+
+        // Notificación inmediata de apertura (con tracking por si se cancela)
+        EmailHelper::notificarNuevoDocumentoConcurso($documento, $correos);
+
         /* if($concurso->estado->id > 1) {
             $mails = [];
             foreach($concurso->invitaciones as $invitacion) {

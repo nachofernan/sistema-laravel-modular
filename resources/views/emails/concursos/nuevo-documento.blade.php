@@ -67,7 +67,11 @@
                                 <w:anchorlock/>
                                 <center>
                             <![endif]-->
-                            <a href="http://172.17.9.231/portalproveedores/public/concursos/{{ $documento->concurso->id }}" 
+                            @if (app()->environment('production'))
+                                <a href="https://buenosairesenergia.com.ar/registroproveedores/concursos/{{ $documento->concurso->id }}" 
+                            @else
+                                <a href="http://172.17.9.231/portalproveedores/public/concursos/{{ $documento->concurso->id }}" 
+                            @endif
                                style="background-color: #002E80; border-radius: 4px; color: #ffffff; display: inline-block; font-size: 14px; font-weight: bold; line-height: 40px; text-align: center; text-decoration: none; width: 200px; -webkit-text-size-adjust: none;">Link al Concurso</a>
                             <!--[if mso]>
                                 </center>
