@@ -298,7 +298,7 @@
                                         </svg>
                                         Descargar
                                     </a>
-                                    @if ($concurso->estado->id == 1 && $concurso->fecha_cierre > now())
+                                    @if ($concurso->estado->id == 1 && $concurso->fecha_cierre > now() && (auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id()))
                                         <form action="{{ route('concursos.documentos.destroy', $documento->id) }}" method="post" class="inline">
                                             @csrf
                                             @method('delete')
