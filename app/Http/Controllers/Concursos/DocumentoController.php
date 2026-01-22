@@ -81,8 +81,8 @@ class DocumentoController extends Controller
         foreach($concurso->contactos as $contacto) {
             $correos[] = $contacto->correo;
         }
-        foreach($concurso->proveedores as $proveedor) {
-            foreach($proveedor->contactos as $contacto) {
+        foreach($concurso->invitaciones as $invitacion) {
+            foreach($invitacion->proveedor->contactos as $contacto) {
                 $correos[] = $contacto->correo;
             }
         }

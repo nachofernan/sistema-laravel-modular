@@ -32,8 +32,8 @@ class AccionesConcurso extends Component
             foreach($this->concurso->contactos as $contacto) {
                 $correos[] = $contacto->correo;
             }
-            foreach($this->concurso->proveedores as $proveedor) {
-                foreach($proveedor->contactos as $contacto) {
+            foreach($this->concurso->invitaciones as $invitacion) {
+                foreach($invitacion->proveedor->contactos as $contacto) {
                     $correos[] = $contacto->correo;
                 }
             }
@@ -75,8 +75,8 @@ class AccionesConcurso extends Component
                 foreach($this->concurso->contactos as $contacto) {
                     $correos[] = $contacto->correo;
                 }
-                foreach($this->concurso->proveedores as $proveedor) {
-                    foreach($proveedor->contactos as $contacto) {
+                foreach($this->concurso->invitaciones as $invitacion) {
+                    foreach($invitacion->proveedor->contactos as $contacto) {
                         $correos[] = $contacto->correo;
                     }
                 }
@@ -119,8 +119,8 @@ class AccionesConcurso extends Component
                 foreach($this->concurso->contactos as $contacto) {
                     $correos[] = $contacto->correo;
                 }
-                foreach($this->concurso->proveedores as $proveedor) {
-                    foreach($proveedor->contactos as $contacto) {
+                foreach($this->concurso->invitaciones as $invitacion) {
+                    foreach($invitacion->proveedor->contactos as $contacto) {
                         $correos[] = $contacto->correo;
                     }
                 }
@@ -141,8 +141,8 @@ class AccionesConcurso extends Component
         foreach($this->concurso->contactos as $contacto) {
             $correos[] = $contacto->correo;
         }
-        foreach($this->concurso->proveedores as $proveedor) {
-            foreach($proveedor->contactos as $contacto) {
+        foreach($this->concurso->invitaciones as $invitacion) {
+            foreach($invitacion->proveedor->contactos as $contacto) {
                 $correos[] = $contacto->correo;
             }
         }
@@ -176,8 +176,8 @@ class AccionesConcurso extends Component
         foreach($this->concurso->contactos as $contacto) {
             $correos[] = $contacto->correo;
         }
-        foreach($this->concurso->proveedores as $proveedor) {
-            foreach($proveedor->contactos as $contacto) {
+        foreach($this->concurso->invitaciones as $invitacion) {
+            foreach($invitacion->proveedor->contactos as $contacto) {
                 $correos[] = $contacto->correo;
             }
         }
