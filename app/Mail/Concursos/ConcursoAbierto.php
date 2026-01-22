@@ -28,7 +28,7 @@ class ConcursoAbierto extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'INVITACIÓN BAE S.A. - Concurso de Precios Abierto',
+            subject: 'BAESA - Invitación a Concurso de Precios Abierto',
         );
     }
 

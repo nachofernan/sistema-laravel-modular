@@ -29,7 +29,7 @@ class NuevaInvitacion extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'BAESA - Invitación a Concurso',
+            subject: 'BAESA - Invitación a Concurso de Precios Abierto',
         );
     }
 

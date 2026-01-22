@@ -29,7 +29,7 @@ class NuevaProrroga extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'NOTIFICACIÓN DE PRÓRROGA - BAE S.A. - Concurso de Precios Abierto',
+            subject: 'BAESA - Notificación de Prórroga',
         );
     }
 

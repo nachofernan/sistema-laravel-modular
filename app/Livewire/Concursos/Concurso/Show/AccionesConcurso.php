@@ -28,6 +28,17 @@ class AccionesConcurso extends Component
         if($this->test == "clave") {
             // Cancelar todos los jobs programados antes de eliminar
             $this->cancelarEmailsProgramados();
+            $correos = $this->concurso->obtenerProveedoresInvitados();
+            foreach($this->concurso->contactos as $contacto) {
+                $correos[] = $contacto->correo;
+            }
+            foreach($this->concurso->proveedores as $proveedor) {
+                foreach($proveedor->contactos as $contacto) {
+                    $correos[] = $contacto->correo;
+                }
+            }
+            $correos = array_unique($correos);
+            EmailHelper::notificarConcursoAnulado($this->concurso, $correos);
             
             $this->concurso->estado_id = 5;
             $this->concurso->save();

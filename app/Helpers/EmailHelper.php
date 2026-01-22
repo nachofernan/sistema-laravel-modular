@@ -127,6 +127,25 @@ class EmailHelper
     /**
      * Notificar apertura de concurso (inmediato, con tracking por si se cancela)
      */
+    public static function notificarConcursoAnulado($concurso, array $destinatarios)
+    {
+        $mailable = new \App\Mail\Concursos\ConcursoAnulado($concurso);
+        
+        return self::programarConTracking(
+            $destinatarios,
+            $mailable,
+            'concurso',
+            $concurso->id,
+            'notificacion_concurso_anulado',
+            null, // inmediato
+            "Concurso anulado - Concurso #{$concurso->numero}",
+            ['concurso', 'anulado']
+        );
+    }
+
+    /**
+     * Notificar apertura de concurso (inmediato, con tracking por si se cancela)
+     */
     public static function notificarNuevoDocumentoConcurso($documento, array $destinatarios)
     {
         $mailable = new \App\Mail\Concursos\NuevoDocumento($documento);

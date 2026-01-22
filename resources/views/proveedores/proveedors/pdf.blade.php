@@ -53,7 +53,19 @@
             </tr>
         </thead>
         <tbody>
+            @php
+                $docTypeId = 0;
+            @endphp
             @foreach($proveedor->documentos as $doc)
+            @if($doc->documentoTipo->id != $docTypeId)
+                @php
+                    $docTypeId = $doc->documentoTipo->id;
+                @endphp
+            @else
+                @php
+                    continue;
+                @endphp
+            @endif
             <tr>
                 <td>{{ $doc->documentoTipo->nombre }}</td>
                 <td>{{ \Carbon\Carbon::parse($doc->created_at)->format('d/m/Y') }}</td>

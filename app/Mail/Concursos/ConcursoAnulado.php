@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ProximoCierre extends Mailable
+class ConcursoAnulado extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -28,7 +28,7 @@ class ProximoCierre extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'BAESA - Concurso de Precios Próximo a Cierre',
+            subject: 'BAESA - Concurso de Precios Anulado',
         );
     }
 
@@ -38,7 +38,7 @@ class ProximoCierre extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.concursos.proximo-cierre',
+            view: 'emails.concursos.concurso-anulado',
         );
     }
 

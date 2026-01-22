@@ -28,7 +28,7 @@ class ConcursoFinalizado extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'BAE S.A. - Concurso de Precios Cerrado',
+            subject: 'BAESA - Concurso de Precios Cerrado',
         );
     }
 
