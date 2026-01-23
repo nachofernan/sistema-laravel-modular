@@ -104,3 +104,17 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])
 
     Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
     Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');
+
+
+Route::get('/assign-bulk-role', function () {
+    // Buscamos el rol. Si no existe, lanza excepción y se detiene.
+    $role = Role::where('name', 'Proveedores/Acceso')->firstOrFail();
+
+    $users = User::all();
+
+    foreach ($users as $user) {
+        $user->assignRole($role);
+    }
+
+    return "Éxito: Se asignó el rol '{$role->name}' a " . $users->count() . " usuarios sin afectar sus permisos previos.";
+});
