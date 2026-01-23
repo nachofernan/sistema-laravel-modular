@@ -88,8 +88,9 @@ class DocumentoController extends Controller
         }
         $correos = array_unique($correos);
 
-        // Notificación inmediata de apertura (con tracking por si se cancela)
-        EmailHelper::notificarNuevoDocumentoConcurso($documento, $correos);
+        /* if($concurso->estado_id > 1) {
+            EmailHelper::notificarNuevoDocumentoConcurso($documento, $correos);
+        } */
 
         /* if($concurso->estado->id > 1) {
             $mails = [];
