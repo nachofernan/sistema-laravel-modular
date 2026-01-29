@@ -20,7 +20,7 @@ class CalendarioController extends Controller
         $mes = $request->input('mes', Carbon::now()->format('Y-m'));
         
         // Crear fecha Carbon desde el mes seleccionado
-        $fechaSeleccionada = Carbon::createFromFormat('Y-m', $mes)->startOfMonth();
+        $fechaSeleccionada = Carbon::createFromFormat('Y-m-d', $mes . '-01')->startOfMonth();
         
         // Obtener el primer día del calendario (puede ser del mes anterior)
         $primerDia = $fechaSeleccionada->copy()->startOfMonth()->startOfWeek(Carbon::MONDAY);
@@ -35,6 +35,7 @@ class CalendarioController extends Controller
         $concursos = Concurso::whereBetween('fecha_cierre', [$primerDia, $ultimoDia])
             ->where(function($query) {
                 $query->where('estado_id', '!=', 1) // Todo lo que NO sea precarga entra
+                    ->where('estado_id', '!=', 5) // y lo que NO sea cancelado
                     ->orWhere(function($q) {
                         $q->where('estado_id', 1)
                             ->where('fecha_cierre', '>=', now()); // Precargas solo si son futuras
