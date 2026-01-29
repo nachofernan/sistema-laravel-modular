@@ -158,28 +158,67 @@ class Concurso extends Model
     }
 
     // Métodos auxiliares
-    public function obtenerProveedoresInvitados()
-    {
-        return $this->invitaciones()
-            ->with('proveedor')
-            ->get()
-            ->pluck('proveedor.correo')
-            ->filter()
-            ->unique()
-            ->values()
-            ->toArray();
-    }
 
-    public function obtenerProveedoresParticipantes()
+    /**
+     * Obtiene destinatarios únicos según el tipo de grupo y si participaron o no.
+     * * @param array $grupos Grupos a incluir
+     * @param bool $soloParticipantes Si es true, solo trae proveedores que NO rechazaron (intencion != 2)
+     */
+    public function getCorreosInteresados(array $grupos = ['proveedores', 'contactos_concurso', 'contactos_proveedores'], bool $soloParticipantes = false)
     {
-        return $this->invitaciones()
-            ->with('proveedor')
-            ->where('intencion', '!=', 2)
-            ->get()
-            ->pluck('proveedor.correo')
-            ->filter()
-            ->unique()
-            ->values()
-            ->toArray();
+        $destinatarios = collect();
+
+        // 1. Filtrar invitaciones según participación si es necesario
+        $invitacionesFiltradas = $this->invitaciones;
+        if ($soloParticipantes) {
+            // Asumiendo que intencion != 2 son los que participan/interesados
+            $invitacionesFiltradas = $invitacionesFiltradas->where('intencion', '!=', 2);
+        }
+
+        // 2. Empresa Proveedora
+        if (in_array('proveedores', $grupos)) {
+            foreach ($invitacionesFiltradas as $inv) {
+                if ($inv->proveedor && $inv->proveedor->correo) {
+                    $destinatarios->push([
+                        'email' => strtolower(trim($inv->proveedor->correo)),
+                        'nombre' => $inv->proveedor->razon_social,
+                        'tipo' => 'Empresa'
+                    ]);
+                }
+            }
+        }
+
+        // 3. Contactos de los proveedores (solo si el proveedor pasó el filtro anterior)
+        if (in_array('contactos_proveedores', $grupos)) {
+            foreach ($invitacionesFiltradas as $inv) {
+                foreach ($inv->proveedor->contactos as $contacto) {
+                    $destinatarios->push([
+                        'email' => strtolower(trim($contacto->correo)),
+                        'nombre' => $contacto->nombre,
+                        'tipo' => 'Contacto Proveedor'
+                    ]);
+                }
+            }
+        }
+
+        // 4. Contactos directos del concurso (Estos suelen ir siempre si se invita al grupo)
+        if (in_array('contactos_concurso', $grupos)) {
+            if($this->usuario_id) {
+                $destinatarios->push([
+                    'email' => strtolower(trim($this->usuario->correo)),
+                    'nombre' => $this->usuario->nombre,
+                    'tipo' => 'Contacto Gestor'
+                ]);
+            }
+            foreach ($this->contactos as $contacto) {
+                $destinatarios->push([
+                    'email' => strtolower(trim($contacto->correo)),
+                    'nombre' => $contacto->nombre,
+                    'tipo' => 'Contacto Directo'
+                ]);
+            }
+        }
+
+        return $destinatarios->unique('email')->values();
     }
 }

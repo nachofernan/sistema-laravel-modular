@@ -43,35 +43,10 @@ class ProrrogaController extends Controller
         $concurso->fecha_cierre = $request->input('fecha_cierre');
         $concurso->save();
 
-        /* foreach($concurso->invitaciones as $invitacion) {
-            if($invitacion->intencion != 2) {
-                if(str_ends_with($invitacion->proveedor->correo, '@buenosairesenergia.com.ar')) {
-                    $mails[] = $invitacion->proveedor->correo;
-                }
-            }
-        }
-        if($concurso->estado_id == 2 && !empty($mails)) {
-            foreach($mails as $mail) {
-                Mail::to($mail)->send(new NuevaProrroga($prorroga));
-            }
-        } */
-        /* $proveedores = $concurso->obtenerProveedoresInvitados();
-        foreach($concurso->contactos as $contacto) {
-            $proveedores[] = $contacto->correo;
-        } */
-        $correos = $concurso->obtenerProveedoresParticipantes();
+        // Obtener correos de proveedores invitados, contactos de proveedores y contactos de concurso
+        $correos = $concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores']);
 
-        foreach($concurso->contactos as $contacto) {
-            $correos[] = $contacto->correo;
-        }
-        foreach($concurso->invitaciones as $invitacion) {
-            foreach($invitacion->proveedor->contactos as $contacto) {
-                $correos[] = $contacto->correo;
-            }
-        }
-        $correos = array_unique($correos);
         EmailHelper::reprogramarEmailsProrroga($prorroga, $correos);
-    
 
         return redirect()->route('concursos.concursos.show', $concurso);
     }

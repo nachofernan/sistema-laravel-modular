@@ -42,6 +42,7 @@
                     </div>
                     @if(auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id())
                         @if ($concurso->estado->id < 3 && $concurso->fecha_cierre > now())
+                        <div class="flex space-x-2">
                             <button 
                                 wire:click="abrirYeditar({{$contacto->id}})"
                                 class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
@@ -51,6 +52,24 @@
                                 </svg>
                                 Editar
                             </button>
+                            <button 
+                                onclick="confirmDelete({{$contacto->id}})"
+                                class="inline-flex items-center px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Eliminar
+                            </button>
+
+                            <script>
+                                function confirmDelete(contactoId) {
+                                    if (confirm('¿Estás seguro de que quieres eliminar este contacto?')) {
+                                        Livewire.dispatch('eliminarContacto', { encargado_id: contactoId });
+                                    }
+                                }
+                            </script>
+                        </div>
                         @endif
                     @endif
                 </div>

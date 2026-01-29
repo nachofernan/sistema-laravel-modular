@@ -4,6 +4,7 @@ namespace App\Livewire\Concursos\Concurso\Show;
 
 use App\Models\Concursos\Contacto;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class AdministrarContactos extends Component
 {
@@ -53,6 +54,13 @@ class AdministrarContactos extends Component
         $this->tipo_edit = $this->encargado_edit->tipo;
 
         $this->open_edit = true;
+    }
+
+    #[On('eliminarContacto')]
+    public function eliminarContacto($encargado_id)
+    {
+        $encargado = Contacto::find($encargado_id);
+        $encargado->delete();
     }
 
     public function actualizar()

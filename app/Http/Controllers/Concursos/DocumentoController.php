@@ -77,61 +77,9 @@ class DocumentoController extends Controller
 
         $concurso = $request->input('concurso_id') ? Concurso::find($request->input('concurso_id')) : Invitacion::find($request->input('invitacion_id'))->concurso;
 
-        $correos = $concurso->obtenerProveedoresInvitados();
-        foreach($concurso->contactos as $contacto) {
-            $correos[] = $contacto->correo;
+        if($request->input('concurso_id') && $concurso->estado->id > 1) {
+            EmailHelper::notificarNuevoDocumentoConcurso($documento, $concurso->getCorreosInteresados());
         }
-        foreach($concurso->invitaciones as $invitacion) {
-            foreach($invitacion->proveedor->contactos as $contacto) {
-                $correos[] = $contacto->correo;
-            }
-        }
-        $correos = array_unique($correos);
-
-        /* if($concurso->estado_id > 1) {
-            EmailHelper::notificarNuevoDocumentoConcurso($documento, $correos);
-        } */
-
-        /* if($concurso->estado->id > 1) {
-            $mails = [];
-            foreach($concurso->invitaciones as $invitacion) {
-                if($invitacion->intencion != 2) {
-                    if(str_ends_with($invitacion->proveedor->correo, '@buenosairesenergia.com.ar')) {
-                        $mails[] = $invitacion->proveedor->correo;
-                    }
-                    // $mails[] = $invitacion->proveedor->correo;
-                }
-            }
-            foreach($mails as $mail) {
-                Mail::to($mail)->send(new NuevoDocumento($documento));
-            }
-            
-        } */
-
-        // ESTO ES PARA ENCRIPTAAAAAAAAAAAAAAAAAAAAAAR!!!!!!!!
-
-        /* if($request->input('documento_tipo_id') == 2) {
-        } else {
-            // Usar el FileEncryptionService para subir y encriptar el archivo
-            $fileController = new FileController(app(FileEncryptionService::class));
-            $encryptedFileResult = $fileController->upload($request, 'concursos');
-
-            // Obtener los datos de respuesta del archivo encriptado
-            $encryptedFileData = $encryptedFileResult->getData();
-
-            // Crear el registro de documento con la información del archivo encriptado
-            $documento = new Documento([
-                'archivo' => $encryptedFileData->data->metadata->originalName,
-                'mimeType' => $encryptedFileData->data->metadata->mimeType,
-                'extension' => pathinfo($encryptedFileData->data->metadata->originalName, PATHINFO_EXTENSION),
-                'file_storage' => $encryptedFileData->data->path,
-                'user_id_created' => Auth::user()->id,
-                'concurso_id' => $request->input('concurso_id'),
-                'encriptado' => true, // Marcar como encriptado
-                'documento_tipo_id' => $request->input('documento_tipo_id'),
-            ]);
-            $documento->save();
-        } */
 
         return redirect()->route('concursos.concursos.show', $concurso)->with('info', 'Se creó con éxito');
     }

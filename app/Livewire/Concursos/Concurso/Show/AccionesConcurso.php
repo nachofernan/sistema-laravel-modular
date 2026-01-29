@@ -28,16 +28,10 @@ class AccionesConcurso extends Component
         if($this->test == "clave") {
             // Cancelar todos los jobs programados antes de eliminar
             $this->cancelarEmailsProgramados();
-            $correos = $this->concurso->obtenerProveedoresInvitados();
-            foreach($this->concurso->contactos as $contacto) {
-                $correos[] = $contacto->correo;
-            }
-            foreach($this->concurso->invitaciones as $invitacion) {
-                foreach($invitacion->proveedor->contactos as $contacto) {
-                    $correos[] = $contacto->correo;
-                }
-            }
-            $correos = array_unique($correos);
+
+            // Obtener correos de proveedores invitados, contactos de proveedores y contactos de concurso
+            $correos = $this->concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores']);
+            
             EmailHelper::notificarConcursoAnulado($this->concurso, $correos);
             
             $this->concurso->estado_id = 5;
@@ -70,17 +64,8 @@ class AccionesConcurso extends Component
                 $this->concurso->numero = ($lastNum->numero > 0) ? $lastNum->numero + 1 : 1;
                 $this->concurso->save(); */
                 
-                // Obtener proveedores invitados
-                $correos = $this->concurso->obtenerProveedoresInvitados();
-                foreach($this->concurso->contactos as $contacto) {
-                    $correos[] = $contacto->correo;
-                }
-                foreach($this->concurso->invitaciones as $invitacion) {
-                    foreach($invitacion->proveedor->contactos as $contacto) {
-                        $correos[] = $contacto->correo;
-                    }
-                }
-                $correos = array_unique($correos);
+                // Obtener correos de proveedores invitados, contactos de proveedores y contactos de concurso
+                $correos = $this->concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores']);
 
                 // Notificación inmediata de apertura (con tracking por si se cancela)
                 EmailHelper::notificarAperturaConcurso($this->concurso, $correos);
@@ -113,18 +98,8 @@ class AccionesConcurso extends Component
                     session()->flash('error', 'Error al desencriptar documentos: ' . $e->getMessage());
                 }
                 
-                // Obtener proveedores que participaron (intencion != 2)
-                $correos = $this->concurso->obtenerProveedoresParticipantes();
-
-                foreach($this->concurso->contactos as $contacto) {
-                    $correos[] = $contacto->correo;
-                }
-                foreach($this->concurso->invitaciones as $invitacion) {
-                    foreach($invitacion->proveedor->contactos as $contacto) {
-                        $correos[] = $contacto->correo;
-                    }
-                }
-                $correos = array_unique($correos);
+                // Obtener correos de proveedores que participaron (intencion != 2)
+                $correos = $this->concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores'], true);
             
                 // Notificación inmediata de finalización
                 EmailHelper::notificarFinalizacionConcurso($this->concurso, $correos);
@@ -136,17 +111,8 @@ class AccionesConcurso extends Component
 
     public function mailsRecordatorios() {
 
-        $correos = $this->concurso->obtenerProveedoresParticipantes();
-
-        foreach($this->concurso->contactos as $contacto) {
-            $correos[] = $contacto->correo;
-        }
-        foreach($this->concurso->invitaciones as $invitacion) {
-            foreach($invitacion->proveedor->contactos as $contacto) {
-                $correos[] = $contacto->correo;
-            }
-        }
-        $correos = array_unique($correos);
+        // Obtener correos de proveedores invitados, y contactos de concurso y proveedores
+        $correos = $this->concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores']);
     
         // Recordatorio manual inmediato
         EmailHelper::enviarRecordatorioManual($this->concurso, $correos);
@@ -171,17 +137,8 @@ class AccionesConcurso extends Component
      */
     public function reprogramarEmails()
     {
-        $correos = $this->concurso->obtenerProveedoresParticipantes();
-
-        foreach($this->concurso->contactos as $contacto) {
-            $correos[] = $contacto->correo;
-        }
-        foreach($this->concurso->invitaciones as $invitacion) {
-            foreach($invitacion->proveedor->contactos as $contacto) {
-                $correos[] = $contacto->correo;
-            }
-        }
-        $correos = array_unique($correos);
+        // Obtener correos de proveedores invitados, y contactos de concurso y proveedores
+        $correos = $this->concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores']);
     
         // Una sola línea para cancelar y reprogramar todo
         EmailHelper::reprogramarEmailsConcurso($this->concurso, $correos);
