@@ -19,7 +19,7 @@ class NuevoDocumento extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public $documento,)
+    public function __construct(public $documento, public string $destinatario = '')
     {
         //
     }
@@ -35,12 +35,36 @@ class NuevoDocumento extends Mailable
     }
 
     /**
+     * Obtener el link correcto según el destinatario y entorno
+     */
+    public function getLinkConcurso(): string
+    {
+        // Verificar si es usuario interno
+        $esUsuarioInterno = str_ends_with($this->destinatario, '@buenosairesenergia.com.ar');
+        
+        if ($esUsuarioInterno) {
+            // Link interno según entorno
+            $baseUrl = config('app.env') === 'production' 
+                ? 'http://172.17.8.80/plataforma'
+                : 'http://172.17.9.231/plataforma';
+                
+            return "{$baseUrl}/concursos/concursos/{$this->documento->concurso_id}";
+        }
+        
+        // Link externo (proveedores)
+        return "https://buenosairesenergia.com.ar/registroproveedores/concursos/{$this->documento->concurso_id}";
+    }
+
+    /**
      * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
             view: 'emails.concursos.nuevo-documento',
+            with: [
+                'linkConcurso' => $this->getLinkConcurso(),
+            ]
         );
     }
 

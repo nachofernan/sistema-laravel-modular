@@ -18,7 +18,7 @@ class NuevaProrroga extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public Prorroga $prorroga,)
+    public function __construct(public Prorroga $prorroga, public string $destinatario = '')
     {
         //
     }
@@ -34,12 +34,36 @@ class NuevaProrroga extends Mailable
     }
 
     /**
+     * Obtener el link correcto según el destinatario y entorno
+     */
+    public function getLinkConcurso(): string
+    {
+        // Verificar si es usuario interno
+        $esUsuarioInterno = str_ends_with($this->destinatario, '@buenosairesenergia.com.ar');
+        
+        if ($esUsuarioInterno) {
+            // Link interno según entorno
+            $baseUrl = config('app.env') === 'production' 
+                ? 'http://172.17.8.80/plataforma'
+                : 'http://172.17.9.231/plataforma';
+                
+            return "{$baseUrl}/concursos/concursos/{$this->prorroga->concurso_id}";
+        }
+        
+        // Link externo (proveedores)
+        return "https://buenosairesenergia.com.ar/registroproveedores/concursos/{$this->prorroga->concurso_id}";
+    }
+
+    /**
      * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
             view: 'emails.concursos.nueva-prorroga',
+            with: [
+                'linkConcurso' => $this->getLinkConcurso(),
+            ]
         );
     }
 

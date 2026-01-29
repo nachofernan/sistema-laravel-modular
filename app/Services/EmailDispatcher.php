@@ -20,9 +20,16 @@ class EmailDispatcher
         foreach ($destinatarios as $index => $destinatario) {
             $tiempoEjecucion = $proximoTiempo->copy()->addSeconds(3 * $index);
 
+            // Clonar el mailable para cada destinatario
+            $mailablePersonalizado = clone $mailable;
+            // Solo asignar si la propiedad existe
+            if (property_exists($mailablePersonalizado, 'destinatario')) {
+                $mailablePersonalizado->destinatario = $destinatario;
+            }
+
             $job = new EnviarCorreoAutomatizado(
                 $destinatario,
-                $mailable,
+                $mailablePersonalizado,
                 $tipo,
                 $descripcion
             );
@@ -58,9 +65,16 @@ class EmailDispatcher
         foreach ($destinatarios as $index => $destinatario) {
             $tiempoEjecucion = $proximoTiempo->copy()->addSeconds(3 * $index);
 
+            // Clonar el mailable para cada destinatario
+            $mailablePersonalizado = clone $mailable;
+            // Solo asignar si la propiedad existe
+            if (property_exists($mailablePersonalizado, 'destinatario')) {
+                $mailablePersonalizado->destinatario = $destinatario;
+            }
+
             $job = new EnviarCorreoAutomatizado(
                 $destinatario,
-                $mailable,
+                $mailablePersonalizado,
                 $tipo,
                 $descripcion
             );
