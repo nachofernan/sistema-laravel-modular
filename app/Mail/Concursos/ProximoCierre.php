@@ -13,13 +13,15 @@ use Illuminate\Queue\SerializesModels;
 class ProximoCierre extends Mailable
 {
     use Queueable, SerializesModels;
+    
+    public string $linkConcurso;
 
     /**
      * Create a new message instance.
      */
     public function __construct(public Concurso $concurso, public string $destinatario = '')
     {
-        //
+        $this->linkConcurso = $this->getLinkConcurso();
     }
 
     /**
@@ -60,9 +62,6 @@ class ProximoCierre extends Mailable
     {
         return new Content(
             view: 'emails.concursos.proximo-cierre',
-            with: [
-                'linkConcurso' => $this->getLinkConcurso(),
-            ]
         );
     }
 
