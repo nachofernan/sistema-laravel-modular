@@ -219,6 +219,6 @@ class Concurso extends Model
             }
         }
 
-        return $destinatarios->unique('email')->values();
+        return $destinatarios->pluck('email')->unique()->values()->toArray();
     }
 }
