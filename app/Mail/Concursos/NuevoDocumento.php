@@ -16,14 +16,11 @@ class NuevoDocumento extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $linkConcurso;
-
     /**
      * Create a new message instance.
      */
     public function __construct(public $documento, public string $destinatario = '')
     {
-        $this->linkConcurso = $this->getLinkConcurso();
     }
 
     /**

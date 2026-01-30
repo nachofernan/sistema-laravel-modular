@@ -14,15 +14,12 @@ use Illuminate\Queue\SerializesModels;
 class NuevaProrroga extends Mailable
 {
     use Queueable, SerializesModels;
-    
-    public string $linkConcurso;
 
     /**
      * Create a new message instance.
      */
     public function __construct(public Prorroga $prorroga, public string $destinatario = '')
     {
-        $this->linkConcurso = $this->getLinkConcurso();
     }
 
     /**
