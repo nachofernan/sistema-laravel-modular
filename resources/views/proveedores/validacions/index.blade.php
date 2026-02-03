@@ -39,7 +39,11 @@
                         @forelse ($validaciones as $validacion)
                         @php
                             $tieneVencimiento = $validacion->documento->tieneVencimiento();
-                            $diasRestantes = $tieneVencimiento ? now()->diffInDays($validacion->documento->vencimiento, false) : null;
+                            if($tieneVencimiento) {
+                                $vencimientoRaw = $validacion->documento->getRawOriginal('vencimiento');
+                                $anio = (int) substr($vencimientoRaw, 0, 4);
+                            } 
+                            $diasRestantes = ($tieneVencimiento && $anio < 2035) ? now()->diffInDays($validacion->documento->vencimiento, false) : null;
                             $estadoVencimiento = $diasRestantes !== null ? 
                                 ($diasRestantes < 0 ? 'vencido' : ($diasRestantes <= 30 ? 'proximo' : 'vigente')) : 
                                 'sin_vencimiento';
