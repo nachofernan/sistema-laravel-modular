@@ -93,11 +93,12 @@ class InvitarProveedor extends Component
             $correos[] = $contacto->correo;
         }
         $correos = array_unique($correos);
-        foreach($correos as $correo) {
+        /* foreach($correos as $correo) {
             if(app()->environment('production') || str_ends_with($correo, '@buenosairesenergia.com.ar')) {
                 Mail::to($correo)->send(new NuevaInvitacion($invitacion));
             }
-        }
+        } */
+        EmailHelper::notificarAperturaConcurso($this->concurso, $correos);
         //Mail::to(['ifernandez@ccasa.com.ar'])->send(new NuevaInvitacion($invitacion));
         $this->cargarProveedoresRecomendados();
     }
