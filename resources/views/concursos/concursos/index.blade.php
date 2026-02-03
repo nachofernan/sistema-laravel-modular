@@ -58,59 +58,70 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($precargas as $concurso)
                 <a href="{{ route('concursos.concursos.show', $concurso) }}" 
-                   class="group block transition-all duration-200 ease-in-out hover:scale-[1.02]">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-orange-300 transition-all duration-200 overflow-hidden">
-                        <!-- Header con gradiente -->
-                        <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg leading-tight truncate">{{ $concurso->nombre }}</h3>
-                                    <p class="text-orange-100 text-sm">#{{ $concurso->numero }}</p>
-                                </div>
-                                <div class="ml-3 flex-shrink-0">
-                                    <svg class="w-5 h-5 text-orange-200 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Contenido -->
-                        <div class="p-6 space-y-4">
-                            <!-- Descripción -->
-                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                                {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
-                            </p>
-                            
-                            <!-- Gestor -->
-                            <div class="flex items-center text-sm">
-                                <svg class="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                <span class="text-gray-500 mr-2">Gestor:</span>
-                                <span class="font-medium text-gray-900 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
-                            </div>
+   class="group block h-full transition-all duration-300 hover:-translate-y-1">
+    
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-orange-200 transition-all overflow-hidden flex flex-col h-full">
+        
+        <div class="bg-gradient-to-br from-orange-600 to-orange-700 px-5 py-3 flex justify-between items-center flex-shrink-0">
+            <div class="flex items-baseline gap-1">
+                <span class="text-3xl font-black text-white leading-none opacity-80">#{{ $concurso->numero }}</span>
+            </div>
+            <div class="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="p-5 flex-1 flex flex-col">
+            <div class="mb-4">
+                <h3 class="font-bold text-gray-800 text-lg leading-snug group-hover:text-orange-700 transition-colors line-clamp-2">
+                    {{ $concurso->nombre }}
+                </h3>
+                <p class="mt-2 text-gray-500 text-sm line-clamp-2 leading-relaxed italic">
+                    {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
+                </p>
+            </div>
 
-                            <!-- Métricas -->
-                            <div class="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-orange-600">{{ count($concurso->invitaciones) }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Invitados</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-gray-700">{{ $concurso->invitaciones->filter(function ($invitacion) {return $invitacion->intencion == 3;})->count() }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Ofertas</div>
-                                </div>
-                            </div>
+            <div class="flex-1"></div>
 
-                            <!-- Fecha de cierre -->
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span class="text-xs text-gray-500 uppercase tracking-wide">Cierre</span>
-                                <span class="font-medium text-gray-900">{{ $concurso->fecha_cierre->format('d/m/Y H:i') }}</span>
-                            </div>
-                        </div>
+            <div class="flex items-center justify-between gap-4 pt-4 border-t border-gray-50 mb-5">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0 border border-gray-100">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                        </svg>
                     </div>
-                </a>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold leading-none">Gestor</span>
+                        <span class="text-sm font-medium text-gray-700 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
+                    </div>
+                </div>
+
+                <div class="w-24 bg-orange-50 rounded-xl p-2 text-center border border-orange-100 flex-shrink-0">
+                    <div class="text-xl font-black text-orange-700 leading-none">
+                        {{ count($concurso->invitaciones) }}
+                    </div>
+                    <div class="text-[9px] text-orange-600/70 uppercase font-bold tracking-tight mt-1">
+                        Invitados
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-gray-50">
+                <div class="flex items-center text-gray-400">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-[10px] font-bold uppercase tracking-widest">Cierre</span>
+                </div>
+                <span class="text-sm font-bold text-gray-800">
+                    {{ $concurso->fecha_cierre->format('d/m/Y H:i') }}
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
                 @endforeach
             </div>
         </div>
@@ -127,49 +138,69 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($activos as $concurso)
                 <a href="{{ route('concursos.concursos.show', $concurso) }}" 
-                   class="group block transition-all duration-200 ease-in-out hover:scale-[1.02]">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-green-300 transition-all duration-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg leading-tight truncate">{{ $concurso->nombre }}</h3>
-                                    <p class="text-green-100 text-sm">#{{ $concurso->numero }}</p>
-                                </div>
-                                <div class="ml-3 flex-shrink-0">
-                                    <svg class="w-5 h-5 text-green-200 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </div>
+                class="group block h-full transition-all duration-300 hover:-translate-y-1">
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all overflow-hidden flex flex-col h-full">
+                        
+                        <div class="bg-gradient-to-br from-green-600 to-green-700 px-5 py-3 flex justify-between items-center flex-shrink-0">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-white leading-none opacity-70">#{{ $concurso->numero }}</span>
+                            </div>
+                            <div class="bg-white/10 p-1.5 rounded-lg">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
                             </div>
                         </div>
                         
-                        <div class="p-6 space-y-4">
-                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                                {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
-                            </p>
+                        <div class="p-5 flex-1 flex flex-col">
                             
-                            <div class="flex items-center text-sm">
-                                <svg class="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                <span class="text-gray-500 mr-2">Gestor:</span>
-                                <span class="font-medium text-gray-900 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
+                            <div class="mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg leading-snug group-hover:text-green-700 transition-colors line-clamp-2">
+                                    {{ $concurso->nombre }}
+                                </h3>
+                                <p class="mt-2 text-gray-500 text-sm line-clamp-2 leading-relaxed italic">
+                                    {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
+                                </p>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-green-600">{{ count($concurso->invitaciones) }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Invitados</div>
+                            <div class="flex-1"></div>
+
+                            <div class="flex items-center gap-2 mb-5 pt-4 border-t border-gray-50">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
                                 </div>
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-gray-700">{{ $concurso->invitaciones->filter(function ($invitacion) {return $invitacion->intencion == 3;})->count() }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Ofertas</div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold leading-none">Gestor</span>
+                                    <span class="text-sm font-medium text-gray-700 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span class="text-xs text-gray-500 uppercase tracking-wide">Cierre</span>
-                                <span class="font-medium text-gray-900">{{ $concurso->fecha_cierre->format('d/m/Y H:i') }}</span>
+                            <div class="flex items-center justify-between gap-2 mb-5">
+                                <div class="flex-1 bg-green-50 rounded-xl p-2 text-center border border-green-100/50">
+                                    <div class="text-lg font-bold text-green-700">{{ count($concurso->invitaciones) }}</div>
+                                    <div class="text-[10px] text-green-600/70 uppercase font-bold tracking-tight">Invitados</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                    <div class="text-lg font-bold text-gray-700">{{ $concurso->invitaciones->where('intencion', 1)->count() }}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Intenciones</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                    <div class="text-lg font-bold text-gray-700">{{ $concurso->invitaciones->where('intencion', 3)->count() }}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Ofertas</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-50">
+                                <div class="flex items-center text-gray-400">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Cierre</span>
+                                </div>
+                                <span class="text-lg font-bold text-gray-500">
+                                    {{ $concurso->fecha_cierre->format('d/m/Y H:i') }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -190,49 +221,69 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($cerrados as $concurso)
                 <a href="{{ route('concursos.concursos.show', $concurso) }}" 
-                   class="group block transition-all duration-200 ease-in-out hover:scale-[1.02]">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-yellow-300 transition-all duration-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 text-white px-6 py-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg leading-tight truncate">{{ $concurso->nombre }}</h3>
-                                    <p class="text-yellow-100 text-sm">#{{ $concurso->numero }}</p>
-                                </div>
-                                <div class="ml-3 flex-shrink-0">
-                                    <svg class="w-5 h-5 text-yellow-200 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </div>
+                class="group block h-full transition-all duration-300 hover:-translate-y-1">
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-yellow-200 transition-all overflow-hidden flex flex-col h-full">
+                        
+                        <div class="bg-gradient-to-br from-yellow-600 to-yellow-700 px-5 py-3 flex justify-between items-center flex-shrink-0">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-white leading-none opacity-70">#{{ $concurso->numero }}</span>
+                            </div>
+                            <div class="bg-white/10 p-1.5 rounded-lg">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
                             </div>
                         </div>
                         
-                        <div class="p-6 space-y-4">
-                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                                {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
-                            </p>
+                        <div class="p-5 flex-1 flex flex-col">
                             
-                            <div class="flex items-center text-sm">
-                                <svg class="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                <span class="text-gray-500 mr-2">Gestor:</span>
-                                <span class="font-medium text-gray-900 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
+                            <div class="mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg leading-snug group-hover:text-yellow-700 transition-colors line-clamp-2">
+                                    {{ $concurso->nombre }}
+                                </h3>
+                                <p class="mt-2 text-gray-500 text-sm line-clamp-2 leading-relaxed italic">
+                                    {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
+                                </p>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-yellow-600">{{ count($concurso->invitaciones) }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Invitados</div>
+                            <div class="flex-1"></div>
+
+                            <div class="flex items-center gap-2 mb-5 pt-4 border-t border-gray-50">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
                                 </div>
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-gray-700">{{ $concurso->invitaciones->filter(function ($invitacion) {return $invitacion->intencion == 3;})->count() }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Ofertas</div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold leading-none">Gestor</span>
+                                    <span class="text-sm font-medium text-gray-700 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span class="text-xs text-gray-500 uppercase tracking-wide">Cierre</span>
-                                <span class="font-medium text-gray-900">{{ $concurso->fecha_cierre->format('d/m/Y H:i') }}</span>
+                            <div class="flex items-center justify-between gap-2 mb-5">
+                                <div class="flex-1 bg-green-50 rounded-xl p-2 text-center border border-green-100/50">
+                                    <div class="text-lg font-bold text-green-700">{{ count($concurso->invitaciones) }}</div>
+                                    <div class="text-[10px] text-green-600/70 uppercase font-bold tracking-tight">Invitados</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                    <div class="text-lg font-bold text-gray-700">{{ $concurso->invitaciones->where('intencion', 1)->count() }}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Intenciones</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                    <div class="text-lg font-bold text-gray-700">{{ $concurso->invitaciones->where('intencion', 3)->count() }}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Ofertas</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-50">
+                                <div class="flex items-center text-gray-400">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Cierre</span>
+                                </div>
+                                <span class="text-lg font-bold text-gray-500">
+                                    {{ $concurso->fecha_cierre->format('d/m/Y H:i') }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -253,49 +304,69 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($analisis as $concurso)
                 <a href="{{ route('concursos.concursos.show', $concurso) }}" 
-                   class="group block transition-all duration-200 ease-in-out hover:scale-[1.02]">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg leading-tight truncate">{{ $concurso->nombre }}</h3>
-                                    <p class="text-blue-100 text-sm">#{{ $concurso->numero }}</p>
-                                </div>
-                                <div class="ml-3 flex-shrink-0">
-                                    <svg class="w-5 h-5 text-blue-200 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </div>
+                class="group block h-full transition-all duration-300 hover:-translate-y-1">
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all overflow-hidden flex flex-col h-full">
+                        
+                        <div class="bg-gradient-to-br from-blue-600 to-blue-700 px-5 py-3 flex justify-between items-center flex-shrink-0">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-white leading-none opacity-70">#{{ $concurso->numero }}</span>
+                            </div>
+                            <div class="bg-white/10 p-1.5 rounded-lg">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
                             </div>
                         </div>
                         
-                        <div class="p-6 space-y-4">
-                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                                {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
-                            </p>
+                        <div class="p-5 flex-1 flex flex-col">
                             
-                            <div class="flex items-center text-sm">
-                                <svg class="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                <span class="text-gray-500 mr-2">Gestor:</span>
-                                <span class="font-medium text-gray-900 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
+                            <div class="mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">
+                                    {{ $concurso->nombre }}
+                                </h3>
+                                <p class="mt-2 text-gray-500 text-sm line-clamp-2 leading-relaxed italic">
+                                    {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
+                                </p>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4 pt-3 border-t border-gray-100">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-blue-600">{{ count($concurso->invitaciones) }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Invitados</div>
+                            <div class="flex-1"></div>
+
+                            <div class="flex items-center gap-2 mb-5 pt-4 border-t border-gray-50">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
                                 </div>
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-gray-700">{{ $concurso->invitaciones->filter(function ($invitacion) {return $invitacion->intencion == 3;})->count() }}</div>
-                                    <div class="text-xs text-gray-500 uppercase tracking-wide">Ofertas</div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold leading-none">Gestor</span>
+                                    <span class="text-sm font-medium text-gray-700 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span class="text-xs text-gray-500 uppercase tracking-wide">Cierre</span>
-                                <span class="font-medium text-gray-900">{{ $concurso->fecha_cierre->format('d/m/Y H:i') }}</span>
+                            <div class="flex items-center justify-between gap-2 mb-5">
+                                <div class="flex-1 bg-green-50 rounded-xl p-2 text-center border border-green-100/50">
+                                    <div class="text-lg font-bold text-green-700">{{ count($concurso->invitaciones) }}</div>
+                                    <div class="text-[10px] text-green-600/70 uppercase font-bold tracking-tight">Invitados</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                    <div class="text-lg font-bold text-gray-700">{{ $concurso->invitaciones->where('intencion', 1)->count() }}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Intenciones</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 rounded-xl p-2 text-center border border-gray-100">
+                                    <div class="text-lg font-bold text-gray-700">{{ $concurso->invitaciones->where('intencion', 3)->count() }}</div>
+                                    <div class="text-[10px] text-gray-500 uppercase font-bold tracking-tight">Ofertas</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-50">
+                                <div class="flex items-center text-gray-400">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Cierre</span>
+                                </div>
+                                <span class="text-lg font-bold text-gray-500">
+                                    {{ $concurso->fecha_cierre->format('d/m/Y H:i') }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -310,40 +381,60 @@
                 <h2 class="text-xl font-bold text-gray-900 flex items-center">
                     <span class="h-4 w-4 rounded-full bg-gray-600 mr-3"></span>
                     Vencidos
-                    <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">{{ $precargas->count() }}</span>
+                    <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">{{ $vencidos->count() }}</span>
                 </h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($vencidos as $concurso)
                 <a href="{{ route('concursos.concursos.show', $concurso) }}" 
-                   class="group block transition-all duration-200 ease-in-out hover:scale-[1.02]">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 overflow-hidden">
-                        <!-- Header con gradiente -->
-                        <div class="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-lg leading-tight truncate">{{ $concurso->nombre }}</h3>
-                                    <p class="text-gray-100 text-sm">#{{ $concurso->numero }}</p>
-                                </div>
-                                <div class="ml-3 flex-shrink-0">
-                                    <svg class="w-5 h-5 text-gray-200 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </div>
+                class="group block h-full transition-all duration-300 hover:-translate-y-1">
+                    
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-gray-200 transition-all overflow-hidden flex flex-col h-full">
+                        
+                        <div class="bg-gradient-to-br from-gray-600 to-gray-700 px-5 py-3 flex justify-between items-center flex-shrink-0">
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-white leading-none opacity-70">#{{ $concurso->numero }}</span>
+                            </div>
+                            <div class="bg-white/10 p-1.5 rounded-lg">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
                             </div>
                         </div>
                         
-                        <!-- Contenido -->
-                        <div class="p-6 space-y-4">
-                            <!-- Descripción -->
-                            <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                                {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
-                            </p>
+                        <div class="p-5 flex-1 flex flex-col">
+                            
+                            <div class="mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg leading-snug group-hover:text-gray-700 transition-colors line-clamp-2">
+                                    {{ $concurso->nombre }}
+                                </h3>
+                                <p class="mt-2 text-gray-500 text-sm line-clamp-2 leading-relaxed italic">
+                                    {{ $concurso->descripcion ?? 'Sin descripción disponible' }}
+                                </p>
+                            </div>
 
-                            <!-- Fecha de cierre -->
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                                <span class="text-xs text-gray-500 uppercase tracking-wide">Cierre</span>
-                                <span class="font-medium text-gray-900">{{ $concurso->fecha_cierre->format('d/m/Y H:i') }}</span>
+                            <div class="flex-1"></div>
+
+                            <div class="flex items-center gap-2 mb-5 pt-4 border-t border-gray-50">
+                                <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[10px] uppercase tracking-tighter text-gray-400 font-bold leading-none">Gestor</span>
+                                    <span class="text-sm font-medium text-gray-700 truncate">{{ $concurso->usuario->realname ?? 'Sin gestor' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-50">
+                                <div class="flex items-center text-gray-400">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Cierre</span>
+                                </div>
+                                <span class="text-lg font-bold text-gray-500">
+                                    {{ $concurso->fecha_cierre->format('d/m/Y H:i') }}
+                                </span>
                             </div>
                         </div>
                     </div>
