@@ -5,6 +5,7 @@ namespace App\Livewire\Proveedores\Anexosolped;
 use Livewire\Component;
 use App\Models\Proveedores\Proveedor;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class Create extends Component
 {
@@ -243,7 +244,8 @@ class Create extends Component
         $pdf = Pdf::loadView('proveedores.anexosolped.pdf', $data);
         
         // Limpiamos el nombre del archivo
-        $nombreArchivo = 'Anexo_Solped_' . str_replace(' ', '_', $this->titulo) . '.pdf';
+        $nombreLimpio = Str::slug($this->titulo, '_'); // El segundo parámetro define el separador
+        $nombreArchivo = 'Anexo_Solped_' . $nombreLimpio . '.pdf';
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
