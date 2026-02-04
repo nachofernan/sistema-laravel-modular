@@ -20,7 +20,7 @@
                     class="bg-green-500 text-white font-bold text-lg w-full py-3 rounded-lg shadow hover:bg-green-600">
                     Publicar
                 </button>
-                <p class="text-sm italic mt-2">
+                <p class="text-sm italic mt-4 border-t border-gray-200 pt-2">
                     Al publicar el concurso se enviarán las invitaciones a todos los proveedores seleccionados hasta el momento. 
                     En caso de agregar un nuevo proveedor, se deberá enviar la invitación de manera individual.
                     <br>
@@ -43,7 +43,7 @@
                     <button wire:click="actualizarEstado(3)" class="bg-green-500 text-white font-bold text-lg w-full py-3 rounded-lg shadow hover:bg-green-600">
                         Abrir Ofertas
                     </button>
-                    <p class="text-sm italic mt-2">
+                    <p class="text-sm italic mt-4 border-t border-gray-200 pt-2">
                         Al hacer clic en el botón anterior se dará por terminado el proceso licitatorio y se habilitarán las opciones de ver las ofertas presentadas.
                         <br>
                         Los siguientes usuarios tendrán aviso de la apertura del concurso.
@@ -55,17 +55,33 @@
                             Mandar notificación de que está por cerrar
                         </button>
                     @endif
+                    <p class="text-sm italic mt-4 border-t border-gray-200 pt-2">
+                        También puedes reprogramar los emails programados para este concurso en caso de que hayan habido modificaciones. Esta acción no rompe nada.
+                    </p>
+                    <button wire:click="reprogramarEmails()" class="bg-blue-500 text-white font-bold text-lg w-full py-3 mt-2 rounded-lg shadow hover:bg-blue-600" onclick="handleButtonClick23(this)">
+                        Reprogramar Emails
+                    </button>
+                    <script>
+                        function handleButtonClick23(button) {
+                            // Deshabilitar el botón
+                            button.disabled = true;
+                            // Cambiar texto del botón
+                            button.innerText = "Reprogramando emails...";
+                            // Cambiar estilo (opcional)
+                            button.classList.add("cursor-not-allowed", "opacity-50");
+                        }
+                    </script>
                 @endif
             @elseif($concurso->estado->id == 3)
                 <button wire:click="actualizarEstado(4)" class="bg-green-500 text-white font-bold text-lg w-full py-3 rounded-lg shadow hover:bg-green-600">
                     Marcar como Terminado
                 </button>
-                <p class="text-sm italic mt-2">
+                <p class="text-sm italic mt-4 border-t border-gray-200 pt-2">
                     Finaliza completamente el proceso licitatorio y se da por terminado el concurso.
                 </p>
             @endif
             @can('Concursos/Concursos/Anular')
-            <div class="bg-gray-100 p-4 mt-4 rounded-lg">
+            <div class="bg-gray-100 p-4 mt-4 rounded-lg border-t border-gray-200 pt-2">
                 <p class="text-sm italic pb-4">
                     Al dar de baja el concurso se dará como terminado y se eliminarán las ofertas presentadas.
                     <br>
