@@ -63,6 +63,8 @@ class AccionesConcurso extends Component
                /*  $lastNum = Concurso::orderBy('numero', 'desc')->first();
                 $this->concurso->numero = ($lastNum->numero > 0) ? $lastNum->numero + 1 : 1;
                 $this->concurso->save(); */
+                $this->concurso->fecha_inicio = now();
+                $this->concurso->save();
                 
                 // Obtener correos de proveedores invitados, contactos de proveedores y contactos de concurso
                 $correos = $this->concurso->getCorreosInteresados(['proveedores', 'contactos_concurso', 'contactos_proveedores']);
