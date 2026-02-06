@@ -118,3 +118,12 @@ Route::get('/assign-bulk-role', function () {
 
     return "Éxito: Se asignó el rol '{$role->name}' a " . $users->count() . " usuarios sin afectar sus permisos previos.";
 });
+
+Route::get('/test/tickets-2025', function() {
+    $tickets = \App\Models\Tickets\Ticket::with(['user', 'encargado', 'estado', 'categoria'])
+        ->whereYear('created_at', 2025)
+        ->orderBy('created_at', 'asc')
+        ->get();
+    
+    return view('test-tickets-2025', compact('tickets'));
+});

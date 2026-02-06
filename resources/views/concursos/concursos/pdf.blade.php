@@ -44,13 +44,17 @@
     <table>
         <tr><td class="label">Inicio:</td><td>{{ $concurso->fecha_inicio->format('d/m/Y H:i') }} hs</td></tr>
         <tr><td class="label">Cierre:</td><td>{{ $concurso->fecha_cierre->format('d/m/Y H:i') }} hs</td></tr>
-        @if($concurso->prorrogas->count() > 0)
-        <tr>
-            <td class="label">Última Prórroga:</td>
-            <td>{{ $concurso->prorrogas->last()->fecha_actual->format('d/m/Y H:i') }} hs</td>
-        </tr>
-        @endif
     </table>
+    @if($concurso->prorrogas->count() > 0)
+    <table>
+        @foreach($concurso->prorrogas as $prorroga)
+        <tr>
+            <td class="label">Prórroga {{ $loop->iteration }}:</td>
+            <td>Fecha anterior: {{ $prorroga->fecha_anterior->format('d/m/Y H:i') }} hs - Nueva fecha: {{ $prorroga->fecha_actual->format('d/m/Y H:i') }} hs</td>
+        </tr>
+        @endforeach
+    </table>
+    @endif
 
     <div class="section-title">Proveedores Invitados ({{ count($concurso->invitaciones) }})</div>
     <table>
@@ -84,5 +88,7 @@
     <div class="footer">
         Generado el {{ date('d/m/Y H:i') }} - Sistema de Gestión de Proveedores
     </div>
+</body>
+</html>
 </body>
 </html>
