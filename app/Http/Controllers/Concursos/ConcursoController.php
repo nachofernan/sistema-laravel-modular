@@ -44,11 +44,11 @@ class ConcursoController extends Controller
     {
         //
         //$precargas = Concurso::where('estado_id', 1)->orderBy('fecha_cierre', 'desc')->get();
-        $precargas = Concurso::where('estado_id', 1)->where('fecha_cierre', '>', now())->orderBy('fecha_cierre', 'desc')->get();
-        $vencidos = Concurso::where('estado_id', 1)->where('fecha_cierre', '<=', now())->orderBy('fecha_cierre', 'desc')->get();
-        $activos = Concurso::where('estado_id', 2)->where('fecha_cierre', '>', now())->orderBy('fecha_cierre', 'desc')->get();
-        $cerrados = Concurso::where('estado_id', 2)->where('fecha_cierre', '<=', now())->orderBy('fecha_cierre', 'desc')->get();
-        $analisis = Concurso::where('estado_id', 3)->orderBy('fecha_cierre', 'desc')->get();
+        $precargas = Concurso::where('estado_id', 1)->where('fecha_cierre', '>', now())->orderBy('fecha_cierre', 'asc')->get();
+        $vencidos = Concurso::where('estado_id', 1)->where('fecha_cierre', '<=', now())->orderBy('fecha_cierre', 'asc')->get();
+        $activos = Concurso::where('estado_id', 2)->where('fecha_cierre', '>', now())->orderBy('fecha_cierre', 'asc')->get();
+        $cerrados = Concurso::where('estado_id', 2)->where('fecha_cierre', '<=', now())->orderBy('fecha_cierre', 'asc')->get();
+        $analisis = Concurso::where('estado_id', 3)->orderBy('fecha_cierre', 'asc')->get();
         return view('concursos.concursos.index', 
             compact(
                 'precargas', 
