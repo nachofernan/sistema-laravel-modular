@@ -449,18 +449,19 @@ class ConcursoController extends Controller
             return response()->json(['success' => false, 'message' => 'Archivo no encontrado.'], 404);
         }
 
-        // 3. Identificar el modelo (Oferta o Concurso)
+        Log::info('Media encontrado', ['media' => $media]);
+
+        // 3. Identificar el modelo CORRECTAMENTE usando model_type
         $documento = null;
         $esDocumentoConcurso = false;
 
-        // Intentar buscar en Oferta primero
-        $documento = OfertaDocumento::where('id', $media->model_id)
-            ->whereHas('invitacion', function($q) use ($concurso_id) {
-                $q->where('concurso_id', $concurso_id);
-            })->first();
-
-        if (!$documento) {
-            // Si no es oferta, buscamos en ConcursoDocumento
+        if ($media->model_type === 'App\Models\Concursos\OfertaDocumento') {
+            $documento = OfertaDocumento::where('id', $media->model_id)
+                ->whereHas('invitacion', function($q) use ($concurso_id) {
+                    $q->where('concurso_id', $concurso_id);
+                })->first();
+        } 
+        elseif ($media->model_type === 'App\Models\Concursos\ConcursoDocumento') {
             $documento = ConcursoDocumento::where('id', $media->model_id)
                 ->where('concurso_id', $concurso_id)
                 ->first();
@@ -469,6 +470,8 @@ class ConcursoController extends Controller
                 $esDocumentoConcurso = true;
             }
         }
+
+        Log::info('Documento encontrado', ['documento' => $documento, 'esDocumentoConcurso' => $esDocumentoConcurso]);
 
         if (!$documento) {
             return response()->json(['success' => false, 'message' => 'No se encontró el documento asociado.'], 404);
