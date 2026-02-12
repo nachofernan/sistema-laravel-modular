@@ -60,19 +60,19 @@
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
             <!-- Encabezado del calendario -->
             <div class="grid grid-cols-7 bg-gray-100 text-gray-700 font-semibold border-b border-gray-200">
+                <div class="py-2 px-3 text-center">Dom</div>
                 <div class="py-2 px-3 text-center">Lun</div>
                 <div class="py-2 px-3 text-center">Mar</div>
                 <div class="py-2 px-3 text-center">Mié</div>
                 <div class="py-2 px-3 text-center">Jue</div>
                 <div class="py-2 px-3 text-center">Vie</div>
                 <div class="py-2 px-3 text-center">Sáb</div>
-                <div class="py-2 px-3 text-center">Dom</div>
             </div>
             
             <!-- Días del calendario -->
             <div class="grid grid-cols-7">
                 @foreach ($diasCalendario as $dia)
-                    <div class="border border-gray-200 min-h-[120px] p-2 {{ $dia['esHoy'] ? 'bg-blue-50' : '' }} {{ !$dia['perteneceMes'] ? 'bg-gray-50' : '' }}">
+                    <div class="border border-gray-200 min-h-[120px] p-2 {{ $dia['esHoy'] ? 'bg-blue-50' : '' }} {{ !$dia['perteneceMes'] ? 'bg-gray-50' : '' }} {{ $dia['esEspecial'] ? 'bg-gray-100' : '' }}">
                         <div class="flex justify-between items-center mb-1">
                             <span class="{{ $dia['esHoy'] ? 'font-semibold text-blue-700' : ($dia['perteneceMes'] ? 'text-gray-700' : 'text-gray-400') }}">
                                 {{ $dia['numero'] }}
@@ -84,6 +84,10 @@
                                 </span>
                             @endif
                         </div>
+                        
+                        @if($dia['motivoFeriado'])
+                            <div class="text-xs text-red-600 mb-1 font-bold">{{ $dia['motivoFeriado'] }}</div>
+                        @endif
                         
                         @if(count($dia['concursos']) > 0)
                             <div class="space-y-1 overflow-y-auto max-h-20">

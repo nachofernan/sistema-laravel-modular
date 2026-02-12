@@ -266,7 +266,7 @@ class EmailHelper
      */
     public static function notificarFinalizacionConcurso($concurso, array $destinatarios)
     {
-        $mailable = new \App\Mail\Concursos\ConcursoFinalizado($concurso);
+        $mailable = new \App\Mail\Concursos\ConcursoAnalisis($concurso);
         
         return self::programarConTracking(
             $destinatarios,

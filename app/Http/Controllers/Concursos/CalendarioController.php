@@ -23,10 +23,10 @@ class CalendarioController extends Controller
         $fechaSeleccionada = Carbon::createFromFormat('Y-m-d', $mes . '-01')->startOfMonth();
         
         // Obtener el primer día del calendario (puede ser del mes anterior)
-        $primerDia = $fechaSeleccionada->copy()->startOfMonth()->startOfWeek(Carbon::MONDAY);
+        $primerDia = $fechaSeleccionada->copy()->startOfMonth()->startOfWeek(Carbon::SUNDAY);
         
         // Obtener el último día del calendario (puede ser del mes siguiente)
-        $ultimoDia = $fechaSeleccionada->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
+        $ultimoDia = $fechaSeleccionada->copy()->endOfMonth()->endOfWeek(Carbon::SATURDAY);
         
         // Crear período para recorrer los días
         $periodo = CarbonPeriod::create($primerDia, $ultimoDia);
@@ -57,10 +57,15 @@ class CalendarioController extends Controller
         // Preparar los datos del calendario
         $diasCalendario = [];
         $hoy = Carbon::now()->format('Y-m-d');
+        $feriados = config('feriados');
         
         foreach ($periodo as $fecha) {
             $fechaStr = $fecha->format('Y-m-d');
             $concursosDia = $concursosPorFecha[$fechaStr] ?? [];
+            
+            $esFinDeSemana = $fecha->isWeekend();
+            $esFeriado = array_key_exists($fecha->format('d-m-Y'), $feriados);
+            $esEspecial = $esFinDeSemana || $esFeriado;
             
             $diasCalendario[] = [
                 'fecha' => $fechaStr,
@@ -68,7 +73,9 @@ class CalendarioController extends Controller
                 'perteneceMes' => $fecha->month === $fechaSeleccionada->month,
                 'esHoy' => $fechaStr === $hoy,
                 'cierresConcursos' => count($concursosDia),
-                'concursos' => $concursosDia
+                'concursos' => $concursosDia,
+                'esEspecial' => $esEspecial,
+                'motivoFeriado' => $esFeriado ? $feriados[$fecha->format('d-m-Y')] : null
             ];
         }
         

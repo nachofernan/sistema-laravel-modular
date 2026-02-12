@@ -28,6 +28,11 @@ class VerOferta extends Component
 
     public function descargarTodosDocumentos()
     {
+
+        // 1. Elevar techos de recursos
+        ini_set('memory_limit', '512M');
+        set_time_limit(0); // Sin límite de tiempo para descargas grandes
+
         // Asegurar que el directorio temporal exista
         $tempDir = storage_path('app/temp');
         if (!File::exists($tempDir)) {
@@ -79,6 +84,9 @@ class VerOferta extends Component
                     $zip->addFile($media->getPath(), $nombreEnZip);
                     $documentosAgregados++;
                     Log::info("Documento de oferta agregado: {$nombreEnZip} (cargado: {$documento->created_at})");
+
+                    // IMPORTANTE: Liberar memoria de modelos pesados si es necesario
+                    unset($media, $documento);
                 }
             }
 
@@ -110,6 +118,9 @@ class VerOferta extends Component
                             $documentosAgregados++;
                             Log::info("Documento de proveedor agregado: {$nombreEnZip} (cargado: {$documentoProveedor->created_at})");
                         }
+                        
+                        // Liberar memoria
+                        unset($media, $documentoProveedor);
                     }
                 }
             }

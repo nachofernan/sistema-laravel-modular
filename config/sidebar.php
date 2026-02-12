@@ -126,7 +126,7 @@ return [
                     'permission' => 'Concursos/Concursos/Ver',
                     'active_when' => function() {
                         return request()->routeIs('concursos.concursos.index') || 
-                               (request()->routeIs('concursos.concursos.show') && request()->route('concurso')?->estado_id < 3) ||
+                               (request()->routeIs('concursos.concursos.show') && request()->route('concurso')?->estado_id <= 3) ||
                                request()->routeIs('concursos.concursos.create');
                     }
                 ],
@@ -142,7 +142,7 @@ return [
                     'permission' => 'Concursos/Concursos/Ver',
                     'active_when' => function() {
                         return request()->routeIs('concursos.concursos.terminados') ||
-                               (request()->routeIs('concursos.concursos.show') && request()->route('concurso')?->estado_id >= 3);
+                               (request()->routeIs('concursos.concursos.show') && request()->route('concurso')?->estado_id > 3);
                     }
                 ],
                 [
