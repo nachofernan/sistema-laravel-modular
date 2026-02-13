@@ -33,7 +33,7 @@ class ConcursoController extends Controller
             'auth',
             new Middleware('permission:Concursos/Concursos/Ver', only: ['index', 'search', 'show', 'terminados']),
             new Middleware('permission:Concursos/Concursos/Crear', only: ['create', 'store', 'edit', 'update']),
-            new Middleware('permission:Concursos/Concursos/Editar', only: ['edit', 'update']),
+            // new Middleware('permission:Concursos/Concursos/Editar', only: ['edit', 'update']),
         ];
     }
 
