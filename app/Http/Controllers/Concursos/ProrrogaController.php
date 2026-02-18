@@ -35,7 +35,7 @@ class ProrrogaController extends Controller
     {
         //
         $concurso = Concurso::find($request->input('concurso_id'));
-        if($concurso->fecha_cierre < $request->input('fecha_cierre')){
+        if($concurso->fecha_cierre > $request->input('fecha_cierre')){
             return redirect()->route('concursos.concursos.show', $concurso)->with('error', 'La fecha de cierre debe ser mayor a la fecha actual');
         }
         $prorroga = Prorroga::create([
