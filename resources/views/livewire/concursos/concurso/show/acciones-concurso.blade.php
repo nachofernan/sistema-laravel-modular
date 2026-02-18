@@ -73,7 +73,7 @@
                     </script>
                 @endif
             @elseif($concurso->estado->id == 3)
-                <button wire:click="actualizarEstado(4)" class="bg-green-500 text-white font-bold text-lg w-full py-3 rounded-lg shadow hover:bg-green-600">
+                <button onclick="confirm('¿Estás seguro de querer terminar el concurso?') || event.stopImmediatePropagation();" wire:click="actualizarEstado(4)" class="bg-green-500 text-white font-bold text-lg w-full py-3 rounded-lg shadow hover:bg-green-600">
                     Marcar como Terminado
                 </button>
                 <p class="text-sm italic mt-4 border-t border-gray-200 pt-2">
