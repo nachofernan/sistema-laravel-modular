@@ -22,13 +22,24 @@
                         Nueva Fecha de Cierre
                     </div>
                     <div class="valor-edit">
-                        <input type="datetime-local" name="fecha_cierre" class="input-full" required>
+                        <input 
+                            type="datetime-local" 
+                            name="fecha_cierre" 
+                            wire:model.live="fecha_cierre" 
+                            class="input-full @error('fecha_cierre') border-red-500 @enderror" 
+                            required
+                        >
+                        @error('fecha_cierre') 
+                            <span class="text-red-500 text-xs italic">{{ $message }}</span> 
+                        @enderror
                     </div>
                     <div class="atributo-edit">
                     </div>
                     <div class="valor-edit text-right">
                         <button 
-                            class="boton-celeste text-sm"
+                            class="boton-celeste text-sm disabled:opacity-50"
+                            wire:loading.attr="disabled"
+                            @if($errors->has('fecha_cierre') || empty($fecha_cierre)) disabled @endif
                             @if ($concurso->estado->id > 1)
                                 onclick="return prorrogabutton(this)"
                             @endif
