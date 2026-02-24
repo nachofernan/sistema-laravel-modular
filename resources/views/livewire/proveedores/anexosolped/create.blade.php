@@ -490,6 +490,31 @@
                     @endif
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rubro</label>
+                        <select wire:model.live="selectedRubro" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Seleccione un rubro</option>
+                            @foreach($rubros as $rubro)
+                                <option value="{{ $rubro->id }}">{{ $rubro->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Subrubro</label>
+                        <select wire:model.live="selectedSubrubro" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                {{ empty($subrubros) ? 'disabled' : '' }}>
+                            <option value="">Seleccione un subrubro</option>
+                            @foreach($subrubros as $subrubro)
+                                <option value="{{ $subrubro->id }}">{{ $subrubro->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Observaciones -->
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2 mb-4">

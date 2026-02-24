@@ -155,6 +155,12 @@
             @endforeach
         </tbody>
     </table>
+    
+    <div class="section-title">Rubro y Subrubro</div>
+    <table>
+        <tr><td class="label">Rubro:</td><td>{{ $rubro_nombre }}</td></tr>
+        <tr><td class="label">Subrubro:</td><td>{{ $subrubro_nombre }}</td></tr>
+    </table>
 
     @if($observaciones)
     <div class="section-title">Observaciones</div>
@@ -167,4 +173,5 @@
         Generado el {{ date('d/m/Y H:i') }} - Sistema de Gestión de Proveedores - Por {{ Auth::user()->realname }} ({{ Auth::user()->legajo }})
     </div>
 </body>
+</html>
 </html>

@@ -4,6 +4,8 @@ namespace App\Livewire\Proveedores\Anexosolped;
 
 use Livewire\Component;
 use App\Models\Proveedores\Proveedor;
+use App\Models\Proveedores\Rubro;
+use App\Models\Proveedores\Subrubro;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 
@@ -66,6 +68,12 @@ class Create extends Component
         'Planos o Croquis',
         'N/A'
     ];
+
+    // Nuevas propiedades para Rubros
+    public $rubros = [];
+    public $subrubros = [];
+    public $selectedRubro = null;
+    public $selectedSubrubro = null;
 
     protected $messages = [
         'titulo.required' => 'El título es obligatorio',
@@ -235,6 +243,10 @@ class Create extends Component
         }
 
         $data = $this->validate($rules);
+
+        // Agregar los nombres de rubro y subrubro para el PDF
+        $data['rubro_nombre'] = $this->selectedRubro ? Rubro::find($this->selectedRubro)->nombre : 'No seleccionado';
+        $data['subrubro_nombre'] = $this->selectedSubrubro ? Subrubro::find($this->selectedSubrubro)->nombre : 'No seleccionado';
         
         // Añadimos datos que no están en las reglas de validación pero son necesarios
         $data['observaciones'] = $this->observaciones;
@@ -250,6 +262,22 @@ class Create extends Component
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
         }, $nombreArchivo);
+    }
+
+    // Se ejecuta automáticamente cuando cambia selectedRubro
+    public function updatedSelectedRubro($rubroId)
+    {
+        if ($rubroId) {
+            $this->subrubros = Subrubro::where('rubro_id', $rubroId)->get();
+        } else {
+            $this->subrubros = [];
+        }
+        $this->selectedSubrubro = null;
+    }
+
+    public function mount()
+    {
+        $this->rubros = Rubro::all();
     }
 
     public function render()
