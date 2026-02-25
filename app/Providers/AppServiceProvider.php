@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $request = request();
 
         $hostMap = [
-            'plataforma.local' => 'http://plataforma.local',
+            'intranet.local' => 'http://intranet.local',
             '172.17.8.80'      => 'http://172.17.8.80/plataforma',
         ];
 
