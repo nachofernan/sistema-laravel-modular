@@ -52,18 +52,24 @@
                     </span>
                 </div>
                 <div class="col-span-5 text-right space-x-2">
+                    @can('Proveedores/Rubros/Crear')
                     <button wire:click="openCreateSubrubro({{ $rubro->id }})" 
-                            class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
                         + Subrubro
                     </button>
+                    @endcan
+                    @can('Proveedores/Rubros/Editar')
                     <button wire:click="openEditRubro({{ $rubro->id }})" 
                             class="text-xs px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                         Editar
                     </button>
+                    @endcan
+                    @can('Proveedores/Rubros/Crear')
                     <button wire:click="openDeleteRubro({{ $rubro->id }})" 
                             class="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                         Eliminar
                     </button>
+                    @endcan
                 </div>
             </div>
 
@@ -76,14 +82,18 @@
                         {{ $subrubro->nombre }}
                     </div>
                     <div class="col-span-5 text-right space-x-2">
+                        @can('Proveedores/Rubros/Editar')
                         <button wire:click="openEditSubrubro({{ $subrubro->id }})" 
                                 class="text-xs px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                             Editar
                         </button>
+                        @endcan
+                        @can('Proveedores/Rubros/Crear')
                         <button wire:click="openDeleteSubrubro({{ $subrubro->id }})" 
                                 class="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                             Eliminar
                         </button>
+                        @endcan
                     </div>
                 </div>
                 @endforeach
