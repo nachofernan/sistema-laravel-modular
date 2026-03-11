@@ -197,6 +197,32 @@ class VerOferta extends Component
         return response()->download($filePath, $downloadFileName);
     }
 
+    /**
+     * Descarga un documento de proveedor
+     */
+    public function descargarDocumentoProveedor($documentoId)
+    {
+        $documento = \App\Models\Proveedores\Documento::findOrFail($documentoId);
+        $media = $documento->getFirstMedia('archivos');
+
+        if (!$media) {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Archivo no encontrado.']);
+            return;
+        }
+
+        $filePath = $media->getPath();
+
+        if (!file_exists($filePath)) {
+            Log::error("Archivo físico no encontrado en: " . $filePath);
+            return;
+        }
+
+        // Nombre que verá el usuario al bajarlo
+        $downloadFileName = $documento->file_storage ?: $media->file_name;
+
+        return response()->download($filePath, $downloadFileName);
+    }
+
     public function render()
     {
         return view('livewire.concursos.concurso.show.ver-oferta');
