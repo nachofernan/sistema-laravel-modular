@@ -13,13 +13,23 @@
                     <button 
                         wire:click="descargarTodosDocumentos()" 
                         class="bg-white text-blue-600 px-3 py-2 rounded hover:bg-blue-50 transition flex items-center"
-                        x-show="!isLoading"
+                        onclick="handleButtonClickDescargarOferta(this)"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Descargar Todos
                     </button>
+                    <script>
+                        function handleButtonClickDescargarOferta(button) {
+                            // Deshabilitar el botón
+                            button.disabled = true;
+                            // Cambiar texto del botón
+                            button.innerText = "Descargando...";
+                            // Cambiar estilo (opcional)
+                            button.classList.add("cursor-not-allowed", "opacity-50");
+                        }
+                    </script>
                 </div>    
             </x-slot> 
             <x-slot name="content" class="p-6">
