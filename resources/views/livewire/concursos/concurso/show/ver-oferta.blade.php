@@ -13,14 +13,7 @@
                     <button 
                         wire:click="descargarTodosDocumentos()" 
                         class="bg-white text-blue-600 px-3 py-2 rounded hover:bg-blue-50 transition flex items-center"
-                        :disabled="isLoading"
-                        wire:loading.attr="disabled"
-                        wire:target="descargarTodosDocumentos"
-                        wire:loading.class="opacity-75 cursor-not-allowed"
-                        wire:loading.class.remove="opacity-100 cursor-pointer"
-                        wire:loading.class.delay="transition ease-in duration-75"
-                        wire:loading.delay="1500ms"
-                        wire:loading.class.delay.remove="transition ease-out duration-75"
+                        x-show="!isLoading"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
