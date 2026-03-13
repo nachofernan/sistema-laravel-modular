@@ -52,6 +52,8 @@ class ConcursoController extends Controller
                 'subrubro.rubro',
                 'documentos_requeridos'
             ])
+            ->where('estado_id', '!=', 5) // 5 = Cancelado
+            ->where('estado_id', '!=', 1) // 1 = Borrador
             ->get();
         
         return response()->json([
@@ -79,6 +81,8 @@ class ConcursoController extends Controller
                     $q->where('proveedor_id', $proveedor_id);
                 }
             ])
+            ->where('estado_id', '!=', 5) // 5 = Cancelado
+            ->where('estado_id', '!=', 1) // 1 = Borrador
             ->findOrFail($concurso_id);
         
         return response()->json([
