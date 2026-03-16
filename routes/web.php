@@ -133,3 +133,8 @@ Route::get('/test/rubprov', function() {
     
     return view('rubprov', compact('rubros'));
 });
+Route::get('/test/prov', function() {
+    $proveedores = \App\Models\Proveedores\Proveedor::all();
+    
+    return view('prov', compact('proveedores'));
+});
