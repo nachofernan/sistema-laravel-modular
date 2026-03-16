@@ -127,3 +127,9 @@ Route::get('/test/tickets-2025', function() {
     
     return view('test-tickets-2025', compact('tickets'));
 });
+
+Route::get('/test/rubprov', function() {
+    $rubros = \App\Models\Proveedores\Rubro::with(['subrubros.proveedores'])->get();
+    
+    return view('rubprov', compact('rubros'));
+});
