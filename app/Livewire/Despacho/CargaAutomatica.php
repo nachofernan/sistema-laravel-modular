@@ -113,7 +113,7 @@ class CargaAutomatica extends Component
             $horaHastaGuardar = $horaHasta === '24:00' ? '00:00:00' : $horaHasta . ':00';
 
             $existente = Lectura::where('registrador_id', $reg->id)
-                ->where('fecha', $fechaLectura)
+                ->where('fecha', $fechaLectura->toDateString())
                 ->where('bloque_horario', $bloqueHorario)
                 ->where('hora_hasta', $horaHastaGuardar)
                 ->first();
@@ -127,7 +127,7 @@ class CargaAutomatica extends Component
             } else {
                 Lectura::create([
                     'registrador_id'    => $reg->id,
-                    'fecha'             => $fechaLectura,
+                    'fecha'             => $fechaLectura->toDateString(),
                     'bloque_horario'    => $bloqueHorario,
                     'hora_hasta'        => $horaHastaGuardar,
                     'hora_desde'        => $horaDesde,
