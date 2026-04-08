@@ -222,7 +222,7 @@ class CargaPrn extends Component
     {
         if ($esFinDia) {
             // 24:00 es el último cuarto del día actual
-            return ['23:45', 23, $fecha->copy()];
+            return ['23:45:00', 23, $fecha->copy()];
         }
 
         [$h, $m] = explode(':', $horaHasta);
@@ -233,7 +233,7 @@ class CargaPrn extends Component
         $totalMin  = $h * 60 + $m - 15;
         $hDesde    = intdiv($totalMin, 60);
         $mDesde    = $totalMin % 60;
-        $horaDesde = sprintf('%02d:%02d', $hDesde, $mDesde);
+        $horaDesde = sprintf('%02d:%02d:00', $hDesde, $mDesde);
 
         // El bloque es la hora del intervalo (0 a 23)
         // Un registro de las HH:MM pertenece al bloque de la hora previa si MM > 0

@@ -173,12 +173,12 @@ class CargaAutomatica extends Component
     protected function calcularBloque(string $horaHasta, Carbon $fecha, bool $esFinDia): array
     {
         if ($esFinDia) {
-            return ['23:45', 23, $fecha->copy()];
+            return ['23:45:00', 23, $fecha->copy()];
         }
 
         [$h, $m]   = explode(':', $horaHasta);
         $totalMin  = (int)$h * 60 + (int)$m - 15;
-        $horaDesde = sprintf('%02d:%02d', intdiv($totalMin, 60), $totalMin % 60);
+        $horaDesde = sprintf('%02d:%02d:00', intdiv($totalMin, 60), $totalMin % 60);
 
         return [$horaDesde, intdiv($totalMin, 60), $fecha->copy()];
     }
