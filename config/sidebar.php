@@ -9,6 +9,12 @@ return [
     |
     | Este archivo define la estructura del sidebar de navegación.
     | Permite agregar, modificar o quitar módulos de forma centralizada.
+    | 
+    | NOTA: Los módulos se ordenan por el campo 'order' en orden ascendente.
+    | 
+    | NOTA: Los módulos se muestran en el sidebar si el usuario tiene permiso para ver al menos uno de sus submenús.
+    |
+    | IMPORTANTE: Editar la configuración de los módulos en el servicio SidebarService!!!
     |
     */
 
@@ -225,6 +231,33 @@ return [
                     'route' => 'automotores.copres.index',
                     'permission' => 'Automotores/COPRES/Ver',
                     'active_when' => 'automotores.copres.*'
+                ]
+            ]
+        ],
+
+        'despacho' => [
+            'name' => 'Despacho',
+            'type' => 'dropdown',
+            'permission_check' => ['Despacho/Visor/Ver', 'Despacho/Maquinas/Ver', 'Despacho/CargaPRN/Ver'],
+            'order' => 56,
+            'submenu' => [
+                [
+                    'name' => 'Visor',
+                    'route' => 'despacho.visor',
+                    'permission' => 'Despacho/Visor/Ver',
+                    'active_when' => 'despacho.visor*'
+                ],
+                [
+                    'name' => 'Maquinas',
+                    'route' => 'despacho.maquinas',
+                    'permission' => 'Despacho/Maquinas/Ver',
+                    'active_when' => 'despacho.maquinas*'
+                ],
+                [
+                    'name' => 'Carga PRN',
+                    'route' => 'despacho.carga-prn',
+                    'permission' => 'Despacho/CargaPRN/Ver',
+                    'active_when' => 'despacho.carga-prn*'
                 ]
             ]
         ],

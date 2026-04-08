@@ -143,6 +143,16 @@ return [
             'database' => 'automotores',
         ]),
 
+        'despacho' => array_merge(require __DIR__.'/database_default.php', [
+            'database' => env('DB_DATABASE_DESPACHO', 'forge'),
+            'username' => env('DB_USERNAME_DESPACHO', 'forge'),
+            'password' => env('DB_PASSWORD_DESPACHO', ''),
+        ]),
+
+        'despacho_prod' => array_merge(require __DIR__.'/database_prod.php', [
+            'database' => 'despacho',
+        ]),
+
         'mesadeentradas' => array_merge(require __DIR__.'/database_default.php', [
             'database' => env('DB_DATABASE_MESADEENTRADAS', 'forge'),
             'username' => env('DB_USERNAME_MESADEENTRADAS', 'forge'),

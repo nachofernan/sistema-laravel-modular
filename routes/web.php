@@ -102,9 +102,12 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])
     ->name('password.update');
 
 
-    Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
-    Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');
+Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');
 
+
+
+// Rutas complementarias para distintas cosas
 
 Route::get('/assign-bulk-role', function () {
     // Buscamos el rol. Si no existe, lanza excepción y se detiene.

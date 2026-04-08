@@ -163,6 +163,7 @@ class SidebarService
             'fichadas.' => 'fichadas',
             'adminip.' => 'adminip',
             'automotores.' => 'automotores',
+            'despacho.' => 'despacho',
             'home.' => 'plataforma',
             'home' => 'plataforma',
             'titobot' => 'plataforma'
