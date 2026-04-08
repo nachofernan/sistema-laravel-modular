@@ -60,9 +60,10 @@ class AccionesConcurso extends Component
         
         switch ($estado_id) {
             case '2': //Activo
-               /*  $lastNum = Concurso::orderBy('numero', 'desc')->first();
-                $this->concurso->numero = ($lastNum->numero > 0) ? $lastNum->numero + 1 : 1;
-                $this->concurso->save(); */
+                // Si la fecha de cierre es menor a 3 días antes de ahora, no se puede activar
+                /* if($this->concurso->fecha_cierre->subDays(3) < now()) {
+                    return;
+                } */
                 $this->concurso->fecha_inicio = now();
                 $this->concurso->save();
                 

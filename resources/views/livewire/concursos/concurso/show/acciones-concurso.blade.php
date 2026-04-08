@@ -20,6 +20,12 @@
                     class="bg-green-500 text-white font-bold text-lg w-full py-3 rounded-lg shadow hover:bg-green-600">
                     Publicar
                 </button>
+                @if ($concurso->fecha_cierre->subDays(3) < now())
+                    <span
+                        class="border-l-4 border-l-red-700 text-red-700 text-md w-full p-3 block mt-2">
+                        El concurso no cumple con el requisito mínimo de 3 días antes de la fecha de cierre
+                    </span>
+                @endif
                 <p class="text-sm italic mt-4 border-t border-gray-200 pt-2">
                     Al publicar el concurso se enviarán las invitaciones a todos los proveedores seleccionados hasta el momento. 
                     En caso de agregar un nuevo proveedor, se deberá enviar la invitación de manera individual.
