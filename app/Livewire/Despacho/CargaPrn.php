@@ -124,16 +124,12 @@ class CargaPrn extends Component
             [$horaDesde, $bloqueHorario, $fechaLectura] = $this->calcularBloque($horaHasta, $fecha, $esFinDia);
 
             // Insertar evitando duplicados - búsqueda flexible para ambos formatos
-            $horaHastaBusqueda = $horaHasta === '24:00' ? '00:00' : $horaHasta;
-            $horaHastaGuardar  = $horaHasta === '24:00' ? '00:00:00' : $horaHasta . ':00';
-            
+            $horaHastaGuardar = $horaHasta === '24:00' ? '00:00:00' : $horaHasta . ':00';
+
             $existente = Lectura::where('registrador_id', $reg->id)
                 ->where('fecha', $fechaLectura)
                 ->where('bloque_horario', $bloqueHorario)
-                ->where(function($query) use ($horaHastaBusqueda, $horaHastaGuardar) {
-                    $query->where('hora_hasta', $horaHastaBusqueda)
-                          ->orWhere('hora_hasta', $horaHastaGuardar);
-                })
+                ->where('hora_hasta', $horaHastaGuardar)
                 ->first();
 
             if ($existente) {
