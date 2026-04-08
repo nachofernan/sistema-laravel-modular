@@ -109,19 +109,36 @@ class CargaAutomatica extends Component
 
             [$horaDesde, $bloqueHorario, $fechaLectura] = $this->calcularBloque($horaHasta, $fecha, $esFinDia);
 
-            Lectura::updateOrCreate(
-                [
-                    'registrador_id' => $reg->id,
-                    'fecha'          => $fechaLectura,
-                    'bloque_horario' => $bloqueHorario,
-                    'hora_hasta'     => $horaHasta === '24:00' ? '00:00:00' : $horaHasta . ':00',
-                ],
-                [
+            // Insertar evitando duplicados - búsqueda flexible para ambos formatos
+            $horaHastaBusqueda = $horaHasta === '24:00' ? '00:00' : $horaHasta;
+            $horaHastaGuardar  = $horaHasta === '24:00' ? '00:00:00' : $horaHasta . ':00';
+            
+            $existente = Lectura::where('registrador_id', $reg->id)
+                ->where('fecha', $fechaLectura)
+                ->where('bloque_horario', $bloqueHorario)
+                ->where(function($query) use ($horaHastaBusqueda, $horaHastaGuardar) {
+                    $query->where('hora_hasta', $horaHastaBusqueda)
+                          ->orWhere('hora_hasta', $horaHastaGuardar);
+                })
+                ->first();
+
+            if ($existente) {
+                $existente->update([
                     'hora_desde'       => $horaDesde,
                     'valor_crudo'      => $valorCrudo,
                     'valor_convertido' => $valorConvertido,
-                ]
-            );
+                ]);
+            } else {
+                Lectura::create([
+                    'registrador_id'    => $reg->id,
+                    'fecha'             => $fechaLectura,
+                    'bloque_horario'    => $bloqueHorario,
+                    'hora_hasta'        => $horaHastaGuardar,
+                    'hora_desde'        => $horaDesde,
+                    'valor_crudo'       => $valorCrudo,
+                    'valor_convertido'  => $valorConvertido,
+                ]);
+            }
             $insertados++;
         }
 
