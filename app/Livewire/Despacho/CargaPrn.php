@@ -128,7 +128,7 @@ class CargaPrn extends Component
                     'registrador_id' => $reg->id,
                     'fecha'          => $fechaLectura,
                     'bloque_horario' => $bloqueHorario,          // ← agregar
-                    'hora_hasta'     => $horaHasta === '24:00' ? '00:00' : $horaHasta,
+                    'hora_hasta'     => $horaHasta === '24:00' ? '00:00:00' : $horaHasta . ':00',
                 ],
                 [
                     'hora_desde'       => $horaDesde,
