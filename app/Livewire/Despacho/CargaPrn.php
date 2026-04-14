@@ -63,7 +63,7 @@ class CargaPrn extends Component
     public function procesar(): void
     {
         $this->validate([
-            'registrador_id' => ['required', 'exists:registradores,id'],
+            'registrador_id' => ['required'],
             'archivo'        => ['required', 'file', 'max:10240'], // 10MB máx
         ]);
 
