@@ -19,11 +19,6 @@ class RequireDocumentos extends Component
 
     public function updateDT($documento_tipo) {
         if($this->concurso->documentos_requeridos->contains($documento_tipo)) {
-            if(DocumentoTipo::find($documento_tipo)->obligatorio) {
-                // Si el documento es obligatorio, no se puede eliminar
-                session()->flash('error', 'No se puede eliminar un documento obligatorio.');
-                return;
-            }
             $this->concurso->documentos_requeridos()->detach($documento_tipo);
         } else {
             $this->concurso->documentos_requeridos()->attach($documento_tipo);

@@ -117,10 +117,6 @@ class ConcursoController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        foreach(DocumentoTipo::where('de_concurso', false)->where('obligatorio', true)->get() as $documentoTipo) {
-            $concurso->documentos_requeridos()->attach($documentoTipo->id);
-        }
-
         $concurso->sedes()->sync($request->input('sedes'));
         /* 
         $concurso = Concurso::create($validated); */

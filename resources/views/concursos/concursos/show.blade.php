@@ -490,7 +490,8 @@
                                     <div class="flex items-center space-x-2">
                                         @if(auth()->user()->can('Concursos/Concursos/VerOferta') || $concurso->user_id === auth()->id())
                                             @if ($concurso->estado->id == 3 || $concurso->estado->id == 4)
-                                                @livewire('concursos.concurso.show.ver-oferta', ['concurso' => $concurso, 'invitacion' => $invitacion], key($invitacion->id))
+                                                @livewire('concursos.concurso.show.ver-oferta', ['concurso' => $concurso, 'invitacion' => $invitacion], key($invitacion->id.'_ver'))
+                                                @livewire('concursos.concurso.show.observaciones', ['concurso' => $concurso, 'invitacion' => $invitacion], key($invitacion->id.'_obs'))
                                             @endif
                                         @endif
                                     </div>

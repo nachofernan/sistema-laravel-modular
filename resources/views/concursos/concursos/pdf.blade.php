@@ -56,34 +56,78 @@
     </table>
     @endif
 
-    <div class="section-title">Proveedores Invitados ({{ count($concurso->invitaciones) }})</div>
+    @php
+        $ofertaron = $concurso->invitaciones->where('intencion', 3);
+        $resto = $concurso->invitaciones->where('intencion', '!=', 3);
+    @endphp
+
+    <div class="section-title">Proveedores que presentaron oferta ({{ $ofertaron->count() }})</div>
     <table>
         <thead>
             <tr>
-                <th>Razón Social</th>
-                <th>CUIT</th>
-                <th>Fecha Invitación</th>
-                <th>Estado</th>
+                <th style="border-bottom: 2px solid #ddd;">Razón Social</th>
+                <th style="border-bottom: 2px solid #ddd;">CUIT</th>
+                <th style="border-bottom: 2px solid #ddd;">Fecha Invitación</th>
+                <th style="border-bottom: 2px solid #ddd;">Estado</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($concurso->invitaciones as $inv)
+            @foreach($ofertaron as $inv)
+            <tr>
+                <td>{{ $inv->proveedor->razonsocial }}</td>
+                <td>{{ $inv->proveedor->cuit }}</td>
+                <td>{{ $inv->created_at->format('d/m/Y') }}</td>
+                <td>Presentó oferta</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="font-size: 10px; border-bottom: 2px solid #ddd;">
+                    Observaciones/Cotización:
+                    @if($inv->observaciones)
+                        {{ $inv->observaciones }}
+                    @else
+                        <span style="font-style: italic; color: #777;">sin observaciones</span>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+            @if($ofertaron->count() == 0)
+            <tr>
+                <td colspan="4" style="text-align: center; color: #777;">No hay ofertas presentadas</td>
+            </tr>
+            @endif
+        </tbody>
+    </table>
+
+    @if($resto->count() > 0)
+    <div class="section-title">Otros Proveedores Invitados ({{ $resto->count() }})</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="border-bottom: 2px solid #ddd;">Razón Social</th>
+                <th style="border-bottom: 2px solid #ddd;">CUIT</th>
+                <th style="border-bottom: 2px solid #ddd;">Fecha Invitación</th>
+                <th style="border-bottom: 2px solid #ddd;">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($resto as $inv)
             <tr>
                 <td>{{ $inv->proveedor->razonsocial }}</td>
                 <td>{{ $inv->proveedor->cuit }}</td>
                 <td>{{ $inv->created_at->format('d/m/Y') }}</td>
                 <td>
                     @switch($inv->intencion)
-                        @case(0) Invitado @break
+                        @case(0) No contestó @break
                         @case(1) Con intención @break
                         @case(2) No participará @break
-                        @case(3) Presentó oferta @break
+                        @default Invitado
                     @endswitch
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
+    @endif
 
     <div class="footer">
         Generado el {{ date('d/m/Y H:i') }} - Sistema de Gestión de Proveedores

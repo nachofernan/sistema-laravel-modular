@@ -62,12 +62,16 @@
                     <tbody>
                         @foreach ($documento_tipos as $documento_tipo)
                         <tr class="hover:bg-gray-100">
-                            <td class="py-2 px-2">{{$documento_tipo->nombre}}</td>
+                            <td class="py-2 px-2">
+                                {{$documento_tipo->nombre}}
+                                @if($documento_tipo->obligatorio)
+                                    <span class="text-xs text-red-500 font-bold ml-2">(doc obligatorio)</span>
+                                @endif
+                            </td>
                             <td class="text-center py-2">
                                 <input 
                                     type="checkbox" 
                                     wire:click="updateDT({{$documento_tipo->id}})" 
-                                    @disabled($documento_tipo->obligatorio)
                                     @checked($concurso->documentos_requeridos->contains($documento_tipo->id)) />
                             </td>
                         </tr>
