@@ -70,14 +70,14 @@
                                     </svg>
                                     Quitar
                                 </button>
-                            @elseif ($invitacion->intencion == 0 || $invitacion->intencion == 2)
+                            @elseif ($invitacion->intencion <= 2)
                                 <button wire:click="reInvitar({{ $invitacion->id }})"
                                     class="inline-flex items-center px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors"
                                     onclick="invitacionEnviada{{ $invitacion->id }}(this)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
-                                    Re-invitar
+                                    Notificar
                                 </button>
                                 <script>
                                     function invitacionEnviada{{ $invitacion->id }}(button) {
@@ -138,7 +138,7 @@
                                     </div>
                                     <div>
                                         <button wire:click="agregarInvitacion({{ $proveedor->id }})"
-                                            onclick="handleButtonClick(this)"
+                                            onclick="if({{ $concurso->estado->id }} == 2 && !confirm('¿Estás seguro de invitar a {{ $proveedor->razonsocial }} ({{ $proveedor->cuit }})? El concurso ya está activo. Al agregar al proveedor se enviará una notificación por correo y ya no podrá ser eliminado.')) { event.stopImmediatePropagation(); return false; } handleButtonClick(this)"
                                             class="px-4 py-2 bg-blue-500 text-white rounded-md">
                                             Agregar
                                         </button>
@@ -167,7 +167,7 @@
                                     </div>
                                     <div>
                                         <button wire:click="agregarInvitacion({{ $proveedor->id }})"
-                                            onclick="handleButtonClick(this)"
+                                            onclick="if({{ $concurso->estado->id }} == 2 && !confirm('¿Estás seguro de invitar a {{ $proveedor->razonsocial }} ({{ $proveedor->cuit }})? El concurso ya está activo. Al agregar al proveedor se enviará una notificación por correo y ya no podrá ser eliminado.')) { event.stopImmediatePropagation(); return false; } handleButtonClick(this)"
                                             class="px-4 py-2 bg-blue-500 text-white rounded-md">
                                             Agregar
                                         </button>
