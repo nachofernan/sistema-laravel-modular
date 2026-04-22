@@ -46,26 +46,113 @@
     {{-- Secciones por Estado --}}
     @php
         $seccionesConfig = [
-            'precarga' => ['label' => 'En Precarga', 'color' => 'orange', 'show_stats' => false],
-            'activo' => ['label' => 'Activos', 'color' => 'green', 'show_stats' => true],
-            'cerrado' => ['label' => 'Cerrados', 'color' => 'yellow', 'show_stats' => true],
-            'analisis' => ['label' => 'En Análisis', 'color' => 'blue', 'show_stats' => true],
-            'vencido' => ['label' => 'Vencidos', 'color' => 'gray', 'show_stats' => false],
-            'terminado' => ['label' => 'Terminados', 'color' => 'purple', 'show_stats' => true],
-            'anulado' => ['label' => 'Anulados', 'color' => 'red', 'show_stats' => true],
+            'precarga' => [
+                'label' => 'En Precarga',
+                'show_stats' => false,
+                'dot' => 'bg-orange-600',
+                'badge' => 'bg-orange-100 text-orange-800',
+                'border' => 'hover:border-orange-200',
+                'gradient' => 'from-orange-600 to-orange-700',
+                'title' => 'group-hover:text-orange-700',
+                'stats_bg' => 'bg-orange-50',
+                'stats_border' => 'border-orange-100',
+                'stats_text' => 'text-orange-700',
+                'stats_label' => 'text-orange-600/70',
+            ],
+            'activo' => [
+                'label' => 'Activos',
+                'show_stats' => true,
+                'dot' => 'bg-green-600',
+                'badge' => 'bg-green-100 text-green-800',
+                'border' => 'hover:border-green-200',
+                'gradient' => 'from-green-600 to-green-700',
+                'title' => 'group-hover:text-green-700',
+                'stats_bg' => 'bg-green-50',
+                'stats_border' => 'border-green-100',
+                'stats_text' => 'text-green-700',
+                'stats_label' => 'text-green-600/70',
+            ],
+            'cerrado' => [
+                'label' => 'Cerrados',
+                'show_stats' => true,
+                'dot' => 'bg-yellow-600',
+                'badge' => 'bg-yellow-100 text-yellow-800',
+                'border' => 'hover:border-yellow-200',
+                'gradient' => 'from-yellow-600 to-yellow-700',
+                'title' => 'group-hover:text-yellow-700',
+                'stats_bg' => 'bg-yellow-50',
+                'stats_border' => 'border-yellow-100',
+                'stats_text' => 'text-yellow-700',
+                'stats_label' => 'text-yellow-600/70',
+            ],
+            'analisis' => [
+                'label' => 'En Análisis',
+                'show_stats' => true,
+                'dot' => 'bg-blue-600',
+                'badge' => 'bg-blue-100 text-blue-800',
+                'border' => 'hover:border-blue-200',
+                'gradient' => 'from-blue-600 to-blue-700',
+                'title' => 'group-hover:text-blue-700',
+                'stats_bg' => 'bg-blue-50',
+                'stats_border' => 'border-blue-100',
+                'stats_text' => 'text-blue-700',
+                'stats_label' => 'text-blue-600/70',
+            ],
+            'vencido' => [
+                'label' => 'Vencidos',
+                'show_stats' => false,
+                'dot' => 'bg-gray-600',
+                'badge' => 'bg-gray-100 text-gray-800',
+                'border' => 'hover:border-gray-200',
+                'gradient' => 'from-gray-600 to-gray-700',
+                'title' => 'group-hover:text-gray-700',
+                'stats_bg' => 'bg-gray-50',
+                'stats_border' => 'border-gray-100',
+                'stats_text' => 'text-gray-700',
+                'stats_label' => 'text-gray-600/70',
+            ],
+            'terminado' => [
+                'label' => 'Terminados',
+                'show_stats' => true,
+                'dot' => 'bg-purple-600',
+                'badge' => 'bg-purple-100 text-purple-800',
+                'border' => 'hover:border-purple-200',
+                'gradient' => 'from-purple-600 to-purple-700',
+                'title' => 'group-hover:text-purple-700',
+                'stats_bg' => 'bg-purple-50',
+                'stats_border' => 'border-purple-100',
+                'stats_text' => 'text-purple-700',
+                'stats_label' => 'text-purple-600/70',
+            ],
+            'anulado' => [
+                'label' => 'Anulados',
+                'show_stats' => true,
+                'dot' => 'bg-red-600',
+                'badge' => 'bg-red-100 text-red-800',
+                'border' => 'hover:border-red-200',
+                'gradient' => 'from-red-600 to-red-700',
+                'title' => 'group-hover:text-red-700',
+                'stats_bg' => 'bg-red-50',
+                'stats_border' => 'border-red-100',
+                'stats_text' => 'text-red-700',
+                'stats_label' => 'text-red-600/70',
+            ],
         ];
     @endphp
 
     <div class="space-y-12 pb-10">
         @foreach ($ordenSecciones as $seccion)
             @if (isset($concursosAgrupados[$seccion]) && count($concursosAgrupados[$seccion]) > 0)
+                @php
+                    $config = $seccionesConfig[$seccion];
+                @endphp
                 <div class="section-group">
                     {{-- Header de Sección --}}
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-black text-gray-900 flex items-center">
-                            <span class="h-4 w-4 rounded-full bg-{{ $seccionesConfig[$seccion]['color'] }}-600 mr-3 shadow-md"></span>
-                            {{ $seccionesConfig[$seccion]['label'] }}
-                            <span class="ml-3 px-3 py-1 bg-{{ $seccionesConfig[$seccion]['color'] }}-100 text-{{ $seccionesConfig[$seccion]['color'] }}-800 text-xs font-black rounded-full shadow-sm">
+                            <span class="h-4 w-4 rounded-full {{ $config['dot'] }} mr-3 shadow-md"></span>
+                            {{ $config['label'] }}
+                            <span class="ml-3 px-3 py-1 {{ $config['badge'] }} text-xs font-black rounded-full shadow-sm">
                                 {{ count($concursosAgrupados[$seccion]) }}
                             </span>
                         </h2>
@@ -75,16 +162,15 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         @foreach ($concursosAgrupados[$seccion] as $concurso)
                             @php
-                                $color = $seccionesConfig[$seccion]['color'];
-                                $showStats = $seccionesConfig[$seccion]['show_stats'];
+                                $showStats = $config['show_stats'];
                             @endphp
 
                             <a href="{{ route('concursos.concursos.show', $concurso) }}"
                                 class="group block h-full transition-all duration-300 hover:-translate-y-1">
-                                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-2xl hover:border-{{ $color }}-200 transition-all overflow-hidden flex flex-col h-full">
+                                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-2xl {{ $config['border'] }} transition-all overflow-hidden flex flex-col h-full">
                                     
                                     {{-- Cabecera Card --}}
-                                    <div class="bg-gradient-to-br from-{{ $color }}-600 to-{{ $color }}-700 px-5 py-3 flex justify-between items-center flex-shrink-0">
+                                    <div class="bg-gradient-to-br {{ $config['gradient'] }} px-5 py-3 flex justify-between items-center flex-shrink-0">
                                         <div class="flex items-baseline gap-1">
                                             <span class="text-3xl font-black text-white leading-none opacity-80">#{{ $concurso->numero }}</span>
                                         </div>
@@ -97,7 +183,7 @@
 
                                     <div class="p-5 flex-1 flex flex-col">
                                         <div class="mb-4">
-                                            <h3 class="font-bold text-gray-800 text-lg leading-snug group-hover:text-{{ $color }}-700 transition-colors line-clamp-2">
+                                            <h3 class="font-bold text-gray-800 text-lg leading-snug {{ $config['title'] }} transition-colors line-clamp-2">
                                                 {{ $concurso->nombre }}
                                             </h3>
                                             <p class="mt-2 text-gray-500 text-sm line-clamp-2 leading-relaxed italic">
@@ -121,11 +207,11 @@
                                                 </div>
                                             </div>
 
-                                            <div class="w-20 bg-{{ $color }}-50 rounded-xl p-1.5 text-center border border-{{ $color }}-100 flex-shrink-0">
-                                                <div class="text-lg font-black text-{{ $color }}-700 leading-none">
+                                            <div class="w-20 {{ $config['stats_bg'] }} rounded-xl p-1.5 text-center border {{ $config['stats_border'] }} flex-shrink-0">
+                                                <div class="text-lg font-black {{ $config['stats_text'] }} leading-none">
                                                     {{ count($concurso->invitaciones) }}
                                                 </div>
-                                                <div class="text-[8px] text-{{ $color }}-600/70 uppercase font-bold tracking-tight mt-0.5">
+                                                <div class="text-[8px] {{ $config['stats_label'] }} uppercase font-bold tracking-tight mt-0.5">
                                                     Invitados
                                                 </div>
                                             </div>
