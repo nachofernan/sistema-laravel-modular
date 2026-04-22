@@ -16,6 +16,28 @@
     @livewireStyles
 </head>
 <body class="font-sans antialiased bg-gray-50">
+    {{-- Script bloqueante para evitar saltos de layout (CLS) --}}
+    <script>
+        (function() {
+            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            const locked = localStorage.getItem('sidebarLocked') === 'true';
+            // Valores por defecto consistentes con la lógica de Alpine
+            const isCollapsed = (localStorage.getItem('sidebarCollapsed') !== null) ? collapsed : false;
+            const isLocked = (localStorage.getItem('sidebarLocked') !== null) ? locked : true;
+            
+            const width = isLocked ? (isCollapsed ? '3rem' : '16rem') : '3rem';
+            const margin = isLocked ? (isCollapsed ? '3rem' : '16rem') : '3rem';
+            
+            const style = document.createElement('style');
+            style.id = 'sidebar-pre-init-style';
+            style.innerHTML = `
+                #main-sidebar-container { width: ${width} !important; }
+                #main-content-container { margin-left: ${margin} !important; }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
+
     <div class="min-h-screen flex" 
          x-data="{ 
             sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true' || false,
@@ -23,15 +45,19 @@
             sidebarHovered: false,
             hoverTimeout: null,
             init() {
-                // Restaurar estado al cargar, por defecto sidebar abierto si es la primera vez
+                // Restaurar estado al cargar
                 this.sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
                 this.sidebarLocked = localStorage.getItem('sidebarLocked') === 'true';
                 
-                // Si es la primera vez (no hay valor en localStorage), sidebar abierto
                 if (localStorage.getItem('sidebarCollapsed') === null) {
                     this.sidebarCollapsed = false;
                     localStorage.setItem('sidebarCollapsed', 'false');
                 }
+
+                // Una vez Alpine está listo, removemos el estilo temporal para que las transiciones funcionen
+                setTimeout(() => {
+                    document.getElementById('sidebar-pre-init-style')?.remove();
+                }, 100);
             },
             toggleSidebar() {
                 this.sidebarCollapsed = !this.sidebarCollapsed;
@@ -83,7 +109,8 @@
          }">
         
         <!-- Sidebar -->
-        <div class="bg-white shadow-sm border-r border-gray-200 fixed h-full z-10 transition-all duration-300 ease-in-out"
+        <div id="main-sidebar-container"
+             class="bg-white shadow-sm border-r border-gray-200 fixed h-full z-10 transition-all duration-300 ease-in-out"
              :class="getSidebarWidth()"
              @mouseenter="onSidebarMouseEnter()"
              @mouseleave="onSidebarMouseLeave()">
@@ -132,7 +159,8 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 overflow-x-hidden transition-all duration-300 ease-in-out"
+        <div id="main-content-container"
+             class="flex-1 overflow-x-hidden transition-all duration-300 ease-in-out"
              :class="getContentMargin()">
             <!-- Page Content (sin header) -->
             <main class="p-6">
