@@ -29,23 +29,71 @@
                             <div class="bg-gray-50 rounded-lg p-4 mt-3">
                                 <div class="grid-datos-show">
                                     <div class="atributo-show">
-                                        Nombre
+                                        Nombre Completo (RRHH)
                                     </div>
                                     <div class="valor-show">
                                         {{ $user->realname }}
                                     </div>
+
+                                    @if($user->nombre)
+                                    <div class="atributo-show">
+                                        Nombre
+                                    </div>
+                                    <div class="valor-show">
+                                        {{ $user->nombre }}
+                                    </div>
+                                    @endif
+
+                                    @if($user->apellido)
+                                    <div class="atributo-show">
+                                        Apellido
+                                    </div>
+                                    <div class="valor-show">
+                                        {{ $user->apellido }}
+                                    </div>
+                                    @endif
+
                                     <div class="atributo-show">
                                         Username
                                     </div>
                                     <div class="valor-show">
                                         {{ $user->name }}
                                     </div>
+
                                     <div class="atributo-show">
                                         Legajo
                                     </div>
                                     <div class="valor-show">
                                         {{ $user->legajo }}
                                     </div>
+
+                                    @if($user->puesto)
+                                    <div class="atributo-show">
+                                        Puesto
+                                    </div>
+                                    <div class="valor-show">
+                                        {{ $user->puesto }}
+                                    </div>
+                                    @endif
+
+                                    @if($user->cumpleanos)
+                                    <div class="atributo-show">
+                                        Cumpleaños
+                                    </div>
+                                    <div class="valor-show">
+                                        {{ \Carbon\Carbon::parse($user->cumpleanos)->format('d-m-Y') }}
+                                    </div>
+                                    @endif
+
+                                    @if($user->ingreso)
+                                    <div class="atributo-show">
+                                        Fecha de Ingreso
+                                    </div>
+                                    <div class="valor-show">
+                                        {{ \Carbon\Carbon::parse($user->ingreso)->format('d-m-Y') }}
+                                    </div>
+                                    @endif
+
                                     <div class="atributo-show">
                                         Fecha de Registro
                                     </div>
@@ -67,7 +115,22 @@
                                     </div>
 
                                     <div class="atributo-show">
-                                        Estado
+                                        Estado Activo
+                                    </div>
+                                    <div class="valor-show">
+                                        @if ($user->activo)
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Activo
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                Inactivo
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="atributo-show">
+                                        Visibilidad
                                     </div>
                                     <div class="valor-show">
                                         @if ($user->visible)

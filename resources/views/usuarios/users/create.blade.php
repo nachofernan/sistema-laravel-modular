@@ -53,19 +53,53 @@
                                 <!-- Nombre Real -->
                                 <div>
                                     <label for="realname" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Nombre Completo <span class="text-red-500">*</span>
+                                        Nombre Completo (RRHH) <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" 
                                            id="realname"
                                            name="realname" 
                                            value="{{ old('realname') }}" 
                                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('realname') border-red-300 @enderror" 
-                                           placeholder="Nombre y Apellido"
+                                           placeholder="Apellido Nombre"
                                            required 
                                            autocomplete="name">
                                     @error('realname')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Nombre -->
+                                    <div>
+                                        <label for="nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nombre
+                                        </label>
+                                        <input type="text" 
+                                               id="nombre"
+                                               name="nombre" 
+                                               value="{{ old('nombre') }}" 
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('nombre') border-red-300 @enderror" 
+                                               placeholder="Nombre">
+                                        @error('nombre')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Apellido -->
+                                    <div>
+                                        <label for="apellido" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Apellido
+                                        </label>
+                                        <input type="text" 
+                                               id="apellido"
+                                               name="apellido" 
+                                               value="{{ old('apellido') }}" 
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('apellido') border-red-300 @enderror" 
+                                               placeholder="Apellido">
+                                        @error('apellido')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <!-- Nombre de Usuario -->
@@ -103,22 +137,40 @@
                                     @enderror
                                 </div>
 
-                                <!-- Legajo -->
-                                <div>
-                                    <label for="legajo" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Legajo <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text" 
-                                           id="legajo"
-                                           name="legajo" 
-                                           value="{{ old('legajo') }}" 
-                                           class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('legajo') border-red-300 @enderror" 
-                                           placeholder="Número de legajo"
-                                           required 
-                                           autocomplete="off">
-                                    @error('legajo')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Legajo -->
+                                    <div>
+                                        <label for="legajo" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Legajo <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               id="legajo"
+                                               name="legajo" 
+                                               value="{{ old('legajo') }}" 
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('legajo') border-red-300 @enderror" 
+                                               placeholder="Número de legajo"
+                                               required 
+                                               autocomplete="off">
+                                        @error('legajo')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Puesto -->
+                                    <div>
+                                        <label for="puesto" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Puesto
+                                        </label>
+                                        <input type="text" 
+                                               id="puesto"
+                                               name="puesto" 
+                                               value="{{ old('puesto') }}" 
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('puesto') border-red-300 @enderror" 
+                                               placeholder="Cargo o Puesto">
+                                        @error('puesto')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <!-- Interno -->
@@ -174,8 +226,40 @@
                                     @enderror
                                 </div>
 
-                                <!-- Visibilidad -->
-                                <div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Cumpleaños -->
+                                    <div>
+                                        <label for="cumpleanos" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Fecha de Cumpleaños
+                                        </label>
+                                        <input type="date" 
+                                               id="cumpleanos"
+                                               name="cumpleanos" 
+                                               value="{{ old('cumpleanos') }}" 
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('cumpleanos') border-red-300 @enderror">
+                                        @error('cumpleanos')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    <!-- Ingreso -->
+                                    <div>
+                                        <label for="ingreso" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Fecha de Ingreso
+                                        </label>
+                                        <input type="date" 
+                                               id="ingreso"
+                                               name="ingreso" 
+                                               value="{{ old('ingreso') }}" 
+                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('ingreso') border-red-300 @enderror">
+                                        @error('ingreso')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <!-- Opciones -->
+                                <div class="flex flex-col space-y-3 pt-2">
                                     <div class="flex items-center">
                                         <input type="checkbox" 
                                                id="visible"
@@ -186,7 +270,16 @@
                                             Visible en el buscador
                                         </label>
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-500">Si está marcado, el usuario aparecerá en las búsquedas del sistema</p>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" 
+                                               id="activo"
+                                               name="activo" 
+                                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                               {{ old('activo', true) ? 'checked' : '' }}>
+                                        <label for="activo" class="ml-2 block text-sm text-gray-900">
+                                            Usuario Activo
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
