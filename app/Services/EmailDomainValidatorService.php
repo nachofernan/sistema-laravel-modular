@@ -25,43 +25,40 @@ class EmailDomainValidatorService
      */
     public static function procesarDestinatarios(array $destinatarios): array
     {
-        if (!config('mail.domain_filter_enabled', false)) {
-            return $destinatarios;
-        }
-
         $resultado = [
             'permitidos' => [],
             'bloqueados' => [],
             'redirigidos' => []
         ];
-
+        $filterEnabled = config('mail.domain_filter_enabled', false);
         $comportamiento = config('mail.blocked_email_behavior', 'log');
+        $emailRedireccion = config('mail.testing_redirect_email');
 
-        foreach ($destinatarios as $email) {
-            // Si el comportamiento es redirect_all, redirigir TODO
-            if ($comportamiento === 'redirect_all') {
-                $emailRedireccion = config('mail.testing_redirect_email');
-                if ($emailRedireccion && !in_array($emailRedireccion, $resultado['redirigidos'])) {
-                    $resultado['redirigidos'][] = $emailRedireccion;
-                }
-                $resultado['bloqueados'][] = $email; // Para logging
+        foreach ($destinatarios as $destinatario) {
+            $emailOriginal = is_array($destinatario) ? ($destinatario['email'] ?? '') : $destinatario;    
+            
+            if (!$filterEnabled) {
+                $resultado['permitidos'][] = $destinatario;
                 continue;
             }
-
-            if (self::esEmailPermitido($email)) {
-                $resultado['permitidos'][] = $email;
+            
+            // Caso REDIRECT_ALL
+            if ($comportamiento === 'redirect_all' && $emailRedireccion) {
+                $resultado['redirigidos'][] = self::prepararDestinatarioRedirigido($destinatario, $emailRedireccion);
+                $resultado['bloqueados'][] = $emailOriginal;
+                continue;
+            }
+            
+            if (self::esEmailPermitido($emailOriginal)) {
+                $resultado['permitidos'][] = $destinatario;
             } else {
-                $resultado['bloqueados'][] = $email;
-                
-                if ($comportamiento === 'redirect') {
-                    $emailRedireccion = config('mail.testing_redirect_email');
-                    if ($emailRedireccion && !in_array($emailRedireccion, $resultado['redirigidos'])) {
-                        $resultado['redirigidos'][] = $emailRedireccion;
-                    }
+                $resultado['bloqueados'][] = $emailOriginal;
+                if ($comportamiento === 'redirect' && $emailRedireccion) {
+                    $resultado['redirigidos'][] = self::prepararDestinatarioRedirigido($destinatario, $emailRedireccion);
                 }
             }
         }
-
+        
         // Log de emails bloqueados
         if (!empty($resultado['bloqueados'])) {
             Log::warning('Emails procesados por filtro de dominio', [
@@ -70,8 +67,22 @@ class EmailDomainValidatorService
                 'comportamiento' => $comportamiento
             ]);
         }
-
+        
         return $resultado;
+    }
+
+    /**
+     * Mantiene la metadata original (nombre, etc) pero cambia el email
+     */
+    private static function prepararDestinatarioRedirigido($original, $nuevoEmail)
+    {
+        if (is_array($original)) {
+            $clon = $original;
+            $clon['email_original'] = $original['email'] ?? 'desconocido';
+            $clon['email'] = $nuevoEmail;
+            return $clon;
+        }
+        return $nuevoEmail;
     }
 
     /**

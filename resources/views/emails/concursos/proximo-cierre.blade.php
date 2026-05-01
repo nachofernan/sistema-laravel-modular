@@ -51,17 +51,23 @@
                             <hr>
 
                             <p style="margin: 0; font-size: 16px; color: #4B5563;">
-                                Estimado/a proveedor/a,
+                                Estimado/a <strong>{{ $nombre }}</strong>{{ $cuit ? " (CUIT: $cuit)" : "" }},
                             </p>
                             <p style="margin: 0; font-size: 16px; color: #4B5563;">
-                                El Concurso de Precios de referencia, se encuentra próximo a su cierre
+                                @if($tipo === 'interno')
+                                    Le recordamos que el concurso de referencia se encuentra próximo a su cierre.
+                                @else
+                                    El Concurso de Precios de referencia se encuentra próximo a su cierre.
+                                @endif
                                 <br><br>
                                 <strong>Descripción del Concurso:</strong> {{ $concurso->descripcion }}.
                                 <br><br>
                                 <strong>Fecha de Cierre:</strong> {{ $concurso->fecha_cierre->format('d-m-Y H:i') }}.
                             </p>
+                            @if($tipo != 'interno')
                             <p style="margin: 10px 0 10px 0; font-size: 16px; color: #4B5563;">Solicitamos tengan a bien
                                 confirmar sus intenciones de participación, ingresando al Link de acceso.</p>
+                            @endif
                         </td>
                     </tr>
 
@@ -69,11 +75,11 @@
                     <tr>
                         <td style="padding: 10px 0 30px 0;" align="center">
                             <!--[if mso]>
-                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://buenosairesenergia.com.ar/registroproveedores/concursos/{{ $concurso->id }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#002E80">
+                            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $linkConcurso }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#002E80">
                                 <w:anchorlock/>
                                 <center>
                             <![endif]-->
-                            <a href="https://buenosairesenergia.com.ar/registroproveedores/concursos/{{ $concurso->id }}" 
+                            <a href="{{ $linkConcurso }}" 
                             style="background-color: #002E80; border-radius: 4px; color: #ffffff; display: inline-block; font-size: 14px; font-weight: bold; line-height: 40px; text-align: center; text-decoration: none; width: 200px; -webkit-text-size-adjust: none;">Link al Concurso</a>
                             <!--[if mso]>
                                 </center>
@@ -81,12 +87,14 @@
                             <![endif]-->
                         </td>
                     </tr>
+                    @if($tipo != 'interno')
                     <tr>
                         <td style="padding: 0 0 20px 0;">
                             <p style="margin: 0; font-size: 16px; color: #4B5563;">Agradecemos su interés y esperamos
                                 contar con su participación.</p>
                         </td>
                     </tr>
+                    @endif
                 </table>
             </td>
         </tr>

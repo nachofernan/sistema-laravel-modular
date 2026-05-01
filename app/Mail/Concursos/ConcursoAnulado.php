@@ -2,7 +2,7 @@
 
 namespace App\Mail\Concursos;
 
-use App\Models\Concursos\Concurso;
+use App\Mail\Concursos\Traits\ConcursoMailableTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -12,15 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ConcursoAnulado extends Mailable
 {
-    use Queueable, SerializesModels;
-
-    /**
-     * Create a new message instance.
-     */
-    public function __construct(public Concurso $concurso,)
-    {
-        //
-    }
+    use Queueable, SerializesModels, ConcursoMailableTrait;
 
     /**
      * Get the message envelope.
@@ -39,6 +31,7 @@ class ConcursoAnulado extends Mailable
     {
         return new Content(
             view: 'emails.concursos.concurso-anulado',
+            with: array_merge($this->viewData(), ['concurso' => $this->entidad])
         );
     }
 

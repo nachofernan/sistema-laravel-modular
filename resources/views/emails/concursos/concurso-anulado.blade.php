@@ -47,7 +47,7 @@
                             <hr>
                             
                             <p style="margin: 0; font-size: 16px; color: #4B5563;">
-                                Estimado/a proveedor/a,
+                                Estimado/a <strong>{{ $nombre }}</strong>{{ $cuit ? " (CUIT: $cuit)" : "" }},
                             </p>
                             <p style="margin: 0; font-size: 16px; color: #4B5563;">
                                 Por medio de la presente, se informa que el <strong>Concurso de Precios de referencia ha sido dado de baja</strong>.

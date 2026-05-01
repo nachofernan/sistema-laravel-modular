@@ -65,13 +65,25 @@ class InvitarProveedor extends Component
             /* if(str_ends_with($invitacion->proveedor->correo, '@buenosairesenergia.com.ar')) {
                 Mail::to([$invitacion->proveedor->correo])->send(new NuevaInvitacion($invitacion));
             } */
-            $correos[] = $invitacion->proveedor->correo;
-            foreach($proveedor->contactos as $contacto) {
-                $correos[] = $contacto->correo;
+            $destinatarios[] = [
+                'email' => $invitacion->proveedor->correo,
+                'nombre' => $invitacion->proveedor->razonsocial,
+                'tipo' => 'proveedor',
+                'cuit' => $invitacion->proveedor->cuit
+            ];
+            
+            foreach($invitacion->proveedor->contactos as $contacto) {
+                $destinatarios[] = [
+                    'email' => $contacto->correo,
+                    'nombre' => $contacto->nombre,
+                    'tipo' => 'proveedor_contacto',
+                    'empresa' => $invitacion->proveedor->razonsocial,
+                    'cuit' => $invitacion->proveedor->cuit
+                ];
             }
-            $correos = array_unique($correos);
-            EmailHelper::notificarAperturaConcurso($this->concurso, $correos);
-            EmailHelper::programarEmailsAutomaticosConcurso($this->concurso, $correos);
+
+            EmailHelper::notificarAperturaConcurso($this->concurso, $destinatarios);
+            EmailHelper::programarEmailsAutomaticosConcurso($this->concurso, $destinatarios);
         }
         $this->cargarProveedoresRecomendados();
         $this->updatedSearch();
@@ -88,17 +100,23 @@ class InvitarProveedor extends Component
         $invitacion->intencion = 0;
         $invitacion->save();
         // Crear el modelo del mail y el mail
-        $correos = [$invitacion->proveedor->correo];
+        $destinatarios[] = [
+            'email' => $invitacion->proveedor->correo,
+            'nombre' => $invitacion->proveedor->razonsocial,
+            'tipo' => 'proveedor',
+            'cuit' => $invitacion->proveedor->cuit
+        ];
+        
         foreach($invitacion->proveedor->contactos as $contacto) {
-            $correos[] = $contacto->correo;
+            $destinatarios[] = [
+                'email' => $contacto->correo,
+                'nombre' => $contacto->nombre,
+                'tipo' => 'proveedor_contacto',
+                'empresa' => $invitacion->proveedor->razonsocial,
+                'cuit' => $invitacion->proveedor->cuit
+            ];
         }
-        $correos = array_unique($correos);
-        /* foreach($correos as $correo) {
-            if(app()->environment('production') || str_ends_with($correo, '@buenosairesenergia.com.ar')) {
-                Mail::to($correo)->send(new NuevaInvitacion($invitacion));
-            }
-        } */
-        EmailHelper::notificarAperturaConcurso($this->concurso, $correos);
+        EmailHelper::notificarAperturaConcurso($this->concurso, $destinatarios);
         //Mail::to(['ifernandez@ccasa.com.ar'])->send(new NuevaInvitacion($invitacion));
         $this->cargarProveedoresRecomendados();
     }

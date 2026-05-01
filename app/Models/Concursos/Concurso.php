@@ -181,8 +181,9 @@ class Concurso extends Model
                 if ($inv->proveedor && $inv->proveedor->correo) {
                     $destinatarios->push([
                         'email' => strtolower(trim($inv->proveedor->correo)),
-                        'nombre' => $inv->proveedor->razon_social,
-                        'tipo' => 'Empresa'
+                        'nombre' => $inv->proveedor->razonsocial,
+                        'tipo' => 'proveedor',
+                        'cuit' => $inv->proveedor->cuit,
                     ]);
                 }
             }
@@ -191,11 +192,15 @@ class Concurso extends Model
         // 3. Contactos de los proveedores (solo si el proveedor pasó el filtro anterior)
         if (in_array('contactos_proveedores', $grupos)) {
             foreach ($invitacionesFiltradas as $inv) {
+                if (!$inv->proveedor) continue;
                 foreach ($inv->proveedor->contactos as $contacto) {
+                    if (!$contacto->correo) continue;
                     $destinatarios->push([
                         'email' => strtolower(trim($contacto->correo)),
                         'nombre' => $contacto->nombre,
-                        'tipo' => 'Contacto Proveedor'
+                        'tipo' => 'proveedor_contacto',
+                        'cuit' => $inv->proveedor->cuit, // CUIT de la empresa a la que pertenece
+                        'empresa' => $inv->proveedor->razonsocial
                     ]);
                 }
             }
@@ -207,18 +212,21 @@ class Concurso extends Model
                 $destinatarios->push([
                     'email' => strtolower(trim($this->usuario->correo)),
                     'nombre' => $this->usuario->nombre,
-                    'tipo' => 'Contacto Gestor'
+                    'tipo' => 'interno',
+                    'cargo' => 'Gestor del Concurso'
                 ]);
             }
             foreach ($this->contactos as $contacto) {
+                if (!$contacto->correo) continue;
                 $destinatarios->push([
                     'email' => strtolower(trim($contacto->correo)),
                     'nombre' => $contacto->nombre,
-                    'tipo' => 'Contacto Directo'
+                    'tipo' => 'interno',
+                    'cargo' => $contacto->tipo // O el campo que indique qué es
                 ]);
             }
         }
 
-        return $destinatarios->pluck('email')->unique()->values()->toArray();
+        return $destinatarios->unique('email')->values()->toArray();
     }
 }

@@ -2,9 +2,7 @@
 
 namespace App\Mail\Concursos;
 
-use App\Models\Concursos\Concurso;
-use App\Models\Concursos\ConcursoDocumento;
-use App\Models\Concursos\OfertaDocumento;
+use App\Mail\Concursos\Traits\ConcursoMailableTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -14,14 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class NuevoDocumento extends Mailable
 {
-    use Queueable, SerializesModels;
-
-    /**
-     * Create a new message instance.
-     */
-    public function __construct(public $documento, public string $destinatario = '')
-    {
-    }
+    use Queueable, SerializesModels, ConcursoMailableTrait;
 
     /**
      * Get the message envelope.
@@ -34,33 +25,16 @@ class NuevoDocumento extends Mailable
     }
 
     /**
-     * Obtener el link correcto según el destinatario y entorno
-     */
-    public function getLinkConcurso(): string
-    {
-        // Verificar si es usuario interno
-        $esUsuarioInterno = str_ends_with($this->destinatario, '@buenosairesenergia.com.ar');
-        
-        if ($esUsuarioInterno) {
-            // Link interno según entorno
-            $baseUrl = config('app.env') === 'production' 
-                ? 'http://172.17.8.80/plataforma'
-                : 'http://172.17.9.231/plataforma';
-                
-            return "{$baseUrl}/concursos/concursos/{$this->documento->concurso_id}";
-        }
-        
-        // Link externo (proveedores)
-        return "https://buenosairesenergia.com.ar/registroproveedores/concursos/{$this->documento->concurso_id}";
-    }
-
-    /**
      * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
             view: 'emails.concursos.nuevo-documento',
+            with: array_merge($this->viewData(), [
+                'documento' => $this->entidad,
+                'concurso' => $this->entidad->concurso
+            ])
         );
     }
 

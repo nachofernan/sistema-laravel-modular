@@ -15,20 +15,36 @@ class EmailDispatcher
      */
     public static function enviarMasivo(array $destinatarios, $mailable, $tipo = 'general', $descripcion = '')
     {
+        // 1. Filtrar y procesar según el comportamiento (.env)
+        $procesados = EmailDomainValidatorService::procesarDestinatarios($destinatarios);
+        
+        // 2. Usar solo los destinatarios finales (permitidos + redirigidos)
+        $destinatariosFinales = array_merge($procesados['permitidos'], $procesados['redirigidos']);
+        
         $proximoTiempo = self::obtenerProximoTiempo(); // Sin fecha específica = inmediato
 
-        foreach ($destinatarios as $index => $destinatario) {
+        foreach ($destinatariosFinales as $index => $destinatario) {
             $tiempoEjecucion = $proximoTiempo->copy()->addSeconds(3 * $index);
+
+            // Extraer email y data context
+            $email = is_array($destinatario) ? ($destinatario['email'] ?? '') : $destinatario;
+            $data = is_array($destinatario) ? $destinatario : null;
 
             // Clonar el mailable para cada destinatario
             $mailablePersonalizado = clone $mailable;
-            // Solo asignar si la propiedad existe
+            
+            // Asignar el email string para compatibilidad
             if (property_exists($mailablePersonalizado, 'destinatario')) {
-                $mailablePersonalizado->destinatario = $destinatario;
+                $mailablePersonalizado->destinatario = $email;
+            }
+            
+            // Asignar el contexto completo si el mailable lo soporta
+            if ($data && property_exists($mailablePersonalizado, 'datosDestinatario')) {
+                $mailablePersonalizado->datosDestinatario = $data;
             }
 
             $job = new EnviarCorreoAutomatizado(
-                $destinatario,
+                $email,
                 $mailablePersonalizado,
                 $tipo,
                 $descripcion
@@ -38,7 +54,7 @@ class EmailDispatcher
             dispatch($job);
         }
 
-        return count($destinatarios);
+        return count($destinatariosFinales);
     }
 
     /**
@@ -55,6 +71,12 @@ class EmailDispatcher
         $fechaEjecucion = null,
         array $tags = []
     ) {
+        // 1. Filtrar y procesar según el comportamiento (.env)
+        $procesados = EmailDomainValidatorService::procesarDestinatarios($destinatarios);
+        
+        // 2. Usar solo los destinatarios finales (permitidos + redirigidos)
+        $destinatariosFinales = array_merge($procesados['permitidos'], $procesados['redirigidos']);
+
         // Obtener el próximo tiempo (inmediato o para fecha específica)
         $proximoTiempo = $fechaEjecucion 
             ? self::obtenerProximoTiempo($fechaEjecucion)
@@ -62,18 +84,28 @@ class EmailDispatcher
         
         $jobsCreados = [];
 
-        foreach ($destinatarios as $index => $destinatario) {
+        foreach ($destinatariosFinales as $index => $destinatario) {
             $tiempoEjecucion = $proximoTiempo->copy()->addSeconds(3 * $index);
+
+            // Extraer email y data context
+            $email = is_array($destinatario) ? ($destinatario['email'] ?? '') : $destinatario;
+            $data = is_array($destinatario) ? $destinatario : null;
 
             // Clonar el mailable para cada destinatario
             $mailablePersonalizado = clone $mailable;
-            // Solo asignar si la propiedad existe
+            
+            // Asignar el email string para compatibilidad
             if (property_exists($mailablePersonalizado, 'destinatario')) {
-                $mailablePersonalizado->destinatario = $destinatario;
+                $mailablePersonalizado->destinatario = $email;
+            }
+            
+            // Asignar el contexto completo si el mailable lo soporta
+            if ($data && property_exists($mailablePersonalizado, 'datosDestinatario')) {
+                $mailablePersonalizado->datosDestinatario = $data;
             }
 
             $job = new EnviarCorreoAutomatizado(
-                $destinatario,
+                $email,
                 $mailablePersonalizado,
                 $tipo,
                 $descripcion
@@ -90,8 +122,9 @@ class EmailDispatcher
                 'tags' => $tags,
                 'scheduled_for' => $tiempoEjecucion,
                 'metadata' => [
-                    'destinatario' => $destinatario,
+                    'destinatario' => $email,
                     'descripcion' => $descripcion,
+                    'datos_contexto' => $data
                 ]
             ]);
             
