@@ -220,6 +220,13 @@ class VerOferta extends Component
         // Nombre que verá el usuario al bajarlo
         $downloadFileName = $documento->file_storage ?: $media->file_name;
 
+        // LOGS DE DIAGNÓSTICO
+        Log::info("DEBUG DESCARGA:", [
+            'file_storage' => $documento->file_storage,
+            'media_file_name' => $media->file_name,
+            'final_download_name' => $downloadFileName
+        ]);
+
         return response()->download($filePath, $downloadFileName);
     }
 
