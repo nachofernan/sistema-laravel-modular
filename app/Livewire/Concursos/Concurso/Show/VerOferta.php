@@ -113,6 +113,9 @@ class VerOferta extends Component
                             
                             // Generar nombre del archivo: Proveedor-{tipo}-{id_media}
                             $nombreEnZip = 'Proveedor-' . $tipoDocumento . '-' . $media->id . '.' . $media->getExtensionAttribute();
+                            if (!str_ends_with(strtolower($nombreEnZip), '.pdf')) {
+                                $nombreEnZip .= '.pdf';
+                            }
                             
                             $zip->addFile($media->getPath(), $nombreEnZip);
                             $documentosAgregados++;
@@ -194,13 +197,6 @@ class VerOferta extends Component
         // Nombre que verá el usuario al bajarlo
         $downloadFileName = $documento->file_storage ?: $media->file_name;
 
-        // LOGS DE DIAGNÓSTICO
-        Log::info("DEBUG DESCARGA:", [
-            'file_storage' => $documento->file_storage,
-            'media_file_name' => $media->file_name,
-            'final_download_name' => $downloadFileName
-        ]);
-
         return response()->download($filePath, $downloadFileName);
     }
 
@@ -226,13 +222,9 @@ class VerOferta extends Component
 
         // Nombre que verá el usuario al bajarlo
         $downloadFileName = basename($documento->file_storage ?: $media->file_name);
-
-        // LOGS DE DIAGNÓSTICO
-        Log::info("DEBUG DESCARGA:", [
-            'file_storage' => $documento->file_storage,
-            'media_file_name' => $media->file_name,
-            'final_download_name' => $downloadFileName
-        ]);
+        if (!str_ends_with(strtolower($downloadFileName), '.pdf')) {
+            $downloadFileName .= '.pdf';
+        }
 
         return response()->download($filePath, $downloadFileName);
     }
