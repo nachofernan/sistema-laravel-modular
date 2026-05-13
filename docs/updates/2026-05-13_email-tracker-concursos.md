@@ -72,6 +72,36 @@ Las queries solo corren cuando se abre el modal (lazy load).
 
 ---
 
+## Bugs encontrados durante el despliegue
+
+### Bug 1 — managed_jobs nunca se marcaban como `executed`
+
+`EnviarCorreoAutomatizado` enviaba el mail y escribía en `email_logs` pero nunca actualizaba el status del `managed_job` correspondiente. Todos los jobs quedaban en `pending` indefinidamente, incluso después de haberse enviado.
+
+**Fix**: en `registrarEnvio()` se agregó un update a `managed_jobs` usando `managed_job_id`:
+- `exitoso` / `bloqueado` → status `executed`
+- cualquier otro → status `failed`
+
+### Bug 2 — Historial no mostraba emails enviados
+
+Los emails trackeados (via `enviarMasivoConTracking`) guardan `emailable_type = 'concurso'` (el string corto del entity_type). Los emails inmediatos sin tracking (via `enviarMasivo`) guardan `emailable_type = 'App\Models\Concursos\Concurso'` (el class name completo). La query del historial solo buscaba el class name y no encontraba los trackeados.
+
+**Fix**: la query en `HistorialEmails` usa `whereIn('emailable_type', ['concurso', Concurso::class])` para capturar ambos formatos.
+
+### Bug 3 — Queue worker con código viejo en memoria
+
+Los workers de queue son procesos de larga duración. Al desplegar los cambios sin reiniciar el worker, los jobs nuevos se despachaban con los campos correctos pero el worker los ejecutaba con la clase vieja en memoria, resultando en `emailable_type = null` en `email_logs`.
+
+**Fix**: `php artisan queue:restart` después de cada despliegue que toque jobs.
+
+### Bug 4 — Ensalada de jobs duplicados (640 managed_jobs, 506 en cola)
+
+La combinación de jobs viejos no cancelados correctamente + reprogramaciones encima generó duplicados masivos.
+
+**Fix**: nuevo comando `mail:reset-concursos` que cancela todos los pending, vacía la cola de emails y reprograma desde cero todos los concursos activos con el código nuevo.
+
+---
+
 ## Archivos modificados / creados
 
 | Archivo | Tipo |
@@ -82,6 +112,7 @@ Las queries solo corren cuando se abre el modal (lazy load).
 | `app/Services/EmailDispatcher.php` | modificado |
 | `app/Helpers/EmailHelper.php` | modificado |
 | `app/Console/Commands/ReprogramarMailsConcursos.php` | corregido |
+| `app/Console/Commands/LimpiarYReprogramarConcursos.php` | nuevo |
 | `app/Livewire/Concursos/Concurso/Show/HistorialEmails.php` | nuevo |
 | `resources/views/livewire/concursos/concurso/show/historial-emails.blade.php` | nuevo |
 | `resources/views/concursos/concursos/show.blade.php` | modificado |
