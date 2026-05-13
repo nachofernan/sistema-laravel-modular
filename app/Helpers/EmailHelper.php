@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\Concursos\Concurso;
+use App\Models\Tickets\Ticket;
 use App\Services\EmailDispatcher;
 use Carbon\Carbon;
 
@@ -17,9 +19,9 @@ class EmailHelper
      * @param string $descripcion Descripción para logs
      * @return int Cantidad de correos programados
      */
-    public static function enviarMasivo(array $destinatarios, $mailable, $tipo = 'general', $descripcion = '')
+    public static function enviarMasivo(array $destinatarios, $mailable, $tipo = 'general', $descripcion = '', $emailableType = null, $emailableId = null)
     {
-        return EmailDispatcher::enviarMasivo($destinatarios, $mailable, $tipo, $descripcion);
+        return EmailDispatcher::enviarMasivo($destinatarios, $mailable, $tipo, $descripcion, $emailableType, $emailableId);
     }
 
     /**
@@ -32,9 +34,9 @@ class EmailHelper
      * @param string $descripcion
      * @return void
      */
-    public static function enviarPrioritario($destinatario, $mailable, $tipo = 'prioritario', $descripcion = '')
+    public static function enviarPrioritario($destinatario, $mailable, $tipo = 'prioritario', $descripcion = '', $emailableType = null, $emailableId = null)
     {
-        return EmailDispatcher::enviarPrioritario($destinatario, $mailable, $tipo, $descripcion);
+        return EmailDispatcher::enviarPrioritario($destinatario, $mailable, $tipo, $descripcion, $emailableType, $emailableId);
     }
 
     /**
@@ -84,12 +86,14 @@ class EmailHelper
     public static function enviarTicketNuevo($ticket, array $destinatarios)
     {
         $mailable = new \App\Mail\Tickets\Notificacion\TicketNuevo($ticket);
-        
+
         return self::enviarMasivo(
-            $destinatarios, 
-            $mailable, 
-            'ticket_nuevo', 
-            "Ticket nuevo #{$ticket->id}"
+            $destinatarios,
+            $mailable,
+            'ticket_nuevo',
+            "Ticket nuevo #{$ticket->id}",
+            Ticket::class,
+            $ticket->id
         );
     }
 
@@ -200,14 +204,14 @@ class EmailHelper
 
         // 2. ENVIAR AVISO DE PRÓRROGA (Inmediato)
         $mailable = new \App\Mail\Concursos\NuevaProrroga($prorroga);
-        
-        // Forzamos el envío ahora mismo. 
-        // Como cancelamos todo arriba, obtenerProximoTiempo() devolverá 'ahora'.
+
         self::enviarMasivo(
             $destinatarios,
             $mailable,
             'prorroga',
-            "Notificación de prórroga - Concurso #{$prorroga->concurso->numero}"
+            "Notificación de prórroga - Concurso #{$prorroga->concurso->numero}",
+            Concurso::class,
+            $prorroga->concurso->id
         );
 
         // 3. REPROGRAMAR CIERRES (Futuro)

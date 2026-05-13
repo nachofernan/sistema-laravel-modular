@@ -13,32 +13,30 @@ class EmailDispatcher
     /**
      * Enviar correos de forma espaciada - VERSIÓN SIMPLE
      */
-    public static function enviarMasivo(array $destinatarios, $mailable, $tipo = 'general', $descripcion = '')
-    {
-        // 1. Filtrar y procesar según el comportamiento (.env)
+    public static function enviarMasivo(
+        array $destinatarios,
+        $mailable,
+        $tipo = 'general',
+        $descripcion = '',
+        $emailableType = null,
+        $emailableId = null
+    ) {
         $procesados = EmailDomainValidatorService::procesarDestinatarios($destinatarios);
-        
-        // 2. Usar solo los destinatarios finales (permitidos + redirigidos)
         $destinatariosFinales = array_merge($procesados['permitidos'], $procesados['redirigidos']);
-        
-        $proximoTiempo = self::obtenerProximoTiempo(); // Sin fecha específica = inmediato
+
+        $proximoTiempo = self::obtenerProximoTiempo();
 
         foreach ($destinatariosFinales as $index => $destinatario) {
             $tiempoEjecucion = $proximoTiempo->copy()->addSeconds(3 * $index);
 
-            // Extraer email y data context
             $email = is_array($destinatario) ? ($destinatario['email'] ?? '') : $destinatario;
             $data = is_array($destinatario) ? $destinatario : null;
 
-            // Clonar el mailable para cada destinatario
             $mailablePersonalizado = clone $mailable;
-            
-            // Asignar el email string para compatibilidad
+
             if (property_exists($mailablePersonalizado, 'destinatario')) {
                 $mailablePersonalizado->destinatario = $email;
             }
-            
-            // Asignar el contexto completo si el mailable lo soporta
             if ($data && property_exists($mailablePersonalizado, 'datosDestinatario')) {
                 $mailablePersonalizado->datosDestinatario = $data;
             }
@@ -47,7 +45,10 @@ class EmailDispatcher
                 $email,
                 $mailablePersonalizado,
                 $tipo,
-                $descripcion
+                $descripcion,
+                'normal',
+                $emailableType,
+                $emailableId
             );
 
             $job->delay($tiempoEjecucion);
@@ -87,38 +88,16 @@ class EmailDispatcher
         foreach ($destinatariosFinales as $index => $destinatario) {
             $tiempoEjecucion = $proximoTiempo->copy()->addSeconds(3 * $index);
 
-            // Extraer email y data context
             $email = is_array($destinatario) ? ($destinatario['email'] ?? '') : $destinatario;
             $data = is_array($destinatario) ? $destinatario : null;
 
-            // Clonar el mailable para cada destinatario
-            $mailablePersonalizado = clone $mailable;
-            
-            // Asignar el email string para compatibilidad
-            if (property_exists($mailablePersonalizado, 'destinatario')) {
-                $mailablePersonalizado->destinatario = $email;
-            }
-            
-            // Asignar el contexto completo si el mailable lo soporta
-            if ($data && property_exists($mailablePersonalizado, 'datosDestinatario')) {
-                $mailablePersonalizado->datosDestinatario = $data;
-            }
-
-            $job = new EnviarCorreoAutomatizado(
-                $email,
-                $mailablePersonalizado,
-                $tipo,
-                $descripcion
-            );
-
-            $job->delay($tiempoEjecucion);
-            dispatch($job);
-            
+            // Crear el ManagedJob primero para tener su ID antes de despachar
             $managedJob = ManagedJob::create([
                 'job_uuid' => Str::uuid()->toString(),
                 'entity_type' => $entityType,
                 'entity_id' => $entityId,
                 'job_type' => $jobType,
+                'destinatario' => $email,
                 'tags' => $tags,
                 'scheduled_for' => $tiempoEjecucion,
                 'metadata' => [
@@ -127,7 +106,30 @@ class EmailDispatcher
                     'datos_contexto' => $data
                 ]
             ]);
-            
+
+            $mailablePersonalizado = clone $mailable;
+
+            if (property_exists($mailablePersonalizado, 'destinatario')) {
+                $mailablePersonalizado->destinatario = $email;
+            }
+            if ($data && property_exists($mailablePersonalizado, 'datosDestinatario')) {
+                $mailablePersonalizado->datosDestinatario = $data;
+            }
+
+            $job = new EnviarCorreoAutomatizado(
+                $email,
+                $mailablePersonalizado,
+                $tipo,
+                $descripcion,
+                'normal',
+                $entityType,
+                $entityId,
+                $managedJob->id
+            );
+
+            $job->delay($tiempoEjecucion);
+            dispatch($job);
+
             $jobsCreados[] = $managedJob;
         }
 
@@ -168,14 +170,22 @@ class EmailDispatcher
             : $ahora->addSeconds(3);
     }
 
-    public static function enviarPrioritario($destinatario, $mailable, $tipo = 'prioritario', $descripcion = '')
-    {
+    public static function enviarPrioritario(
+        $destinatario,
+        $mailable,
+        $tipo = 'prioritario',
+        $descripcion = '',
+        $emailableType = null,
+        $emailableId = null
+    ) {
         $job = new EnviarCorreoAutomatizado(
             $destinatario,
             $mailable,
             $tipo,
             $descripcion,
-            'alta'
+            'alta',
+            $emailableType,
+            $emailableId
         );
 
         dispatch($job);
@@ -275,7 +285,7 @@ class EmailDispatcher
         foreach ($jobs as $managedJob) {
             // Buscar y eliminar el job real de la cola
             $tiempoEjecucion = $managedJob->scheduled_for;
-            $destinatario = $managedJob->metadata['destinatario'] ?? '';
+            $destinatario = $managedJob->destinatario ?? $managedJob->metadata['destinatario'] ?? '';
             
             DB::table('jobs')
                 ->where('queue', 'emails')

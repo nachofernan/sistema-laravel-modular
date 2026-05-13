@@ -25,16 +25,29 @@ class EnviarCorreoAutomatizado implements ShouldQueue
     protected $tipo;
     protected $descripcion;
     protected $prioridad;
+    protected $emailableType;
+    protected $emailableId;
+    protected $managedJobId;
 
-    public function __construct($destinatario, $mailable, $tipo, $descripcion = null, $prioridad = 'normal')
-    {
+    public function __construct(
+        $destinatario,
+        $mailable,
+        $tipo,
+        $descripcion = null,
+        $prioridad = 'normal',
+        $emailableType = null,
+        $emailableId = null,
+        $managedJobId = null
+    ) {
         $this->destinatario = $destinatario;
         $this->mailable = $mailable;
         $this->tipo = $tipo;
         $this->descripcion = $descripcion ?? "Envío de {$tipo}";
         $this->prioridad = $prioridad;
+        $this->emailableType = $emailableType;
+        $this->emailableId = $emailableId;
+        $this->managedJobId = $managedJobId;
 
-        // Determinar cola según prioridad
         $cola = ($prioridad === 'alta') ? 'emails-priority' : 'emails';
         $this->onQueue($cola);
     }
@@ -213,6 +226,9 @@ class EnviarCorreoAutomatizado implements ShouldQueue
             'descripcion' => $this->descripcion,
             'estado' => $estado,
             'error' => $error,
+            'emailable_type' => $this->emailableType,
+            'emailable_id' => $this->emailableId,
+            'managed_job_id' => $this->managedJobId,
             'created_at' => $ahora,
             'updated_at' => $ahora
         ]);

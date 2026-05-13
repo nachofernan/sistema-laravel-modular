@@ -12,6 +12,7 @@
                 </svg>
                 Descargar PDF
             </a>
+            @livewire('concursos.concurso.show.historial-emails', ['concurso' => $concurso], key('emails-'.$concurso->id))
             @if(auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id())
                 @if ($concurso->estado->id < 4)
                     @livewire('concursos.concurso.show.acciones-concurso', ['concurso' => $concurso], key($concurso->id))
