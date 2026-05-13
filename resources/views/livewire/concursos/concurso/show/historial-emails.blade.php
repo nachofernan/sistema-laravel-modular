@@ -9,7 +9,7 @@
         Correos
     </button>
 
-    <x-dialog-modal wire:model="open">
+    <x-dialog-modal wire:model="open" maxWidth="4xl">
         <x-slot name="title">
             <div class="border-b py-2">
                 Historial de correos — {{ $concurso->nombre }} #{{ $concurso->numero }}
