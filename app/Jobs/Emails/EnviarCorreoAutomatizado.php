@@ -218,7 +218,7 @@ class EnviarCorreoAutomatizado implements ShouldQueue
     private function registrarEnvio($estado, $error = null, $destinatarioFinal = null)
     {
         $ahora = Carbon::now(config('app.timezone'));
-        
+
         DB::table('email_logs')->insert([
             'destinatario' => $destinatarioFinal ?? $this->destinatario,
             'destinatario_original' => $this->destinatario !== ($destinatarioFinal ?? $this->destinatario) ? $this->destinatario : null,
@@ -230,8 +230,20 @@ class EnviarCorreoAutomatizado implements ShouldQueue
             'emailable_id' => $this->emailableId,
             'managed_job_id' => $this->managedJobId,
             'created_at' => $ahora,
-            'updated_at' => $ahora
+            'updated_at' => $ahora,
         ]);
+
+        if ($this->managedJobId) {
+            $managedStatus = match($estado) {
+                'exitoso'   => 'executed',
+                'bloqueado' => 'executed',
+                default     => 'failed',
+            };
+
+            DB::table('managed_jobs')
+                ->where('id', $this->managedJobId)
+                ->update(['status' => $managedStatus, 'updated_at' => $ahora]);
+        }
     }
 
     public function getJobDescription()

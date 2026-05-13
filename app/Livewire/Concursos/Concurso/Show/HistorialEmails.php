@@ -30,7 +30,7 @@ class HistorialEmails extends Component
                 ->get();
 
             $enviados = DB::table('email_logs')
-                ->where('emailable_type', Concurso::class)
+                ->whereIn('emailable_type', ['concurso', Concurso::class])
                 ->where('emailable_id', $this->concurso->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
