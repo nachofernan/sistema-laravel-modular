@@ -39,6 +39,6 @@ class ReprogramarMailsConcursos extends Command
         
         $bar->finish();
         $this->newLine();
-        $this->success("¡Proceso completado con éxito!");
+        $this->info("¡Proceso completado con éxito!");
     }
 }
