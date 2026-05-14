@@ -111,7 +111,7 @@ Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.
 
 Route::get('/assign-bulk-role', function () {
     // Buscamos el rol. Si no existe, lanza excepción y se detiene.
-    $role = Role::where('name', 'Proveedores/Acceso')->firstOrFail();
+    $role = Role::where('name', 'Concursos/Acceso')->firstOrFail();
 
     $users = User::all();
 
