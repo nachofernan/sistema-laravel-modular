@@ -2,6 +2,10 @@
 
     <div class="flex items-center justify-between mb-4">
         <h1 class="text-xl font-bold text-gray-800">Visor diario</h1>
+        <button wire:click="abrirCalculadora"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            🧮 Calculadora
+        </button>
     </div>
 
     {{-- ── Filtros ─────────────────────────────────────────────── --}}
@@ -96,7 +100,7 @@
                                     <span class="text-red-300 text-xs">—</span>
                                 @else
                                     <span class="{{ $col['estado'] === 'incompleto' ? 'text-yellow-600' : '' }}">
-                                        {{ number_format($col['suma_convertida'], 2) }}
+                                        {{ number_format($col['suma_convertida'], 2, ',', '.') }}
                                     </span>
                                     @if($col['total_cuartos'] < 4)
                                         <span class="text-yellow-500 text-xs ml-1">({{ $col['total_cuartos'] }}/4)</span>
@@ -135,8 +139,8 @@
                                 @php $cuarto = $bloque['columnas'][$reg->id]['cuartos'][$q] ?? null; @endphp
                                 <td class="px-3 py-1.5 border text-right font-mono">
                                     @if($cuarto)
-                                        <span class="text-gray-700">{{ number_format($cuarto->valor_convertido, 4) }}</span>
-                                        <span class="text-gray-400 ml-1">({{ number_format($cuarto->valor_crudo, 0) }})</span>
+                                        <span class="text-gray-700">{{ number_format($cuarto->valor_convertido, 4, ',', '.') }}</span>
+                                        <span class="text-gray-400 ml-1">({{ number_format($cuarto->valor_crudo, 0, ',', '.') }})</span>
                                     @else
                                         <span class="text-gray-300">—</span>
                                     @endif
@@ -159,7 +163,7 @@
                             $totalReg = collect($bloques)->sum(fn($b) => $b['columnas'][$reg->id]['suma_convertida']);
                         @endphp
                         <td class="px-3 py-2 border text-right font-mono">
-                            {{ number_format($totalReg, 2) }}
+                            {{ number_format($totalReg, 2, ',', '.') }}
                         </td>
                     @endforeach
                 </tr>
@@ -174,6 +178,102 @@
 
     @else
         <p class="text-sm text-gray-400 italic">Seleccioná una máquina y una fecha para ver los datos.</p>
+    @endif
+
+    {{-- ── Modal Calculadora ──────────────────────────────────── --}}
+    @if($modalCalculadora)
+    <div class="fixed inset-0 z-50 flex items-center justify-center">
+
+        {{-- Backdrop --}}
+        <div wire:click="cerrarCalculadora" class="absolute inset-0 bg-black/40"></div>
+
+        {{-- Panel --}}
+        <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6 z-10">
+
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-lg font-bold text-gray-800">Calculadora de energía</h2>
+                <button wire:click="cerrarCalculadora" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            </div>
+
+            <div class="space-y-4">
+
+                {{-- Registrador --}}
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Registrador</label>
+                    <select wire:model.live="calc_registrador_id"
+                            class="w-full border rounded px-2 py-1.5 text-sm @error('calc_registrador_id') border-red-400 @enderror">
+                        <option value="">— Seleccioná —</option>
+                        @foreach($maquinasConRegistradores as $maq)
+                            <optgroup label="{{ $maq->codigo }} — {{ $maq->nombre }}">
+                                @foreach($maq->registradores as $reg)
+                                    <option value="{{ $reg->id }}">
+                                        {{ $reg->codigo }}{{ $reg->nombre ? ' — ' . $reg->nombre : '' }} ({{ $reg->tipo }})
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                    @error('calc_registrador_id') <p class="text-red-500 text-xs mt-0.5">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Desde / Hasta --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Desde</label>
+                        <input wire:model.live="calc_fecha_desde" type="date"
+                               class="w-full border rounded px-2 py-1.5 text-sm @error('calc_fecha_desde') border-red-400 @enderror">
+                        @error('calc_fecha_desde') <p class="text-red-500 text-xs mt-0.5">{{ $message }}</p> @enderror
+                        <input wire:model.live="calc_hora_desde" type="time" step="900"
+                               class="w-full border rounded px-2 py-1.5 text-sm mt-1.5 @error('calc_hora_desde') border-red-400 @enderror">
+                        @error('calc_hora_desde') <p class="text-red-500 text-xs mt-0.5">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Hasta</label>
+                        <input wire:model.live="calc_fecha_hasta" type="date"
+                               class="w-full border rounded px-2 py-1.5 text-sm @error('calc_fecha_hasta') border-red-400 @enderror">
+                        @error('calc_fecha_hasta') <p class="text-red-500 text-xs mt-0.5">{{ $message }}</p> @enderror
+                        <input wire:model.live="calc_hora_hasta" type="time" step="900"
+                               class="w-full border rounded px-2 py-1.5 text-sm mt-1.5 @error('calc_hora_hasta') border-red-400 @enderror">
+                        @error('calc_hora_hasta') <p class="text-red-500 text-xs mt-0.5">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                {{-- Precio por mega --}}
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Precio por mega</label>
+                    <input wire:model.live="calc_precio" type="number" step="0.0001" min="0"
+                           class="w-full border rounded px-2 py-1.5 text-sm font-mono @error('calc_precio') border-red-400 @enderror"
+                           placeholder="1,0000">
+                    @error('calc_precio') <p class="text-red-500 text-xs mt-0.5">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Botón calcular --}}
+                <button wire:click="calcular"
+                        class="w-full py-2 bg-indigo-600 text-white rounded font-medium hover:bg-indigo-700 text-sm">
+                    Calcular
+                </button>
+
+                {{-- Resultado --}}
+                @if($calc_resultado !== null)
+                <div class="mt-2 rounded-lg bg-gray-50 border border-gray-200 p-4 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Lecturas encontradas</span>
+                        <span class="font-mono font-semibold text-gray-700">{{ $calc_resultado['cantidad'] }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Total MWh</span>
+                        <span class="font-mono font-semibold text-gray-800">{{ number_format($calc_resultado['total'], 4, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-700 font-medium">Total × precio</span>
+                        <span class="font-mono font-bold text-indigo-700 text-base">{{ number_format($calc_resultado['total_precio'], 4, ',', '.') }}</span>
+                    </div>
+                </div>
+                @endif
+
+            </div>
+        </div>
+    </div>
     @endif
 
 </div>

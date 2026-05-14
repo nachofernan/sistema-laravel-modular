@@ -12,9 +12,73 @@ class VisorDiario extends Component
     public ?string $fecha      = null;
     public array   $expandidos = [];
 
+    // Calculadora
+    public bool    $modalCalculadora    = false;
+    public ?int    $calc_registrador_id = null;
+    public ?string $calc_fecha_desde    = null;
+    public string  $calc_hora_desde     = '00:00';
+    public ?string $calc_fecha_hasta    = null;
+    public string  $calc_hora_hasta     = '23:45';
+    public string  $calc_precio         = '1.0000';
+    public ?array  $calc_resultado      = null;
+
     public function getMaquinasProperty()
     {
         return Maquina::where('activa', true)->orderBy('codigo')->get();
+    }
+
+    public function getMaquinasConRegistradoresProperty()
+    {
+        return Maquina::where('activa', true)
+            ->with(['registradores' => fn($q) => $q->where('activo', true)->orderByRaw("CASE tipo
+                WHEN 'principal' THEN 1
+                WHEN 'respaldo'  THEN 2
+                WHEN 'control'   THEN 3
+                WHEN 'auxiliar'  THEN 4
+                ELSE 5 END")->orderBy('codigo')])
+            ->orderBy('codigo')
+            ->get()
+            ->filter(fn($m) => $m->registradores->isNotEmpty());
+    }
+
+    public function abrirCalculadora(): void
+    {
+        $this->calc_resultado = null;
+        $this->modalCalculadora = true;
+    }
+
+    public function cerrarCalculadora(): void
+    {
+        $this->modalCalculadora = false;
+    }
+
+    public function calcular(): void
+    {
+        $this->validate([
+            'calc_registrador_id' => 'required|integer',
+            'calc_fecha_desde'    => 'required|date',
+            'calc_hora_desde'     => 'required',
+            'calc_fecha_hasta'    => 'required|date',
+            'calc_hora_hasta'     => 'required',
+            'calc_precio'         => 'required|numeric|min:0',
+        ]);
+
+        $desde = $this->calc_fecha_desde . ' ' . $this->calc_hora_desde . ':00';
+        $hasta = $this->calc_fecha_hasta . ' ' . $this->calc_hora_hasta . ':00';
+
+        $lecturas = Lectura::where('registrador_id', $this->calc_registrador_id)
+            ->whereRaw('TIMESTAMP(fecha, hora_desde) >= ?', [$desde])
+            ->whereRaw('TIMESTAMP(fecha, hora_desde) <= ?', [$hasta])
+            ->get();
+
+        $total  = $lecturas->sum('valor_convertido');
+        $precio = (float) $this->calc_precio;
+
+        $this->calc_resultado = [
+            'total'         => $total,
+            'total_precio'  => $total * $precio,
+            'cantidad'      => $lecturas->count(),
+        ];
     }
 
     public function updatedMaquinaId(): void
@@ -118,9 +182,10 @@ class VisorDiario extends Component
         }
 
         return view('livewire.despacho.visor-diario', [
-            'maquinas'      => $this->maquinas,
-            'registradores' => $registradores,
-            'bloques'       => $bloques,
+            'maquinas'                  => $this->maquinas,
+            'registradores'             => $registradores,
+            'bloques'                   => $bloques,
+            'maquinasConRegistradores'  => $this->maquinasConRegistradores,
         ]);
     }
 }
