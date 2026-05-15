@@ -99,6 +99,11 @@
     </table>
 
     @if($resto->count() > 0)
+    @php
+        $conIntencion  = $resto->where('intencion', 1);
+        $rechazados    = $resto->where('intencion', 2);
+        $sinRespuesta  = $resto->where('intencion', 0);
+    @endphp
     <div class="section-title">Otros Proveedores Invitados ({{ $resto->count() }})</div>
     <table>
         <thead>
@@ -110,19 +115,35 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($resto as $inv)
+            @foreach($conIntencion as $inv)
             <tr>
                 <td>{{ $inv->proveedor->razonsocial }}</td>
                 <td>{{ $inv->proveedor->cuit }}</td>
                 <td>{{ $inv->created_at->format('d/m/Y') }}</td>
-                <td>
-                    @switch($inv->intencion)
-                        @case(0) No contestó @break
-                        @case(1) Con intención @break
-                        @case(2) No participará @break
-                        @default Invitado
-                    @endswitch
+                <td>Con intención</td>
+            </tr>
+            @endforeach
+            @foreach($rechazados as $inv)
+            <tr>
+                <td>{{ $inv->proveedor->razonsocial }}</td>
+                <td>{{ $inv->proveedor->cuit }}</td>
+                <td>{{ $inv->created_at->format('d/m/Y') }}</td>
+                <td>No participará</td>
+            </tr>
+            @if($inv->observaciones)
+            <tr>
+                <td colspan="4" style="font-size: 10px; color: #555; border-bottom: 2px solid #ddd;">
+                    Motivo de rechazo: {{ $inv->observaciones }}
                 </td>
+            </tr>
+            @endif
+            @endforeach
+            @foreach($sinRespuesta as $inv)
+            <tr>
+                <td>{{ $inv->proveedor->razonsocial }}</td>
+                <td>{{ $inv->proveedor->cuit }}</td>
+                <td>{{ $inv->created_at->format('d/m/Y') }}</td>
+                <td>No contestó</td>
             </tr>
             @endforeach
         </tbody>

@@ -564,9 +564,14 @@
                                                 </span>
                                                 @break
                                             @case(2)
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    Hubo negativa
-                                                </span>
+                                                <div class="text-right">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        Hubo negativa
+                                                    </span>
+                                                    @if($invitacion->observaciones)
+                                                        <div class="text-xs text-gray-500 italic mt-1 max-w-48">{{ $invitacion->observaciones }}</div>
+                                                    @endif
+                                                </div>
                                                 @break
                                         @endswitch
                                     </div>

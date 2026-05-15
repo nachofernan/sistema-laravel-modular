@@ -101,7 +101,8 @@ class ConcursoController extends Controller
         $invitacion = Invitacion::where('concurso_id', $concurso_id)
             ->where('proveedor_id', $proveedor_id)
             ->firstOrFail();
-        $invitacion->intencion = $request->intencion;
+        $invitacion->intencion     = $request->intencion;
+        $invitacion->observaciones = (int) $request->intencion === 2 ? ($request->observaciones ?: null) : null;
         $invitacion->save();
         return response()->json([
             'success' => true,

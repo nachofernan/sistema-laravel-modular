@@ -52,6 +52,9 @@
                                         @break
                                     @case(2)
                                         <span class="text-red-500">No participará</span>
+                                        @if($invitacion->observaciones)
+                                            <span class="block text-gray-400 italic">{{ $invitacion->observaciones }}</span>
+                                        @endif
                                         @break
                                     @case(3)
                                         <span class="text-green-500">Oferta Presentada</span>
