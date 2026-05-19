@@ -57,7 +57,7 @@
                                         @endif
                                         @break
                                     @case(3)
-                                        <span class="text-green-500">Oferta Presentada</span>
+                                        <span class="text-blue-500">Oferta Presentada</span>
                                         @break
                                 @endswitch
                             </div>
