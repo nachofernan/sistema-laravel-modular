@@ -97,8 +97,6 @@ class InvitarProveedor extends Component
 
     public function reInvitar(Invitacion $invitacion)
     {
-        $invitacion->intencion = 0;
-        $invitacion->save();
         // Crear el modelo del mail y el mail
         $destinatarios[] = [
             'email' => $invitacion->proveedor->correo,
