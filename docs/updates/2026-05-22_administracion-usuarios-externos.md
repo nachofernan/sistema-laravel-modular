@@ -39,6 +39,15 @@ Nueva ruta `GET proveedores/externos` → `proveedores.externos.index`, bajo el 
 
 Entrada en el submenú de Proveedores con permiso `Proveedores/Externos/Ver`.
 
+### Permisos granulares (actualización 2026-05-22)
+
+Se separó el acceso en dos permisos:
+
+- `Proveedores/Externos/Ver` — permite ver la pantalla y el listado de usuarios externos
+- `Proveedores/Externos/Editar` — habilita el botón "Blanquear Pass." y el modal de reset; sin este permiso el botón no se renderiza (`@can`)
+
+El check está en la vista (`@can('Proveedores/Externos/Editar') ... @endcan`) y no en el componente PHP, ya que el método `abrirModal()` no es destructivo por sí solo; la acción real (`resetearPassword()`) requeriría un `authorize()` en el componente si se quiere doble protección server-side.
+
 ---
 
 ## Archivos modificados / creados
@@ -64,5 +73,5 @@ Entrada en el submenú de Proveedores con permiso `Proveedores/Externos/Ver`.
 
 ## Pendiente / no incluido
 
-- No se creó el permiso `Proveedores/Externos/Ver` en la base de datos; debe asignarse manualmente desde el módulo de Usuarios.
+- Los permisos `Proveedores/Externos/Ver` y `Proveedores/Externos/Editar` deben crearse y asignarse manualmente desde el módulo de Usuarios.
 - No hay acción para desbloquear usuarios con `locked_until` activo (bloqueados por intentos fallidos). Puede sumarse en una segunda etapa.

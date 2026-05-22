@@ -76,10 +76,12 @@
                                 @endif
                             </td>
                             <td class="px-3 py-2 text-center">
-                                <button wire:click="abrirModal({{ $user->id }})"
-                                        class="px-2.5 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-md transition-colors">
-                                    Blanquear Pass.
-                                </button>
+                                @can('Proveedores/Externos/Editar')
+                                    <button wire:click="abrirModal({{ $user->id }})"
+                                            class="px-2.5 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-md transition-colors">
+                                        Blanquear Pass.
+                                    </button>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
