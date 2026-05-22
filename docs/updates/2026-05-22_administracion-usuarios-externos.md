@@ -39,6 +39,17 @@ Nueva ruta `GET proveedores/externos` → `proveedores.externos.index`, bajo el 
 
 Entrada en el submenú de Proveedores con permiso `Proveedores/Externos/Ver`.
 
+### Sincronización de correo desde proveedor interno (actualización 2026-05-22)
+
+**`app/Livewire/Proveedores/Externos/Index.php`** y **`resources/views/livewire/proveedores/externos/index.blade.php`**
+
+Se agregó un botón "Sync correo" visible únicamente cuando el usuario externo tiene un proveedor interno vinculado y el usuario tiene el permiso `Proveedores/Externos/Editar`. Al hacer clic se abre un modal que muestra el correo actual (fondo rojo) versus el nuevo (fondo verde) para confirmar antes de aplicar.
+
+Detalles de comportamiento:
+- Si los correos ya coinciden el botón aparece en gris (no hay urgencia), pero sigue siendo funcional para forzar la sincronización
+- Si el proveedor interno no tiene correo (`correo` null o vacío), el modal lo informa y deshabilita el botón de confirmación
+- La sincronización escribe `email` en `ProveedorExterno` usando la conexión `proveedores_externos`; el correo del proveedor interno no se toca
+
 ### Permisos granulares (actualización 2026-05-22)
 
 Se separó el acceso en dos permisos:

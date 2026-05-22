@@ -77,10 +77,22 @@
                             </td>
                             <td class="px-3 py-2 text-center">
                                 @can('Proveedores/Externos/Editar')
-                                    <button wire:click="abrirModal({{ $user->id }})"
-                                            class="px-2.5 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-md transition-colors">
-                                        Blanquear Pass.
-                                    </button>
+                                    <div class="flex flex-col gap-1 items-center">
+                                        <button wire:click="abrirModal({{ $user->id }})"
+                                                class="w-full px-2.5 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-md transition-colors">
+                                            Blanquear Pass.
+                                        </button>
+                                        @if ($user->proveedorInterno)
+                                            <button wire:click="abrirEmailModal({{ $user->id }})"
+                                                    @class([
+                                                        'w-full px-2.5 py-1 text-xs rounded-md transition-colors',
+                                                        'bg-sky-500 hover:bg-sky-600 text-white' => $user->email !== $user->proveedorInterno->correo,
+                                                        'bg-gray-100 hover:bg-gray-200 text-gray-500' => $user->email === $user->proveedorInterno->correo,
+                                                    ])>
+                                                Sync correo
+                                            </button>
+                                        @endif
+                                    </div>
                                 @endcan
                             </td>
                         </tr>
@@ -163,6 +175,62 @@
                         <button wire:click="resetearPassword"
                                 class="px-4 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">
                             Sí, blanquear contraseña
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal de sincronización de correo --}}
+    @if ($emailModalOpen)
+        <div class="fixed inset-0 z-50 flex items-center justify-center"
+             @keydown.escape.window="$wire.cerrarEmailModal()">
+
+            <div class="absolute inset-0 bg-black/50" wire:click="cerrarEmailModal"></div>
+
+            <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 z-10">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-base font-semibold text-gray-900">Sincronizar Correo Electrónico</h3>
+                </div>
+
+                <div class="px-6 py-4 space-y-3">
+                    <div class="text-sm text-gray-600">
+                        <span class="font-medium">Usuario (CUIT):</span>
+                        <span class="font-mono ml-1 text-gray-900">{{ $emailUsername }}</span>
+                    </div>
+
+                    <div class="rounded-md border border-gray-200 divide-y divide-gray-100 text-sm overflow-hidden">
+                        <div class="flex items-center px-3 py-2 bg-red-50 gap-3">
+                            <span class="text-xs font-medium text-gray-500 w-16 shrink-0">Actual</span>
+                            <span class="text-gray-800 break-all">{{ $emailActual ?: '(vacío)' }}</span>
+                        </div>
+                        <div class="flex items-center px-3 py-2 bg-green-50 gap-3">
+                            <span class="text-xs font-medium text-gray-500 w-16 shrink-0">Nuevo</span>
+                            <span class="text-green-800 font-medium break-all">{{ $emailNuevo ?: '(vacío)' }}</span>
+                        </div>
+                    </div>
+
+                    @if (!$emailNuevo)
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                            <p class="text-sm text-yellow-800">El proveedor interno no tiene correo registrado. No se puede sincronizar.</p>
+                        </div>
+                    @elseif ($emailActual === $emailNuevo)
+                        <p class="text-xs text-gray-500">Los correos ya coinciden. Podés confirmar de todas formas para forzar la actualización.</p>
+                    @else
+                        <p class="text-xs text-gray-500">Se reemplazará el correo del usuario externo con el del proveedor interno.</p>
+                    @endif
+                </div>
+
+                <div class="px-6 py-3 border-t border-gray-200 flex justify-end gap-2">
+                    <button wire:click="cerrarEmailModal"
+                            class="px-4 py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                        Cancelar
+                    </button>
+                    @if ($emailNuevo)
+                        <button wire:click="sincronizarEmail"
+                                class="px-4 py-1.5 text-sm bg-sky-600 hover:bg-sky-700 text-white rounded-md transition-colors">
+                            Confirmar sincronización
                         </button>
                     @endif
                 </div>

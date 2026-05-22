@@ -23,6 +23,13 @@ class Index extends Component
     public $nuevaPassword = '';
     public $confirmacionOpen = false;
 
+    // Modal de sincronización de correo
+    public $emailModalOpen = false;
+    public $emailUserId = null;
+    public $emailUsername = '';
+    public $emailActual = '';
+    public $emailNuevo = '';
+
     public function updatedSearch()
     {
         $this->resetPage();
@@ -80,6 +87,39 @@ class Index extends Component
 
         $this->cerrarModal();
         session()->flash('success', "Contraseña reseteada para {$user->username}.");
+    }
+
+    public function abrirEmailModal($userId)
+    {
+        $user = ProveedorExterno::with('proveedorInterno')->find($userId);
+        if (!$user || !$user->proveedorInterno) return;
+
+        $this->emailUserId = $user->id;
+        $this->emailUsername = $user->username;
+        $this->emailActual = $user->email;
+        $this->emailNuevo = $user->proveedorInterno->correo;
+        $this->emailModalOpen = true;
+    }
+
+    public function cerrarEmailModal()
+    {
+        $this->emailModalOpen = false;
+        $this->emailUserId = null;
+    }
+
+    public function sincronizarEmail()
+    {
+        $user = ProveedorExterno::with('proveedorInterno')->find($this->emailUserId);
+        if (!$user || !$user->proveedorInterno) {
+            $this->cerrarEmailModal();
+            return;
+        }
+
+        $user->email = $user->proveedorInterno->correo;
+        $user->save();
+
+        $this->cerrarEmailModal();
+        session()->flash('success', "Correo actualizado para {$user->username}.");
     }
 
     public function render()
