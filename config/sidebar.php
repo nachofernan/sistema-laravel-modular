@@ -112,6 +112,12 @@ return [
                     'active_when' => 'proveedores.rubros.*'
                 ],
                 [
+                    'name' => 'Usuarios Externos',
+                    'route' => 'proveedores.externos.index',
+                    'permission' => 'Proveedores/Externos/Ver',
+                    'active_when' => 'proveedores.externos.*'
+                ],
+                [
                     'name' => 'Crear Anexo Solped',
                     'route' => 'proveedores.anexosolped',
                     'permission' => 'Proveedores/Proveedores/Ver',
