@@ -107,12 +107,10 @@
                             <div class="col-span-2 text-sm text-gray-900">{{ $proveedor->id }}</div>
                         </div>
 
-                        @if($proveedor->proveedor_externo)
                         <div class="grid grid-cols-3 gap-4">
                             <div class="text-sm font-medium text-gray-500">Tiene usuario externo:</div>
                             <div class="col-span-2 text-sm text-gray-900">{{ $proveedor->proveedor_externo ? 'Sí' : 'No' }}</div>
                         </div>
-                        @endif
                     </div>
                 </div>
 
