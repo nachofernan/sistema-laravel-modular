@@ -46,7 +46,7 @@ class RegistradoresIndex extends Component
             'reg_factor'        => ['required', 'numeric', 'min:0.000001'],
             'reg_notas'         => ['nullable', 'string'],
             'reg_activo'        => ['boolean'],
-            'reg_maquina_id'    => ['nullable', 'exists:maquinas,id'],
+            'reg_maquina_id'    => ['nullable', 'exists:despacho.maquinas,id'],
         ];
     }
 
@@ -141,7 +141,7 @@ class RegistradoresIndex extends Component
     public function asignarMaquina(int $registradorId): void
     {
         $this->validate([
-            'asignar_maquina_id' => ['required', 'exists:maquinas,id'],
+            'asignar_maquina_id' => ['required', 'exists:despacho.maquinas,id'],
         ]);
 
         Registrador::findOrFail($registradorId)

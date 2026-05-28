@@ -112,7 +112,7 @@ class MaquinasIndex extends Component
     public function asignarRegistrador(int $maquinaId): void
     {
         $this->validate([
-            'asignar_registrador_id' => ['required', 'exists:registradores,id'],
+            'asignar_registrador_id' => ['required', 'exists:despacho.registradores,id'],
         ]);
 
         Maquina::findOrFail($maquinaId)
