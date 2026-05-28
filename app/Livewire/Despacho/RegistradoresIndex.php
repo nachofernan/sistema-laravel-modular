@@ -33,7 +33,7 @@ class RegistradoresIndex extends Component
     // ── Validación ────────────────────────────────────────────
     protected function rules(): array
     {
-        $unique = 'unique:registradores,codigo';
+        $unique = 'unique:despacho.registradores,codigo';
         if ($this->editingId) {
             $unique .= ',' . $this->editingId;
         }

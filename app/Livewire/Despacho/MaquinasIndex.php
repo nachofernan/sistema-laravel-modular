@@ -28,7 +28,7 @@ class MaquinasIndex extends Component
     // ── Validación ────────────────────────────────────────────
     protected function maquinaRules(): array
     {
-        $unique = 'unique:maquinas,codigo';
+        $unique = 'unique:despacho.maquinas,codigo';
         if ($this->editingMaquinaId) {
             $unique .= ',' . $this->editingMaquinaId;
         }
