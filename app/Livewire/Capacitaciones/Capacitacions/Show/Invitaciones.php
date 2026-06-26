@@ -15,6 +15,14 @@ class Invitaciones extends Component
     public $search = '';
     public $sedeId = '';
 
+    public function abrir()
+    {
+        $this->search = '';
+        $this->sedeId = '';
+        $this->selectedUsers = [];
+        $this->open = true;
+    }
+
     public function agregar()
     {
         if(count($this->selectedUsers) > 0) {
@@ -25,6 +33,8 @@ class Invitaciones extends Component
                     'tipo' => 'presencial', // Por defecto presencial
                 ]);
             }
+            $this->search = '';
+            $this->sedeId = '';
             $this->selectedUsers = [];
             $this->open = false;
         }

@@ -17,7 +17,7 @@
     <!-- Agregar nuevo invitado -->
     @can('Capacitaciones/Capacitaciones/Editar')
     <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <button wire:click="$set('open', true)" 
+        <button wire:click="abrir"
                 class="inline-flex text-sm items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md transition-colors">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
