@@ -1,30 +1,23 @@
 <?php
 
-namespace Tests\Feature\Capacitaciones;
-
 use App\Models\Capacitaciones\Capacitacion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class CapacitacionTest extends TestCase
-{
-    /** @test */
-    public function puede_crear_una_capacitacion()
-    {
-        // Este test verifica que se puede crear una capacitación correctamente
-        $capacitacion = Capacitacion::factory()->create();
-        $this->assertDatabaseHas('capacitacions', [
-            'id' => $capacitacion->id,
-        ], 'capacitaciones');
-    }
+test('puede crear una capacitación', function () {
+    $capacitacion = Capacitacion::factory()->create();
 
-    /** @test */
-    public function capacitacion_tiene_relaciones_basicas()
-    {
-        // Este test verifica las relaciones explícitas de la capacitación
-        $capacitacion = Capacitacion::factory()->create();
-        $this->assertTrue($capacitacion->invitaciones()->count() >= 0);
-        $this->assertTrue($capacitacion->documentos()->count() >= 0);
-        $this->assertTrue($capacitacion->encuestas()->count() >= 0);
-    }
-} 
+    expect($capacitacion->id)->not->toBeNull()
+        ->and($capacitacion->nombre)->toBeString()->not->toBeEmpty();
+});
+
+test('una capacitación tiene fecha de inicio y fecha final', function () {
+    $capacitacion = Capacitacion::factory()->create();
+
+    expect($capacitacion->fecha_inicio)->not->toBeNull()
+        ->and($capacitacion->fecha_final)->not->toBeNull();
+});
+
+test('la fecha final es posterior a la fecha de inicio', function () {
+    $capacitacion = Capacitacion::factory()->create();
+
+    expect($capacitacion->fecha_final->gte($capacitacion->fecha_inicio))->toBeTrue();
+});

@@ -1,31 +1,17 @@
 <?php
 
-namespace Tests\Feature\Usuarios;
-
 use App\Models\Usuarios\Area;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class AreaTest extends TestCase
-{
-    // NOTA: No usamos RefreshDatabase para no borrar la base completa
+test('puede crear un área', function () {
+    $area = Area::factory()->create();
 
-    /** @test */
-    public function puede_crear_un_area()
-    {
-        // Este test verifica que se puede crear un área correctamente
-        $area = Area::factory()->create();
-        $this->assertDatabaseHas('areas', [
-            'id' => $area->id,
-        ], 'usuarios');
-    }
+    expect($area->id)->not->toBeNull()
+        ->and($area->nombre)->toBeString()->not->toBeEmpty();
+});
 
-    /** @test */
-    public function puede_asignar_area_padre()
-    {
-        // Este test verifica la relación padre/hijo entre áreas
-        $padre = Area::factory()->create();
-        $hijo = Area::factory()->create(['area_id' => $padre->id]);
-        $this->assertEquals($padre->id, $hijo->padre->id);
-    }
-} 
+test('un área puede tener un área padre', function () {
+    $padre = Area::factory()->create();
+    $hija = Area::factory()->create(['area_id' => $padre->id]);
+
+    expect($hija->padre->id)->toBe($padre->id);
+});

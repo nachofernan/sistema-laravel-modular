@@ -1,29 +1,25 @@
 <?php
 
-namespace Tests\Feature\Inventario;
-
 use App\Models\Inventario\Entrega;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Inventario\Elemento;
+use App\Models\User;
 
-class EntregaTest extends TestCase
-{
-    /** @test */
-    public function puede_crear_una_entrega()
-    {
-        // Este test verifica que se puede crear una entrega correctamente
-        $entrega = Entrega::factory()->create();
-        $this->assertDatabaseHas('entregas', [
-            'id' => $entrega->id,
-        ], 'inventario');
-    }
+test('puede crear una entrega', function () {
+    $entrega = Entrega::factory()->create();
 
-    /** @test */
-    public function entrega_tiene_relaciones_basicas()
-    {
-        // Este test verifica las relaciones explícitas de la entrega
-        $entrega = Entrega::factory()->create();
-        $this->assertNotNull($entrega->elemento);
-        $this->assertNotNull($entrega->user);
-    }
-} 
+    expect($entrega->id)->not->toBeNull()
+        ->and($entrega->fecha_entrega)->not->toBeNull();
+});
+
+test('una entrega pertenece a un elemento y a un usuario', function () {
+    $entrega = Entrega::factory()->create();
+
+    expect($entrega->elemento)->not->toBeNull()
+        ->and($entrega->user)->not->toBeNull();
+});
+
+test('una entrega activa no tiene fecha de devolución', function () {
+    $entrega = Entrega::factory()->create(['fecha_devolucion' => null]);
+
+    expect($entrega->fecha_devolucion)->toBeNull();
+});

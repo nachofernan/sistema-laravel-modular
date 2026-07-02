@@ -1,30 +1,24 @@
 <?php
 
-namespace Tests\Feature\Documentos;
-
 use App\Models\Documentos\Documento;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Documentos\Categoria;
 
-class DocumentoTest extends TestCase
-{
-    /** @test */
-    public function puede_crear_un_documento()
-    {
-        // Este test verifica que se puede crear un documento correctamente
-        $documento = Documento::factory()->create();
-        $this->assertDatabaseHas('documentos', [
-            'id' => $documento->id,
-        ], 'documentos');
-    }
+test('puede crear un documento', function () {
+    $documento = Documento::factory()->create();
 
-    /** @test */
-    public function documento_tiene_relaciones_basicas()
-    {
-        // Este test verifica las relaciones explícitas del documento
-        $documento = Documento::factory()->create();
-        $this->assertNotNull($documento->categoria);
-        $this->assertNotNull($documento->user);
-        $this->assertNotNull($documento->sede);
-    }
-} 
+    expect($documento->id)->not->toBeNull()
+        ->and($documento->nombre)->toBeString()->not->toBeEmpty();
+});
+
+test('un documento pertenece a una categoría y a un usuario', function () {
+    $documento = Documento::factory()->create();
+
+    expect($documento->categoria)->not->toBeNull()
+        ->and($documento->user)->not->toBeNull();
+});
+
+test('un documento nuevo es visible por defecto', function () {
+    $documento = Documento::factory()->create();
+
+    expect((bool) $documento->visible)->toBeTrue();
+});

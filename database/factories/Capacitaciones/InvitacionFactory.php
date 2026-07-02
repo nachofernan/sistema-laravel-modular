@@ -16,6 +16,7 @@ class InvitacionFactory extends Factory
         return [
             'capacitacion_id' => Capacitacion::factory(),
             'user_id' => User::factory(),
+            'tipo' => $this->faker->randomElement(['presencial', 'virtual']),
         ];
     }
-} 
+}

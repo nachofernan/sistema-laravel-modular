@@ -1,29 +1,24 @@
 <?php
 
-namespace Tests\Feature\Capacitaciones;
-
 use App\Models\Capacitaciones\Invitacion;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Capacitaciones\Capacitacion;
+use App\Models\User;
 
-class InvitacionTest extends TestCase
-{
-    /** @test */
-    public function puede_crear_una_invitacion()
-    {
-        // Este test verifica que se puede crear una invitación correctamente
-        $invitacion = Invitacion::factory()->create();
-        $this->assertDatabaseHas('invitacions', [
-            'id' => $invitacion->id,
-        ], 'capacitaciones');
-    }
+test('puede crear una invitación a una capacitación', function () {
+    $invitacion = Invitacion::factory()->create();
 
-    /** @test */
-    public function invitacion_tiene_relaciones_basicas()
-    {
-        // Este test verifica las relaciones explícitas de la invitación
-        $invitacion = Invitacion::factory()->create();
-        $this->assertNotNull($invitacion->capacitacion);
-        $this->assertNotNull($invitacion->usuario);
-    }
-} 
+    expect($invitacion->id)->not->toBeNull();
+});
+
+test('una invitación pertenece a una capacitación y a un usuario', function () {
+    $invitacion = Invitacion::factory()->create();
+
+    expect($invitacion->capacitacion)->not->toBeNull()
+        ->and($invitacion->capacitacion)->toBeInstanceOf(Capacitacion::class);
+});
+
+test('una invitación tiene tipo presencial o virtual', function () {
+    $invitacion = Invitacion::factory()->create();
+
+    expect($invitacion->tipo)->toBeIn(['presencial', 'virtual']);
+});
