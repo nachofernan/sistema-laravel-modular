@@ -48,8 +48,7 @@ class MensajeController extends Controller
         $mensaje->update([
             'user_id' => Auth::user()->id,
         ]);
-        if($mensaje->ticket->user->email) { 
-            //Mail::to([$mensaje->ticket->user->email])->send(new MensajeSistemas($mensaje->ticket));
+        if($mensaje->ticket->user->email) {
             EmailHelper::enviarNotificacion(
                 [$mensaje->ticket->user->email],
                 new MensajeSistemas($mensaje->ticket),

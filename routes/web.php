@@ -49,7 +49,8 @@ Route::get('/docs/{documento}/download', [HomeController::class, 'documentoDownl
     //dd($user->getRoleNames()); 
 }); */
 
-//Rutas privadas internas
+// Rutas del área personal del usuario (home). Incluye las rutas de usuario de Tickets y Capacitaciones;
+// las rutas del encargado/admin de esos módulos viven en routes/tickets.php y routes/capacitaciones.php.
 Route::middleware(['auth', 'PasswordExpiryCheck'])->prefix('home')->name('home.')->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 

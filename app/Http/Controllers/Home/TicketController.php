@@ -67,17 +67,8 @@ class TicketController extends Controller
         }
 
 
-        //Mail::to(['givaldi@ccasa.com.ar', 'emartinez@ccasa.com.ar', 'azugazua@ccasa.com.ar'])->send(new TicketNuevo($ticket));
-        //Mail::to(['ifernandez@ccasa.com.ar'])->send(new TicketNuevo($ticket));
-        /* foreach (['givaldi@ccasa.com.ar', 'emartinez@ccasa.com.ar', 'azugazua@ccasa.com.ar'] as $destinatario) {
-            // Despachar el Job con el tiempo calculado
-            EnviarTicketNuevoEmail::dispatch(
-                $ticket, 
-                [$destinatario] // Un solo destinatario por correo
-            )->delay(0); // Cambia el tiempo de retraso según sea necesario
-        } */
         EmailHelper::enviarNotificacion(
-            [/* 'givaldi@ccasa.com.ar',  */'emartinez@ccasa.com.ar', 'azugazua@ccasa.com.ar'],
+            ['emartinez@ccasa.com.ar', 'azugazua@ccasa.com.ar'],
             new TicketNuevo($ticket),
             'Ingreso de nuevo Ticket'
         );
