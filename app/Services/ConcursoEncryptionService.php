@@ -5,6 +5,37 @@ namespace App\Services;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Servicio de encriptación para documentos de oferta de concursos (sistema de sobre cerrado digital).
+ *
+ * QUÉ ENCRIPTA
+ * Los documentos que los proveedores suben como oferta durante el período activo de un concurso
+ * (tabla oferta_documentos, campo encriptado=true). Los documentos del concurso publicados por
+ * BAESA (ConcursoDocumento) NO se encriptan.
+ *
+ * CUÁNDO SE ENCRIPTA / DESENCRIPTA
+ * - Encriptación: al subir el documento desde el portal externo (API).
+ * - Desencriptación masiva: al pasar el concurso a estado "análisis" (operación manual del comité).
+ *   Método: bulkDecryptOfertas(). Desencripta los docs de intencion=3 y elimina los de intencion!=3.
+ *   Esta operación es IRREVERSIBLE.
+ *
+ * ALGORITMO
+ * AES-256-CBC. El IV (16 bytes) se escribe al inicio de cada archivo encriptado.
+ *
+ * CLAVE DE ENCRIPTACIÓN
+ * Variable de entorno: CONCURSO_ENCRYPTION_KEY (base64 de una clave de 32 bytes).
+ * Config: config('app.concurso_encryption_key') → definida en config/app.php.
+ *
+ * ⚠️  ADVERTENCIA DE BACKUP
+ * Si la clave se pierde o se modifica, todos los documentos de ofertas encriptadas
+ * que no hayan sido abiertos todavía son IRRECUPERABLES. La clave debe estar respaldada
+ * en al menos dos lugares seguros independientes del servidor.
+ *
+ * DIFERENCIA CON FileEncryptionService
+ * FileEncryptionService usa AES-256-GCM y una clave autogenerada en storage/app/encryption_key.
+ * Este servicio usa AES-256-CBC y una clave configurada explícitamente en .env.
+ * Son sistemas independientes y no intercambiables.
+ */
 class ConcursoEncryptionService
 {
     private $key;

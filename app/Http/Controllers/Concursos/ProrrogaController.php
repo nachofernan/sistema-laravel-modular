@@ -8,7 +8,6 @@ use App\Mail\Concursos\NuevaProrroga;
 use App\Models\Concursos\Concurso;
 use App\Models\Concursos\Prorroga;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class ProrrogaController extends Controller
 {

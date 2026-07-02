@@ -101,9 +101,10 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
-| 🔲 | Job/comando Artisan para actualizar estados vencidos/cerrados automáticamente en DB |
-| 🔲 | Documentar gestión de claves de encriptación |
-| 🔲 | Flujo guiado en UI para apertura de sobres (transición a análisis + desencriptación) |
+| ❌ | Job/comando para auto-actualizar estados en DB (descartado: transición manual por diseño, decisión del comité) |
+| ✅ | Documentar gestión de claves de encriptación (ConcursoEncryptionService + docs/modulos/12-CONCURSOS.md) |
+| ✅ | Panel de resumen previo a apertura de sobres (invitados, ofertas, docs a desencriptar/eliminar) |
+| ✅ | Limpieza de código muerto en Concurso model, ProrrogaController y AccionesConcurso |
 
 ---
 

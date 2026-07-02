@@ -54,6 +54,49 @@
                         <br>
                         Los siguientes usuarios tendrán aviso de la apertura del concurso.
                     </p>
+
+                    @php
+                        $invitaciones      = $concurso->invitaciones;
+                        $conOferta         = $invitaciones->where('intencion', 3);
+                        $sinRespuesta      = $invitaciones->where('intencion', 0);
+                        $noParticipan      = $invitaciones->where('intencion', 2);
+                        $sinOferta         = $invitaciones->whereNotIn('intencion', [3]);
+                        $docsADesencriptar = $conOferta->sum(fn($i) => $i->documentos->where('encriptado', true)->count());
+                        $docsAEliminar     = $sinOferta->sum(fn($i) => $i->documentos->count());
+                    @endphp
+                    <div class="mt-4 border border-gray-200 rounded-lg overflow-hidden text-sm">
+                        <div class="bg-gray-50 px-4 py-2 font-medium text-gray-600 border-b border-gray-200">
+                            Resumen al momento de apertura
+                        </div>
+                        <table class="w-full">
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="px-4 py-2 text-gray-600">Invitados totales</td>
+                                    <td class="px-4 py-2 text-right font-medium">{{ $invitaciones->count() }}</td>
+                                </tr>
+                                <tr class="bg-green-50">
+                                    <td class="px-4 py-2 text-green-700">Con oferta presentada (intencion 3)</td>
+                                    <td class="px-4 py-2 text-right font-medium text-green-700">{{ $conOferta->count() }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 text-gray-500">Sin respuesta</td>
+                                    <td class="px-4 py-2 text-right font-medium text-gray-500">{{ $sinRespuesta->count() }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 text-gray-500">No participan</td>
+                                    <td class="px-4 py-2 text-right font-medium text-gray-500">{{ $noParticipan->count() }}</td>
+                                </tr>
+                                <tr class="border-t border-gray-200">
+                                    <td class="px-4 py-2 text-blue-600">Documentos a desencriptar</td>
+                                    <td class="px-4 py-2 text-right font-medium text-blue-600">{{ $docsADesencriptar }}</td>
+                                </tr>
+                                <tr class="bg-red-50">
+                                    <td class="px-4 py-2 text-red-600">Documentos a eliminar (ofertas no presentadas)</td>
+                                    <td class="px-4 py-2 text-right font-medium text-red-600">{{ $docsAEliminar }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 @else
                     El concurso todavía no puede finalizar porque no ha pasado la fecha de cierre
                     @if ($concurso->fecha_cierre < now()->addDays(7))

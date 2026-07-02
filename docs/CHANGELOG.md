@@ -31,6 +31,14 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 - `app/Http/Controllers/Home/MensajeController.php` — eliminada línea comentada `Mail::to()`.
 - `app/Http/Controllers/Tickets/MensajeController.php` — eliminada línea comentada `Mail::to()`.
 
+### Concursos — limpieza, documentación y panel de apertura
+- `app/Models/Concursos/Concurso.php` — eliminados bloques comentados (`proveedores()`, dos versiones viejas de `sedes()`). Eliminado `use ConcursoProveedor` sin uso y línea comentada en `editable()`.
+- `app/Http/Controllers/Concursos/ProrrogaController.php` — eliminado `use Mail` sin uso.
+- `app/Livewire/Concursos/Concurso/Show/AccionesConcurso.php` — eliminados `//Mail::to()` comentado y bloque `/* if subDays */` comentado.
+- `app/Services/ConcursoEncryptionService.php` — docblock completo explicando qué encripta, cuándo, algoritmo, dónde vive la clave, advertencia de backup, y diferencia con `FileEncryptionService`.
+- `docs/modulos/12-CONCURSOS.md` — sección de encriptación reescrita con flujo completo de apertura, advertencia de backup de clave, y clarificación de que los estados vencido/cerrado son virtuales por diseño.
+- `resources/views/livewire/concursos/concurso/show/acciones-concurso.blade.php` — panel de resumen debajo del botón "Abrir Ofertas": invitados totales, con oferta (intencion=3), sin respuesta, no participan, documentos a desencriptar y documentos a eliminar.
+
 ### Proveedores — limpieza y documentación
 - `app/Http/Controllers/Proveedores/ValidacionController.php` — eliminado repair loop de `index()`. La corrección de datos se movió al comando `proveedores:reparar-validaciones`.
 - `app/Console/Commands/RepararValidacionesProveedores.php` — nuevo comando Artisan para crear registros `Validacion` faltantes. Ejecutar una vez; si devuelve cero, el loop del controller nunca estaba haciendo nada.

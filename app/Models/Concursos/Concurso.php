@@ -4,7 +4,6 @@ namespace App\Models\Concursos;
 
 use App\Models\Proveedores\Proveedor;
 use App\Models\Proveedores\Subrubro;
-use App\Models\Shared\Pivots\ConcursoProveedor;
 use App\Models\User;
 use App\Models\Usuarios\Sede;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,16 +32,7 @@ class Concurso extends Model
 
         // Lógica original para los demás casos
         return $this->estado_id == 1 || ($this->estado_id == 2 && $this->fecha_cierre->isFuture());
-        //return $this->estado_id == 1 || ($this->estado_id == 2 && $this->fecha_cierre > now());
     }
-
-    /* public function proveedores()
-    {
-        return $this->belongsToMany(Proveedor::class, 'concursos.concurso_proveedor', 'concurso_id', 'proveedor_id')
-            ->using(ConcursoProveedor::class)
-            ->withPivot(['id'])
-            ->withTimestamps();
-    } */
 
     public function invitaciones()
     {
@@ -61,34 +51,17 @@ class Concurso extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /* public function sedes()
-    {
-        return $this->belongsToMany(ConcursoSede::class,
-        'concursos.concurso_sede', // Incluye el prefijo de la base de datos
-        'concurso_id',
-        'sede_id');
-    } */
     public function sedes()
     {
         $pivotTable = DB::connection($this->getConnectionName() ?: 'concursos')->getDatabaseName().'.concurso_sede';
-        return $this->belongsToMany(Sede::class, 
-            $pivotTable, // Solo el nombre de la tabla
-            'concurso_id', 
+        return $this->belongsToMany(Sede::class,
+            $pivotTable,
+            'concurso_id',
             'sede_id')
-            ->using(ConcursoSede::class) // Especifica el modelo pivot
+            ->using(ConcursoSede::class)
             ->withPivot(['id', 'concurso_id', 'sede_id'])
             ->orderBy('sede_id');
     }
-    /* public function sedes()
-    {
-        return $this->belongsToMany(
-            Sede::class, // Modelo relacionado
-            ConcursoSede::class, // Modelo de la tabla pivot para especificar la conexión
-            'concurso_id', // Clave foránea del modelo actual (Concurso)
-            'sede_id' // Clave foránea del modelo relacionado (Sede)
-        );
-    } */
-   
 
     public function documentos()
     {

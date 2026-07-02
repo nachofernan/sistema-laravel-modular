@@ -89,14 +89,29 @@ La tabla `concurso_documento_tipo` vincula qué tipos de documentos se requieren
 
 ---
 
-## Encriptación de documentos
+## Encriptación de documentos (sobre cerrado digital)
 
-Los documentos marcados como `encriptado = true` se almacenan cifrados en el disco. Esto es para el sistema de "sobre cerrado digital": los proveedores suben su oferta encriptada, y solo se puede abrir cuando el concurso pasa a estado de análisis.
+Los documentos de oferta (`oferta_documentos`, campo `encriptado = true`) se almacenan cifrados en disco. Los proveedores suben su oferta encriptada durante el período activo; solo se pueden abrir cuando el concurso pasa a estado de análisis, operación que hace el comité de apertura.
 
-Servicios involucrados:
-- `app/Services/FileEncryptionService.php` — cifrado/descifrado de archivos.
+**Algoritmo:** AES-256-CBC. El IV (16 bytes) se escribe al inicio de cada archivo.
+
+**Clave:** variable de entorno `CONCURSO_ENCRYPTION_KEY` (valor base64 de una clave de 32 bytes). Se configura en `.env` y se accede vía `config('app.concurso_encryption_key')`.
+
+**⚠️ Backup obligatorio:** si la clave se pierde o cambia, los documentos de ofertas no abiertas son **irrecuperables para siempre**. La clave debe estar respaldada en al menos dos lugares seguros independientes del servidor.
+
+**Flujo de apertura (manual, por comité):**
+1. El concurso cierra (fecha_cierre pasa).
+2. El comité abre el panel de acciones y ve el resumen: N ofertas presentadas, N documentos a desencriptar, N documentos a eliminar.
+3. Hace clic en "Abrir Ofertas" → `AccionesConcurso::actualizarEstado(3)`.
+4. El sistema llama a `ConcursoEncryptionService::bulkDecryptOfertas()`: desencripta documentos de intencion=3, elimina documentos de intencion≠3.
+5. El concurso queda en estado "análisis" y los documentos son accesibles.
+
+Esta operación es **irreversible**.
+
+**Servicios involucrados:**
+- `app/Services/ConcursoEncryptionService.php` — encriptación/desencriptación de ofertas (AES-256-CBC, clave de .env).
+- `app/Services/FileEncryptionService.php` — encriptación general de archivos (AES-256-GCM, clave autogenerada en `storage/app/encryption_key`). Sistema independiente, no intercambiable con el anterior.
 - `app/Services/ConcursoFileService.php` — lógica de negocio para archivos de concursos.
-- `app/Services/ConcursoEncryptionService.php` — servicio de encriptación específico de concursos.
 
 ---
 
@@ -153,7 +168,5 @@ La migración `2025_07_27_000001_reestructurar_documentos_concursos.php` fue un 
 ## Puntos a mejorar
 
 - La distinción entre `ConcursoDocumento` y `Documento` (de oferta) es conceptualmente clara pero su implementación en código puede ser confusa; hay que revisar los nombres.
-- El sistema de encriptación requiere gestión de claves; si se pierde la clave de un concurso, los documentos no pueden recuperarse. No hay documentación del proceso de gestión de claves.
 - El campo `permite_carga` en el concurso y `obligatorio` en `documento_tipos` están íntimamente relacionados pero la lógica de qué hacer cuando no se puede cargar y hay tipos obligatorios no está documentada.
-- Los estados `vencido` y `cerrado` son virtuales (calculados en PHP) pero en la DB el estado no cambia automáticamente — hay que acordarse de cambiarlos manualmente o crear un job/comando que lo haga.
-- No hay proceso de apertura de sobres formal (cambio de estado a `analisis` y desencriptación de documentos) como flujo guiado en la UI.
+- Los estados `vencido` y `cerrado` son virtuales (calculados en PHP) por diseño — la transición a "análisis" es siempre manual (decisión del comité), no automática.

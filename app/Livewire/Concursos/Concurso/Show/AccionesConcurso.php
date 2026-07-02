@@ -22,9 +22,6 @@ class AccionesConcurso extends Component
 
     public function delete()
     {
-        // Se borran todos los archivos
-        // Crear el modelo del mail y el mail
-        //Mail::to(['ifernandez@ccasa.com.ar'])->send(new ConcursoAbierto($this->concurso));
         if($this->test == "clave") {
             // Cancelar todos los jobs programados antes de eliminar
             $this->cancelarEmailsProgramados();
@@ -60,10 +57,6 @@ class AccionesConcurso extends Component
         
         switch ($estado_id) {
             case '2': //Activo
-                // Si la fecha de cierre es menor a 3 días antes de ahora, no se puede activar
-                /* if($this->concurso->fecha_cierre->subDays(3) < now()) {
-                    return;
-                } */
                 $this->concurso->fecha_inicio = now();
                 $this->concurso->save();
                 
