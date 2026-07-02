@@ -46,13 +46,24 @@ class Vehiculo extends Model
         return "{$this->marca} {$this->modelo}";
     }
     
+    // Cada cuántos km se hace el service
+    const KM_INTERVALO_SERVICE = 10000;
+    // Se muestra alerta cuando el odómetro está dentro de esta ventana antes/después del múltiplo
+    const KM_VENTANA_ALERTA_ANTES = 1000;  // últimos 1000 km antes del service
+    const KM_VENTANA_ALERTA_DESPUES = 3000; // hasta 3000 km después del múltiplo
+    // Si el service anterior está a más de este valor, se ignora y se alerta igual
+    const KM_MAXIMO_DESDE_ULTIMO_SERVICE = 6000;
+
     public function getNecesitaServiceAttribute(): bool
     {
-        $resto = $this->kilometraje % 10000;
-        if ($resto >= 9000 || $resto <= 3000) { //Estamos en la ventana del service
+        $resto = $this->kilometraje % self::KM_INTERVALO_SERVICE;
+        $enVentana = $resto >= (self::KM_INTERVALO_SERVICE - self::KM_VENTANA_ALERTA_ANTES)
+                  || $resto <= self::KM_VENTANA_ALERTA_DESPUES;
+
+        if ($enVentana) {
             $ultimoService = $this->services()->orderByDesc('fecha_service')->first();
-            if(!$ultimoService || ($this->kilometraje - $ultimoService->kilometros) > 6000) {
-                return true; //Necesita service
+            if (!$ultimoService || ($this->kilometraje - $ultimoService->kilometros) > self::KM_MAXIMO_DESDE_ULTIMO_SERVICE) {
+                return true;
             }
         }
         return false;

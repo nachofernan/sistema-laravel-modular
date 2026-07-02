@@ -14,6 +14,7 @@ Route::prefix('automotores')->name('automotores.')->group(function () {
         
         Route::resource('vehiculos', VehiculoController::class)->names('vehiculos');
         Route::resource('copres', CopresController::class)->except(['edit', 'update'])->names('copres');
+        Route::get('copres/exportar', [CopresController::class, 'exportar'])->name('copres.exportar');
 
     });
     

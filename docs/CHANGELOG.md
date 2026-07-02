@@ -31,5 +31,24 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 - `app/Http/Controllers/Home/MensajeController.php` — eliminada línea comentada `Mail::to()`.
 - `app/Http/Controllers/Tickets/MensajeController.php` — eliminada línea comentada `Mail::to()`.
 
+### Inventario — limpieza y mejoras
+- `app/Http/Controllers/Inventario/ElementoController.php` — eliminado `Elemento::all()` muerto en `index()` (la tabla la renderiza Livewire). Agregada validación en `store()`.
+- `app/Exports/Inventario/ElementosExport.php` — nuevo export Excel del listado de elementos (código, categoría, estado, usuario, sede, área).
+- `routes/inventario.php` — nueva ruta `GET inventario/elementos/exportar`.
+- `resources/views/inventario/elementos/index.blade.php` — botón "Exportar Excel" en el header.
+
+### Automotores — limpieza, constantes y export
+- `app/Models/Automotores/Vehiculo.php` — números mágicos de `getNecesitaServiceAttribute()` extraídos a constantes (`KM_INTERVALO_SERVICE`, `KM_VENTANA_ALERTA_ANTES`, `KM_VENTANA_ALERTA_DESPUES`, `KM_MAXIMO_DESDE_ULTIMO_SERVICE`).
+- `app/Models/Automotores/Copres.php` — comentario en campo `kz` explicando que es el identificador de factura del sistema SAP.
+- `app/Http/Controllers/Automotores/CopresController.php` — eliminado query muerto en `index()` (la tabla la renderiza Livewire). Agregado método `exportar()`.
+- `app/Exports/Automotores/CopresExport.php` — nuevo export Excel de COPRES (fecha, vehículo, litros, precios, KM, KZ, ticket, CUIT).
+- `routes/automotores.php` — nueva ruta `GET automotores/copres/exportar`.
+- `resources/views/automotores/copres/index.blade.php` — botón "Exportar Excel" en el header.
+
+### Capacitaciones — email al invitar
+- `app/Mail/Capacitaciones/InvitacionCapacitacion.php` — nuevo mailable para notificar al usuario invitado.
+- `resources/views/emails/capacitaciones/invitacion.blade.php` — vista del mail con nombre de capacitación, fechas, modalidad y link.
+- `app/Livewire/Capacitaciones/Capacitacions/Show/Invitaciones.php` — `agregar()` ahora envía email al usuario invitado vía `EmailHelper::enviarNotificacion()`.
+
 ### AdminIP — aclaración en rutas
 - `routes/web.php` — agregado comentario explicando que las rutas del grupo `home` son las rutas de usuario de Tickets y Capacitaciones, distintas de las rutas de encargado/admin en sus propios archivos de rutas.

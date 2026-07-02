@@ -25,7 +25,7 @@ class Copres extends Model
         'importe_final',
         'es_original',
         'km_vehiculo',
-        'kz',
+        'kz',       // campo KZ de SAP (identificador interno de factura requerido por el área)
         'salida',
         'reentrada',
         'user_id_creator',

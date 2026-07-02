@@ -51,7 +51,9 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | Estado | Tarea |
 |--------|-------|
 | ⏸ | Migración: renombrar tabla `valors` → `valores` |
-| 🔲 | Exportación a Excel del listado de elementos |
+| ✅ | Limpieza: eliminar query muerto `Elemento::all()` en `index()` |
+| ✅ | Validación en `ElementoController::store()` |
+| ✅ | Exportación a Excel del listado de elementos |
 
 ---
 
@@ -59,7 +61,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
-| 🔲 | Notificaciones por email al invitar a una capacitación |
+| ✅ | Notificaciones por email al invitar a una capacitación |
 | 🔲 | Vista de resultados/estadísticas de encuestas |
 
 ---
@@ -68,9 +70,10 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
-| 🔲 | Intervalo de service configurable por vehículo (actualmente hardcodeado a 10.000 km) |
-| 🔲 | Exportación a Excel de COPRES |
-| 🔲 | Documentar/aclarar el campo `kz` en COPRES |
+| ✅ | Extraer constantes en `getNecesitaServiceAttribute()` (KM_INTERVALO_SERVICE y ventanas) |
+| ✅ | Documentar campo `kz` en `Copres` (identificador de factura SAP) |
+| ✅ | Exportación a Excel de COPRES |
+| ✅ | Limpieza: eliminar query muerto en `CopresController::index()` |
 
 ---
 

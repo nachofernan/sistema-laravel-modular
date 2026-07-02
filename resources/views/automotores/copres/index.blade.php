@@ -1,8 +1,14 @@
 <x-app-layout>
     <x-page-header title="Gestión de COPRES">
         <x-slot:actions>
+            @can('Automotores/COPRES/Ver')
+                <a href="{{ route('automotores.copres.exportar') }}"
+                   class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors">
+                    Exportar Excel
+                </a>
+            @endcan
             @can('Automotores/COPRES/Crear')
-                <a href="{{ route('automotores.copres.create') }}" 
+                <a href="{{ route('automotores.copres.create') }}"
                    class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm rounded-md transition-colors">
                     + Nueva COPRES
                 </a>

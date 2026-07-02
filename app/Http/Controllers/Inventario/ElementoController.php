@@ -11,8 +11,10 @@ use App\Models\Inventario\Modificacion;
 use App\Models\Inventario\Valor;
 use App\Models\Usuarios\Sede;
 use App\Models\User;
+use App\Exports\Inventario\ElementosExport;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ElementoController extends Controller
 {
@@ -21,7 +23,7 @@ class ElementoController extends Controller
     {
         return [
             'auth',
-            new Middleware('permission:Inventario/Elementos/Ver', only: ['index', 'show']),
+            new Middleware('permission:Inventario/Elementos/Ver', only: ['index', 'show', 'exportar']),
             new Middleware('permission:Inventario/Elementos/Editar', only: ['edit', 'update']),
             new Middleware('permission:Inventario/Elementos/Crear', only: ['create', 'store']),
         ];
@@ -32,9 +34,7 @@ class ElementoController extends Controller
      */
     public function index()
     {
-        //
-        $elementos = Elemento::all();
-        return view('inventario.elementos.index', compact('elementos')); 
+        return view('inventario.elementos.index');
     }
 
     /**
@@ -56,12 +56,21 @@ class ElementoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'categoria_id' => 'required|integer',
+            'estado_id'    => 'required|integer',
+            'nombre'       => 'nullable|string|max:255',
+            'descripcion'  => 'nullable|string',
+            'numero_serie' => 'nullable|string|max:255',
+            'user_id'      => 'nullable|integer',
+            'sede_id'      => 'nullable|integer',
+            'area_id'      => 'nullable|integer',
+        ]);
+
         $data = $request->all();
         $data['codigo'] = Elemento::createCodigo($data['categoria_id']);
         $elemento = Elemento::create($data);
         return redirect()->route('inventario.elementos.show', $elemento);
-
     }
 
     /**
@@ -118,6 +127,11 @@ class ElementoController extends Controller
             }
         }
         return redirect()->route('inventario.elementos.show', $elemento);
+    }
+
+    public function exportar()
+    {
+        return Excel::download(new ElementosExport(), 'inventario-elementos-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     /**

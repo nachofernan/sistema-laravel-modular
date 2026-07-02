@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Capacitaciones\Capacitacions\Show;
 
+use App\Helpers\EmailHelper;
+use App\Mail\Capacitaciones\InvitacionCapacitacion;
 use App\Models\Capacitaciones\Invitacion;
 use App\Models\User;
 use App\Models\Usuarios\Sede;
@@ -27,11 +29,20 @@ class Invitaciones extends Component
     {
         if(count($this->selectedUsers) > 0) {
             foreach($this->selectedUsers as $userId) {
-                Invitacion::create([
+                $invitacion = Invitacion::create([
                     'user_id' => $userId,
                     'capacitacion_id' => $this->capacitacion->id,
-                    'tipo' => 'presencial', // Por defecto presencial
+                    'tipo' => 'presencial',
                 ]);
+
+                $usuario = User::find($userId);
+                if ($usuario?->email) {
+                    EmailHelper::enviarNotificacion(
+                        [$usuario->email],
+                        new InvitacionCapacitacion($invitacion),
+                        'Invitación capacitación: ' . $this->capacitacion->nombre
+                    );
+                }
             }
             $this->search = '';
             $this->sedeId = '';

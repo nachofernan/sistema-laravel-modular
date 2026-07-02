@@ -15,6 +15,7 @@ Route::prefix('inventario')->name('inventario.')->group(function () {
     Route::group(['middleware' => ['role:Inventario/Acceso', 'PasswordExpiryCheck']], function () {
         
         Route::resource('elementos', ElementoController::class)->names('elementos');
+        Route::get('elementos/exportar', [ElementoController::class, 'exportar'])->name('elementos.exportar');
         Route::resource('categorias', CategoriaController::class)->names('categorias');
         Route::resource('users', UserController::class)->names('users');
         Route::resource('perifericos', PerifericoController::class)->names('perifericos');

@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Automotores;
 
+use App\Exports\Automotores\CopresExport;
 use App\Http\Controllers\Controller;
 use App\Models\Automotores\Copres;
 use App\Models\Automotores\Vehiculo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\View\View;
 use Illuminate\Routing\Controllers\Middleware;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CopresController extends Controller
 {
@@ -18,7 +19,7 @@ class CopresController extends Controller
     {
         return [
             'auth',
-            new Middleware('permission:Automotores/COPRES/Ver', only: ['index', 'show']),
+            new Middleware('permission:Automotores/COPRES/Ver', only: ['index', 'show', 'exportar']),
             new Middleware('permission:Automotores/COPRES/Crear', only: ['store', 'create']),
             new Middleware('permission:Automotores/COPRES/Eliminar', only: ['destroy']),
         ];
@@ -28,11 +29,12 @@ class CopresController extends Controller
      */
     public function index(): View
     {
-        $copres = Copres::with(['vehiculo', 'creator'])
-            ->orderBy('fecha', 'desc')
-            ->paginate(15);
-        
-        return view('automotores.copres.index', compact('copres'));
+        return view('automotores.copres.index');
+    }
+
+    public function exportar()
+    {
+        return Excel::download(new CopresExport(), 'copres-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     /**
