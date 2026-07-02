@@ -31,6 +31,12 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 - `app/Http/Controllers/Home/MensajeController.php` — eliminada línea comentada `Mail::to()`.
 - `app/Http/Controllers/Tickets/MensajeController.php` — eliminada línea comentada `Mail::to()`.
 
+### Proveedores — limpieza y documentación
+- `app/Http/Controllers/Proveedores/ValidacionController.php` — eliminado repair loop de `index()`. La corrección de datos se movió al comando `proveedores:reparar-validaciones`.
+- `app/Console/Commands/RepararValidacionesProveedores.php` — nuevo comando Artisan para crear registros `Validacion` faltantes. Ejecutar una vez; si devuelve cero, el loop del controller nunca estaba haciendo nada.
+- `app/Http/Controllers/Proveedores/DocumentoController.php` — eliminado `Mail::to()` comentado. Emails desactivados (`jprojeda`, `mmartin`) reformateados a una línea por dirección con comentario explícito. Eliminados `use Mail` y `use Storage` sin uso.
+- `app/Models/Proveedores/Proveedor.php` — eliminados bloques comentados (versión anterior de `falta_a_vencimiento()`, relación `documentos()` y `concursos()` obsoletas). `falta_a_vencimiento()` documentado: centinelas de retorno (-1/15/1000) y motivo del `addYear()` (overflow en servidor 32-bit con fechas > ~2038). Corregido `subDays(30)` → `copy()->subDays(30)` para evitar mutación del objeto Carbon.
+
 ### Inventario — limpieza y mejoras
 - `app/Http/Controllers/Inventario/ElementoController.php` — eliminado `Elemento::all()` muerto en `index()` (la tabla la renderiza Livewire). Agregada validación en `store()`.
 - `app/Exports/Inventario/ElementosExport.php` — nuevo export Excel del listado de elementos (código, categoría, estado, usuario, sede, área).

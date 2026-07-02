@@ -53,13 +53,6 @@ class Proveedor extends Model
         return $this->hasMany(Direccion::class);
     }
 
-    /* public function documentos()
-    {
-        //return $this->hasMany(Provdocumento::class);
-        // supliers->hasMany('documents')->select('documents.*')->join('document_types', 'document_types.id', '=', 'documents.document_type_id')->orderBy('document_types.name')->orderBy('documents.upload_date')
-        return $this->hasMany(Documento::class)->select('documentos.*')->join('documento_tipos', 'documento_tipos.id', '=', 'documentos.documento_tipo_id')->orderBy('documento_tipos.codigo')->orderBy('documentos.created_at', 'desc');
-    } */
-
     public function documentos($soloValidados = true)
     {
         if($soloValidados) {
@@ -103,59 +96,37 @@ class Proveedor extends Model
         return $this->belongsToMany(Subrubro::class)->orderBy('rubro_id');
     }
 
-    /* public function falta_a_vencimiento()
-    {
-        $ahora = \Carbon\Carbon::now();
-        $fecha = 1000;
-        $td = 0;
-        foreach ($this->documentos as $documento) {
-            if($documento->documentoTipo->vencimiento && $documento->vencimiento && $td != $documento->documentoTipo->id) {
-                $td = $documento->documentoTipo->id;
-                if($documento->vencimiento) {
-                    //$dif = $ahora->diffInDays($documento->vencimiento, false);
-					$dif = $ahora->diff($documento->vencimiento)->days;
-                    if($fecha > $dif) {
-                        $fecha = $dif;
-                    }
-                }
-            }
-        }
-        return $fecha;
-    } */
-
-	public function falta_a_vencimiento()
+    /**
+     * Retorna un valor centinela indicando el estado de vencimiento de los documentos del proveedor.
+     *   -1   → al menos un documento con vencimiento vencido
+     *   15   → al menos uno vence en los próximos 30 días
+     *   1000 → sin alertas de vencimiento
+     *
+     * El `addYear()` acota la ventana de comparación a 1 año desde hoy para evitar que Carbon
+     * desborde al operar con fechas lejanas (ej. año 2100) en el servidor de producción (32-bit).
+     */
+    public function falta_a_vencimiento()
     {
         $now = \Carbon\Carbon::now()->addYear();
-        $fecha = 1000;
         $td = 0;
         foreach ($this->documentos as $documento) {
-            if($td != $documento->documentoTipo->id) {
+            if ($td != $documento->documentoTipo->id) {
                 $td = $documento->documentoTipo->id;
-                if($documento->documentoTipo->vencimiento && $documento->vencimiento) {
-                    if($documento->vencimiento && $documento->vencimiento < $now) {
+                if ($documento->documentoTipo->vencimiento && $documento->vencimiento) {
+                    if ($documento->vencimiento < $now) {
                         $vencimiento = $documento->vencimiento;
-                        if($vencimiento->isPast()) {
+                        if ($vencimiento->isPast()) {
                             return -1;
-                        } else {
-                            $vencimiento->subDays(30);
-                            if($vencimiento->isPast()) {
-                                return 15;
-                            }
+                        }
+                        if ($vencimiento->copy()->subDays(30)->isPast()) {
+                            return 15;
                         }
                     }
                 }
             }
         }
-        return $fecha;
-    } 
-
-    /* public function concursos()
-    {
-        return $this->belongsToMany(Concurso::class, 'concursos.concurso_proveedor', 'proveedor_id', 'concurso_id')
-            ->using(ConcursoProveedor::class)
-            ->withPivot(['id'])
-            ->withTimestamps();
-    } */
+        return 1000;
+    }
 
     public function invitaciones()
     {

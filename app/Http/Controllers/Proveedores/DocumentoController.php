@@ -9,8 +9,6 @@ use App\Models\Proveedores\Documento;
 use App\Models\Proveedores\Proveedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 
 class DocumentoController extends Controller
 {
@@ -62,10 +60,13 @@ class DocumentoController extends Controller
         }
 
         $documento->validacion()->create();
-        
-        //Mail::to(['egaitero@buenosairesenergia.com.ar', 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar'])->send(new NuevoArchivoValidacion($documento->validacion));
+
         EmailHelper::enviarNotificacion(
-            ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
+            [
+                'egaitero@buenosairesenergia.com.ar',
+                // 'jprojeda@buenosairesenergia.com.ar',
+                // 'mmartin@buenosairesenergia.com.ar',
+            ],
             new NuevoArchivoValidacion($documento->validacion),
             'Nuevo archivo para validación del proveedor ' . $proveedor->razonsocial
         );

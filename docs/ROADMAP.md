@@ -90,8 +90,10 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | Estado | Tarea |
 |--------|-------|
 | ⏸ | Migración: renombrar tabla `proveedors` → `proveedores` (alto impacto, requiere backup) |
-| 🔲 | Extraer lógica de validación de documentos a un servicio |
-| 🔲 | Revisar método `falta_a_vencimiento()` — el `addYear()` parece un workaround sin documentar |
+| ✅ | Repair loop en `ValidacionController::index()` → movido a comando `proveedores:reparar-validaciones` |
+| ✅ | Limpieza de código muerto en `DocumentoController` y `Proveedor` model |
+| ✅ | Documentar `falta_a_vencimiento()` (addYear = workaround 32-bit + fechas lejanas) |
+| ❌ | Extraer lógica de validación a un servicio (descartado: lógica ya bien distribuida, sin duplicación) |
 
 ---
 

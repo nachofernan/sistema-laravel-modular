@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Proveedores;
 
 use App\Http\Controllers\Controller;
-use App\Models\Proveedores\Documento;
 use App\Models\Proveedores\Validacion;
 use Illuminate\Http\Request;
 
@@ -14,10 +13,6 @@ class ValidacionController extends Controller
      */
     public function index()
     {
-        //
-        foreach (Documento::WhereDoesntHave('validacion')->get() as $documento) {
-            $documento->validacion()->create();
-        }
         $validaciones = Validacion::where('validado', false)->where('comentarios', null)->get();
         return view('proveedores.validacions.index', compact('validaciones'));
     }
