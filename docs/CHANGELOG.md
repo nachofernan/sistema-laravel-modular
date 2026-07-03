@@ -75,3 +75,13 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 - `resources/views/components/navigation-links/adminip.blade.php` — eliminado el link a "Categorías" que estaba comentado.
 - `docs/modulos/04-ADMINIP.md` — documentado que `categoria_id` existe en `ips` (FK a `categorias`, agregada en `create_categorias_table.php`) pero no está implementado a nivel de aplicación: sin relación Eloquent, sin campo en los formularios Livewire. Aclarado que la validación de formato/unicidad de IP ya vive en los componentes Livewire (`Crear`/`Editar`), no como `FormRequest`.
 - `docs/ROADMAP.md` — agregada sección AdminIP (faltaba); ítem de validación de IP de la hoja de ruta legacy marcado como cumplido.
+
+### Concursos — limpieza de drift de esquema en tests
+- La migración `2025_07_27_000001_reestructurar_documentos_concursos.php` (jul 2025) reemplazó la tabla `documentos` por `concurso_documentos`/`oferta_documentos` y eliminó `documento_tipos.encriptado`, pero quedaron restos del modelo viejo sin limpiar.
+- `app/Models/Concursos/Documento.php` — eliminado. Apuntaba a la tabla `documentos`, que ya no existe; reemplazado por `ConcursoDocumento`/`OfertaDocumento`. No tenía otro uso en el código.
+- `database/factories/Concursos/DocumentoFactory.php` y `tests/Feature/Concursos/DocumentoTest.php` — eliminados junto con el modelo.
+- `app/Models/Concursos/DocumentoTipo.php` — eliminada la relación `documentos()`, que referenciaba la clase `Documento` ya borrada (rota desde la migración de reestructuración).
+- `database/factories/Concursos/DocumentoTipoFactory.php` — eliminado el campo `encriptado` (ya no existe en `documento_tipos`, se movió a `oferta_documentos`).
+- `database/factories/Concursos/OfertaDocumentoFactory.php` — eliminado el campo `validado` y el state `validado()` (nunca existió esa columna en `oferta_documentos`, drift del factory).
+- Resultado: suite de Concursos pasa de 10 tests rotos a solo los de `ConcursoControllerTest` relacionados con JWT (ver `docs/ROADMAP.md`, pendiente aparte).
+- Confirmado que la suite de Proveedores (16 tests) ya estaba en verde — el ROADMAP no lo reflejaba.

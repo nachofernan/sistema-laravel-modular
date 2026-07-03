@@ -14,10 +14,6 @@ class DocumentoTipo extends Model
     protected $guarded = false; // Abre todas las columnas del modelo
     protected $connection = 'concursos'; // Setea la conexión a la base de datos
 
-    public function documentos() {
-        return $this->hasMany(Documento::class); // Relación de uno a muchos con la tabla documentos (legacy)
-    }
-
     public function ofertaDocumentos() {
         return $this->hasMany(OfertaDocumento::class); // Relación con documentos de oferta
     }

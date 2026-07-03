@@ -28,7 +28,6 @@ class OfertaDocumentoFactory extends Factory
             'extension' => 'pdf',
             'file_storage' => $this->faker->word() . '.pdf',
             'user_id_created' => null, // Por defecto subido por proveedor
-            'validado' => $this->faker->boolean(80),
             'comentarios' => $this->faker->optional()->sentence(),
         ];
     }
@@ -50,16 +49,6 @@ class OfertaDocumentoFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'documento_tipo_id' => null,
-        ]);
-    }
-
-    /**
-     * Indica que el documento está validado.
-     */
-    public function validado(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'validado' => true,
         ]);
     }
 } 

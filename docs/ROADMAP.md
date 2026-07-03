@@ -14,7 +14,8 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | ✅ | Tests: infraestructura base (DatabaseTransactions multi-DB, Pest funcional) |
 | ✅ | Tests: cobertura básica de modelos — AdminIP, Usuarios, Tickets, Inventario, Documentos, Capacitaciones |
 | 🔲 | Tests: cobertura básica de modelos — Automotores, Despacho |
-| 🔲 | Tests: cobertura básica de modelos — Proveedores, Concursos |
+| ✅ | Tests: cobertura básica de modelos — Proveedores (ya existían, todos en verde) |
+| ✅ | Tests: cobertura básica de modelos — Concursos (ya existían; limpieza de drift de esquema, ver sección Concursos) |
 | 🔲 | Seeders de desarrollo: usuarios con roles, datos mínimos por módulo |
 | ✅ | Documentación: CLAUDE.md, ARQUITECTURA.md, docs/modulos/ (12 módulos) |
 
@@ -108,6 +109,8 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | ✅ | Documentar gestión de claves de encriptación (ConcursoEncryptionService + docs/modulos/12-CONCURSOS.md) |
 | ✅ | Panel de resumen previo a apertura de sobres (invitados, ofertas, docs a desencriptar/eliminar) |
 | ✅ | Limpieza de código muerto en Concurso model, ProrrogaController y AccionesConcurso |
+| ✅ | Limpieza de drift de esquema post-migración `reestructurar_documentos_concursos` (jul 2025): eliminado modelo `Documento`/factory/test viejos (tabla `documentos` ya no existe), corregidos `DocumentoTipoFactory` y `OfertaDocumentoFactory` (campos `encriptado`/`validado` que no existen en las tablas actuales) |
+| 🔲 | `ConcursoControllerTest` (API JWT) falla con 401 en vez del status esperado en 6 de 8 tests: usa `RefreshDatabase` en vez de `DatabaseTransactions` (inconsistente con el resto de la suite) y el token de `/api/generate-token` no autentica bien en el entorno de test. Requiere investigación aparte |
 
 ---
 

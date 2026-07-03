@@ -15,7 +15,6 @@ class DocumentoTipoFactory extends Factory
             'nombre' => $this->faker->word(),
             'descripcion' => $this->faker->optional()->sentence(),
             'de_concurso' => $this->faker->boolean(),
-            'encriptado' => $this->faker->boolean(),
             'tipo_documento_proveedor_id' => null,
         ];
     }
