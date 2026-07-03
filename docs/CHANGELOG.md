@@ -66,3 +66,12 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ### AdminIP — aclaración en rutas
 - `routes/web.php` — agregado comentario explicando que las rutas del grupo `home` son las rutas de usuario de Tickets y Capacitaciones, distintas de las rutas de encargado/admin en sus propios archivos de rutas.
+
+## 2026-07-03
+
+### AdminIP — limpieza y documentación
+- `app/Http/Controllers/Adminip/CategoriaController.php` — eliminado. Resource controller con los 7 métodos vacíos, sin vista asociada (`resources/views/adminip/categorias/` no existe) y sin uso real.
+- `routes/adminip.php` — eliminada la ruta `Route::resource('categorias', ...)` y el import correspondiente.
+- `resources/views/components/navigation-links/adminip.blade.php` — eliminado el link a "Categorías" que estaba comentado.
+- `docs/modulos/04-ADMINIP.md` — documentado que `categoria_id` existe en `ips` (FK a `categorias`, agregada en `create_categorias_table.php`) pero no está implementado a nivel de aplicación: sin relación Eloquent, sin campo en los formularios Livewire. Aclarado que la validación de formato/unicidad de IP ya vive en los componentes Livewire (`Crear`/`Editar`), no como `FormRequest`.
+- `docs/ROADMAP.md` — agregada sección AdminIP (faltaba); ítem de validación de IP de la hoja de ruta legacy marcado como cumplido.

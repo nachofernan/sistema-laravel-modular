@@ -6,9 +6,6 @@
                     <x-nav-link href="{{ route('adminip.ips.index') }}" :active="request()->routeIs('adminip.ips.*')">
                         IP's
                     </x-nav-link>
-                    {{-- <x-nav-link href="{{ route('categorias.index') }}" :active="request()->routeIs('categorias.*') || request()->routeIs('categorias.*')">
-                        Categorias
-                    </x-nav-link> --}}
                     @endcan
                 </div>
 

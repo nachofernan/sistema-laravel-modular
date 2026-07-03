@@ -24,7 +24,10 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
+| ✅ | Validación de formato de IP — ya existía en los componentes Livewire (`Crear`/`Editar`), no como `FormRequest`; tarea de la hoja de ruta legacy dada por cumplida |
+| ✅ | Limpieza: eliminado `CategoriaController` (resource vacío), ruta `adminip.categorias.*` y link de nav comentado — sin ninguna vista ni uso real |
 | ⏸ | Migración: índice único en campo `ip` (verificar duplicados antes de aplicar) |
+| ⏸ | `categoria_id` existe en `ips` (FK a `categorias`) pero no está implementado en la app (sin relación Eloquent, sin campo en formularios): implementar la categorización real o eliminar la columna y la tabla `categorias` |
 
 ---
 
