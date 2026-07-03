@@ -67,7 +67,7 @@ class DocumentoController extends Controller
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $documento->file_storage = $request->file('archivo')->getClientOriginalName();
+            $documento->file_storage = $request->file('archivo')->getClientOriginalName();
             $documento->archivo_uploaded_at = now();
             $documento->save();
         } else {

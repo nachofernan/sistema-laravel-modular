@@ -95,7 +95,6 @@ La migración `2025_08_26_102509_update_capacitaciones_and_invitaciones_structur
 
 ## Puntos a mejorar
 
-- No hay notificaciones automáticas al invitar a usuarios.
 - No hay diferencia entre "invitado" y "confirmó asistencia" (solo `asistio` booleano post-hecho).
 - Las encuestas son funcionales pero básicas: no hay tipos de pregunta avanzados (escala Likert, ranking).
 - No hay vista de resultados/estadísticas de encuestas.

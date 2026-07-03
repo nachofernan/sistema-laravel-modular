@@ -47,6 +47,9 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 |--------|-------|
 | 🔲 | Campo `publico` en modelo/tabla para control de acceso por campo (actualmente es por ruta) |
 | 🔲 | Versionado básico de archivos |
+| ✅ | Bug de esquema: `documentos.categoria_id` existía en la base real (NOT NULL, FK a `categorias`) pero nunca se había migrado — un entorno nuevo rompía al crear cualquier documento. Agregada migración correctiva `add_categoria_id_to_documentos_table` |
+| ✅ | Limpieza: eliminado `Home\DocumentoController` (resource vacío salvo un método que duplicaba `HomeController::documentoCategoria()`; ninguna ruta lo usaba) |
+| ✅ | Fix menor: doble asignación redundante en `DocumentoController::store()` |
 
 ---
 
@@ -67,6 +70,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 |--------|-------|
 | ✅ | Notificaciones por email al invitar a una capacitación |
 | 🔲 | Vista de resultados/estadísticas de encuestas |
+| ✅ | Limpieza: eliminado `RespuestaController` (resource 100% vacío, sin ninguna ruta registrada) |
 
 ---
 
@@ -86,7 +90,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
-| 🔲 | Documentar el proceso de carga automática de archivos PRN |
+| ✅ | Documentar el proceso de carga automática de archivos PRN — no es cron ni ruta de red: es carga manual desde el browser con autodetección del registrador por el header del archivo (Alpine.js lee los archivos como base64 y llama a Livewire) |
 | ✅ | Tests feature: Maquina, Registrador, Lectura (relación many-to-many + agregación) — con factories nuevas |
 | ✅ | Bug: `Maquina::lecturas()` (`hasManyThrough`) roto — asumía FK directa que no existe en una relación many-to-many. Eliminado (sin uso; `VisorDiario` ya arma las lecturas a mano) |
 | ✅ | Bug: `Lectura::getMaquinaAttribute()` roto — llamaba a una relación singular inexistente en `Registrador`. Eliminado (sin uso) |

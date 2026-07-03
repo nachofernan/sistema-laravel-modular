@@ -56,7 +56,12 @@ Es **many-to-many**: una máquina puede tener varios registradores (principal + 
 
 ## Procesamiento de archivos PRN
 
-El servicio `app/Services/ProcesadorPrn.php` parsea los archivos `.PRN` que generan los equipos. Cada archivo tiene columnas de datos que se mapean a registradores según `columna_datos`.
+El servicio `app/Services/ProcesadorPrn::procesar()` parsea el contenido de un archivo `.PRN`: detecta y saltea el header (línea que empieza con `time`), interpreta cada línea como fecha/hora + columnas de datos, toma la columna indicada por `registrador->columna_datos`, la multiplica por `factor_conversion` y hace upsert en `lecturas` (por `registrador_id` + `fecha` + `bloque_horario` + `hora_hasta`, así reprocesar el mismo archivo actualiza en vez de duplicar). Cada bloque horario dura 15 minutos; la hora "24:00" de fin de día se mapea al bloque 23 (23:45–00:00).
+
+Hay dos formas de cargar archivos, ambas **manuales desde el navegador** (no hay cron ni carpeta de red involucrados):
+
+- **`Despacho/CargaPrn`** (`livewire/despacho/carga-prn.blade.php`): el usuario elige el registrador de un `<select>` y sube un único archivo (`WithFileUploads`). Usa `procesar()` con el registrador ya conocido.
+- **`Despacho/CargaAutomatica`** (`livewire/despacho/carga-automatica.blade.php`): se llama "automática" porque el registrador **no se selecciona a mano** — se autodetecta leyendo el código en el header del archivo (`ProcesadorPrn::detectarCodigoRegistrador()`, segunda columna de la línea `time,...`) y se busca por `Registrador::where('codigo', ...)`. El usuario selecciona varios archivos con `<input type="file" multiple>`; un script Alpine.js (`cargaAuto`) los lee como base64 en el browser (`FileReader.readAsDataURL`) y los manda uno por uno a `procesarArchivo()` vía Livewire, mostrando una tabla de progreso por archivo. Todo el procesamiento ocurre en request/response normales de Livewire, disparados por el usuario — no hay ninguna tarea programada en `routes/console.php` para este módulo ni lectura de ruta de red/carpeta compartida.
 
 ---
 
@@ -67,8 +72,8 @@ El servicio `app/Services/ProcesadorPrn.php` parsea los archivos `.PRN` que gene
 | `Despacho/MaquinasIndex` | Listado y gestión de máquinas |
 | `Despacho/RegistradoresIndex` | Listado y gestión de registradores |
 | `Despacho/VisorDiario` | Visualización de lecturas del día |
-| `Despacho/CargaPrn` | Carga manual de archivo PRN |
-| `Despacho/CargaAutomatica` | Configuración de carga automática |
+| `Despacho/CargaPrn` | Carga manual de un archivo PRN, registrador elegido a mano |
+| `Despacho/CargaAutomatica` | Carga de varios archivos PRN a la vez, registrador autodetectado del header de cada archivo |
 
 ---
 
@@ -77,7 +82,6 @@ El servicio `app/Services/ProcesadorPrn.php` parsea los archivos `.PRN` que gene
 - El módulo es específico del negocio energético y requiere conocimiento del dominio para extenderlo. Sin documentación de los equipos físicos, es difícil de mantener.
 - No hay validación de integridad de las lecturas (detectar valores fuera de rango).
 - No hay exportación a Excel de las lecturas.
-- La "carga automática" sugiere un proceso periódico que puede depender de una ruta de red o carpeta compartida; esto no está documentado.
 
 ## Código eliminado (bugs en métodos sin uso)
 

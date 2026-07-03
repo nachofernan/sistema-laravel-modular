@@ -31,10 +31,13 @@ Gestión de documentos institucionales de BAESA (reglamentos, procedimientos, ci
 ## Documento: campos clave
 
 ```
-id, titulo, descripcion, categoria_id, user_id (quién lo subió),
-sede_id (null = visible para todas las sedes), archivo_uploaded_at,
+id, nombre, descripcion, archivo, file_storage, extension, mimeType,
+version, orden, visible, sede_id (null = visible para todas las sedes),
+user_id (quién lo subió), categoria_id, archivo_uploaded_at,
 created_at, updated_at
 ```
+
+`categoria_id` (FK a `categorias`, `onDelete cascade`) existía en la base real pero nunca había quedado versionado en una migración — corregido con `2026_07_03_120000_add_categoria_id_to_documentos_table.php`.
 
 El archivo físico se gestiona via Spatie MediaLibrary, colección `archivos`, disco `documentos`.
 
@@ -42,9 +45,10 @@ El archivo físico se gestiona via Spatie MediaLibrary, colección `archivos`, d
 
 ## Rutas públicas (sin login)
 
-La home (`/`) expone una vista de documentos públicos. Los endpoints:
-- `GET /cats/{categoria}` — documentos de una categoría (público)
-- `GET /docs/{documento}/download` — descarga con registro de log
+La home (`/`) expone una vista de documentos públicos, servida por `App\Http\Controllers\Home\HomeController` (no confundir con `Documentos\DocumentoController`, que es el CRUD del panel interno):
+- `GET /cats/{categoria}` → `HomeController::documentoCategoria()` — documentos de una categoría (público)
+- `GET /docs/{documento}` → `HomeController::documentoDownload()` — descarga directa, deprecada (construye el path a mano en vez de usar MediaLibrary)
+- `GET /docs/{documento}/download` → `HomeController::documentoDownloadWithLog()` — descarga con registro de log, vía MediaLibrary
 
 Esto permite compartir links directos a documentos sin que el receptor necesite cuenta en el sistema.
 
@@ -78,8 +82,15 @@ El modelo `Documento` implementa `HasMedia` con la colección `archivos` apuntan
 
 ---
 
+## Código eliminado
+
+`App\Http\Controllers\Home\DocumentoController` — resource controller con todos los métodos vacíos salvo `categoria_show()`, que duplicaba exactamente lo que ya hace `HomeController::documentoCategoria()`. Ninguna ruta lo referenciaba (las rutas públicas reales van a `HomeController`, ver arriba). Eliminado.
+
+---
+
 ## Puntos a mejorar
 
 - No hay versionado de documentos (si se sube una nueva versión, no queda historial del archivo anterior).
 - Las categorías son planas (sin jerarquía). Para BAESA puede ser suficiente, pero si crecen los tipos de documentos, podría ser limitante.
 - La distinción "público / solo autenticado" se maneja por ruta, no por campo en el modelo — todos los documentos son accesibles si se conoce el ID. Habría que agregar un campo `publico` si se necesita control más fino.
+- `HomeController::documentoDownload()` (ruta deprecada `GET /docs/{documento}`) arma el path del archivo a mano con `storage_path()` en vez de usar Spatie MediaLibrary como el resto del módulo — posible fuente de inconsistencias si cambia el disco/estructura de storage. No se tocó por estar marcada deprecada y podría estar en links ya compartidos.

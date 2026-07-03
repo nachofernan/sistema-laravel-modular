@@ -100,3 +100,12 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ### Documentos — fix de test flaky
 - `database/factories/Documentos/DocumentoFactory.php` — `visible` generaba `faker->boolean()` (50/50), haciendo flaky el test "un documento nuevo es visible por defecto". Cambiado a `true` fijo, acorde a lo que el test espera como comportamiento por defecto.
+
+### Fase 2 (revisión superficial) — Documentos, Capacitaciones, Despacho
+- `database/migrations/Documentos/2026_07_03_120000_add_categoria_id_to_documentos_table.php` — nueva. `documentos.categoria_id` existía en la base real (NOT NULL, FK a `categorias`, `onDelete cascade`) pero nunca había quedado versionado en ninguna migración; un entorno nuevo corriendo `migrate` desde cero rompía el módulo al crear cualquier documento. Migración marcada como ya aplicada en la tabla `migrations` de la conexión `documentos` (la columna ya existe, no hace falta re-ejecutarla).
+- `app/Http/Controllers/Home/DocumentoController.php` — eliminado. Resource controller vacío salvo `categoria_show()`, que duplicaba exactamente lo que ya hace `HomeController::documentoCategoria()`. Ninguna ruta lo referenciaba; las rutas públicas reales de documentos van a `HomeController`.
+- `app/Http/Controllers/Documentos/DocumentoController.php` — corregida doble asignación redundante (`$documento->file_storage = $documento->file_storage = ...`) en `store()`.
+- `docs/modulos/02-DOCUMENTOS.md` — corregidos campos del modelo (`titulo` no existe, es `nombre`), documentado el drift de `categoria_id`, aclarado qué controller sirve las rutas públicas.
+- `app/Http/Controllers/Capacitaciones/RespuestaController.php` — eliminado. Resource controller 100% vacío (los 7 métodos), sin ninguna ruta registrada en `routes/capacitaciones.php`.
+- `docs/modulos/06-CAPACITACIONES.md` — quitada mención desactualizada de "no hay notificaciones al invitar" (ya se implementó, ver entrada del 2026-07-02).
+- `docs/modulos/10-DESPACHO.md` — documentado en detalle el proceso de carga de archivos PRN: tanto `CargaPrn` como `CargaAutomatica` son cargas manuales disparadas desde el browser (no hay cron ni ruta de red). "Automática" se refiere a que el registrador se autodetecta del header del archivo, no a que el proceso sea periódico — corrige una suposición equivocada que traía la documentación original.
