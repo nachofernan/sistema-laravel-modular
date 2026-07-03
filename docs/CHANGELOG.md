@@ -85,3 +85,18 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 - `database/factories/Concursos/OfertaDocumentoFactory.php` — eliminado el campo `validado` y el state `validado()` (nunca existió esa columna en `oferta_documentos`, drift del factory).
 - Resultado: suite de Concursos pasa de 10 tests rotos a solo los de `ConcursoControllerTest` relacionados con JWT (ver `docs/ROADMAP.md`, pendiente aparte).
 - Confirmado que la suite de Proveedores (16 tests) ya estaba en verde — el ROADMAP no lo reflejaba.
+
+### Automotores — tests feature (Fase 0)
+- `database/factories/Automotores/{Vehiculo,Copres,Service}Factory.php` — nuevas, no existían.
+- `tests/Feature/Automotores/{VehiculoTest,CopresTest,ServiceTest}.php` — nuevos. `VehiculoTest` cubre los distintos casos de `getNecesitaServiceAttribute()` (fuera de ventana, dentro de ventana sin service previo, service reciente, service lejano).
+
+### Despacho — tests feature (Fase 0) y bugs en métodos sin uso
+- `app/Models/Despacho/{Maquina,Registrador,Lectura}.php` — agregado `HasFactory` (faltaba, impedía crear factories).
+- `database/factories/Despacho/{Maquina,Registrador,Lectura}Factory.php` — nuevas, no existían.
+- `tests/Feature/Despacho/{MaquinaTest,RegistradorTest,LecturaTest}.php` — nuevos, cubren la relación many-to-many Maquina↔Registrador y el armado manual de lecturas por máquina.
+- `app/Models/Despacho/Maquina.php` — eliminado `lecturas()` (`hasManyThrough`): asumía una FK directa `registradores.maquina_id` que no existe (la relación es many-to-many vía `maquina_registrador`), rompía en runtime. Sin uso en la app — `VisorDiario.php` ya arma las lecturas a mano.
+- `app/Models/Despacho/Lectura.php` — eliminado `getMaquinaAttribute()`: llamaba a `$this->registrador->maquina` (relación singular inexistente; `Registrador` solo define `maquinas()` plural). Sin uso.
+- `docs/modulos/10-DESPACHO.md` — documentados ambos bugs eliminados.
+
+### Documentos — fix de test flaky
+- `database/factories/Documentos/DocumentoFactory.php` — `visible` generaba `faker->boolean()` (50/50), haciendo flaky el test "un documento nuevo es visible por defecto". Cambiado a `true` fijo, acorde a lo que el test espera como comportamiento por defecto.

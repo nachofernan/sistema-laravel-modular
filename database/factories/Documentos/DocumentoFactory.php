@@ -23,7 +23,7 @@ class DocumentoFactory extends Factory
             'mimeType' => $this->faker->mimeType(),
             'version' => $this->faker->numberBetween(1, 10),
             'orden' => $this->faker->numberBetween(1, 1000),
-            'visible' => $this->faker->boolean(),
+            'visible' => true,
             'sede_id' => Sede::factory(),
             'user_id' => User::factory(),
             'categoria_id' => Categoria::factory(),

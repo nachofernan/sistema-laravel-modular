@@ -2,12 +2,14 @@
 
 namespace App\Models\Despacho;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Maquina extends Model
 {
+    use HasFactory;
+
     protected $connection = 'despacho';
     protected $table = 'maquinas';
 
@@ -25,10 +27,5 @@ class Maquina extends Model
     public function registradores(): BelongsToMany
     {
         return $this->belongsToMany(Registrador::class, 'maquina_registrador');
-    }
-
-    public function lecturas(): HasManyThrough
-    {
-        return $this->hasManyThrough(Lectura::class, Registrador::class);
     }
 }

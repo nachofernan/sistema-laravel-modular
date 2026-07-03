@@ -78,3 +78,8 @@ El servicio `app/Services/ProcesadorPrn.php` parsea los archivos `.PRN` que gene
 - No hay validación de integridad de las lecturas (detectar valores fuera de rango).
 - No hay exportación a Excel de las lecturas.
 - La "carga automática" sugiere un proceso periódico que puede depender de una ruta de red o carpeta compartida; esto no está documentado.
+
+## Código eliminado (bugs en métodos sin uso)
+
+- `Maquina::lecturas()` usaba `hasManyThrough(Lectura::class, Registrador::class)`, que asume una FK directa `registradores.maquina_id`. Pero Maquina↔Registrador es **many-to-many** (tabla pivot `maquina_registrador`), no one-to-many — `hasManyThrough` no es válido para ese caso y la query rompía en runtime. No se usaba en ningún lado: `VisorDiario.php` arma las lecturas a mano con `Lectura::whereIn('registrador_id', $registradores->pluck('id'))`. Eliminado.
+- `Lectura::getMaquinaAttribute()` llamaba a `$this->registrador->maquina` (singular), pero `Registrador` solo define `maquinas()` (plural). Tampoco tenía sentido conceptual: un registrador puede pertenecer a varias máquinas, no hay "la" máquina de una lectura. Sin uso. Eliminado.

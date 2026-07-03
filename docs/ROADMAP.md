@@ -13,7 +13,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 |--------|-------|
 | ✅ | Tests: infraestructura base (DatabaseTransactions multi-DB, Pest funcional) |
 | ✅ | Tests: cobertura básica de modelos — AdminIP, Usuarios, Tickets, Inventario, Documentos, Capacitaciones |
-| 🔲 | Tests: cobertura básica de modelos — Automotores, Despacho |
+| ✅ | Tests: cobertura básica de modelos — Automotores, Despacho |
 | ✅ | Tests: cobertura básica de modelos — Proveedores (ya existían, todos en verde) |
 | ✅ | Tests: cobertura básica de modelos — Concursos (ya existían; limpieza de drift de esquema, ver sección Concursos) |
 | 🔲 | Seeders de desarrollo: usuarios con roles, datos mínimos por módulo |
@@ -78,6 +78,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | ✅ | Documentar campo `kz` en `Copres` (identificador de factura SAP) |
 | ✅ | Exportación a Excel de COPRES |
 | ✅ | Limpieza: eliminar query muerto en `CopresController::index()` |
+| ✅ | Tests feature: Vehiculo (incluye lógica de `necesita_service`), Copres, Service — con factories nuevas |
 
 ---
 
@@ -86,6 +87,9 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | Estado | Tarea |
 |--------|-------|
 | 🔲 | Documentar el proceso de carga automática de archivos PRN |
+| ✅ | Tests feature: Maquina, Registrador, Lectura (relación many-to-many + agregación) — con factories nuevas |
+| ✅ | Bug: `Maquina::lecturas()` (`hasManyThrough`) roto — asumía FK directa que no existe en una relación many-to-many. Eliminado (sin uso; `VisorDiario` ya arma las lecturas a mano) |
+| ✅ | Bug: `Lectura::getMaquinaAttribute()` roto — llamaba a una relación singular inexistente en `Registrador`. Eliminado (sin uso) |
 
 ---
 

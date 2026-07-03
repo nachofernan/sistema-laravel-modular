@@ -1,13 +1,15 @@
 <?php
-// app/Models/Lectura.php
 
 namespace App\Models\Despacho;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Lectura extends Model
 {
+    use HasFactory;
+
     protected $connection = 'despacho';
     protected $table = 'lecturas';
 
@@ -31,11 +33,5 @@ class Lectura extends Model
     public function registrador(): BelongsTo
     {
         return $this->belongsTo(Registrador::class);
-    }
-
-    // Accessor útil para consultas
-    public function getMaquinaAttribute(): Maquina
-    {
-        return $this->registrador->maquina;
     }
 }
