@@ -82,9 +82,6 @@ class EmailQueueController extends Controller
         
         // Actualizar variable de entorno (temporalmente)
         config(['mail.automated_sending_enabled' => $nuevoEstado]);
-        
-        // Aquí podrías también actualizar el archivo .env si es necesario
-        // $this->updateEnvFile('MAIL_AUTOMATED_SENDING_ENABLED', $nuevoEstado ? 'true' : 'false');
 
         return response()->json([
             'success' => true,
@@ -160,26 +157,6 @@ class EmailQueueController extends Controller
     }
 
     /**
-     * Actualizar archivo .env (método auxiliar)
-     */
-    private function updateEnvFile($key, $value)
-    {
-        $envFile = base_path('.env');
-        $envContent = file_get_contents($envFile);
-
-        $pattern = "/^{$key}=.*/m";
-        $replacement = "{$key}={$value}";
-
-        if (preg_match($pattern, $envContent)) {
-            $envContent = preg_replace($pattern, $replacement, $envContent);
-        } else {
-            $envContent .= "\n{$replacement}";
-        }
-
-        file_put_contents($envFile, $envContent);
-    }
-
-    /**
      * Obtener estado del filtro de dominios
      */
     public function estadoFiltroDominio()
@@ -218,9 +195,6 @@ class EmailQueueController extends Controller
             }
         }
         
-        // Si necesitas persistir en .env
-        // $this->updateEnvFile('MAIL_DOMAIN_FILTER_ENABLED', $nuevoEstado ? 'true' : 'false');
-
         return response()->json([
             'success' => true,
             'message' => $nuevoEstado ? 

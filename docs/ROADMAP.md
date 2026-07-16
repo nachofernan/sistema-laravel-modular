@@ -127,6 +127,11 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | Estado | Tarea |
 |--------|-------|
 | ⏸ | Migración: consolidar campos duplicados `name`/`realname`/`nombre`/`apellido` en `users` |
+| ✅ | Limpieza: constructor comentado sin uso en `UserController` (reemplazado hace tiempo por `middleware()` estático) |
+| ✅ | Limpieza: ruta de `email-queue.index` duplicada (una comentada) y comentarios de relleno sin valor en `routes/usuarios.php` |
+| ✅ | Limpieza: eliminado `EmailQueueController::updateEnvFile()` (privado, nunca llamado — sus dos call-sites estaban comentados) |
+| 🔲 | Bug: los toggles del panel `/usuarios/email-queue` (envíos automáticos y filtro de dominio) no persisten — solo afectan el proceso PHP de esa request AJAX, ni el worker de la cola ni el próximo request los ven. Ver `docs/modulos/01-USUARIOS.md` para el detalle y una propuesta de fix (Cache o tabla de configuración en vez de `config()` en runtime) |
+| 🔲 | `destroy()`/`show()` vacíos sin implementar en `AreaController`, `SedeController`, `ModuloController`, `PermissionController`, `RoleController` (y `UserController::destroy()`, sin uso — el borrado real de usuarios vive en el componente Livewire `EliminarModal`) — nunca se implementó baja para esos recursos, no es código muerto sino feature incompleta |
 
 ---
 
