@@ -39,12 +39,60 @@
                               id="area_id"
                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                           <option value="">Sin área padre</option>
-                          @livewire('usuarios.areas.foreach-select', ['areas' => $areas, 'area_id' => $area->area_id, 'disabled' => true, 'nivel' => ''])
+                          @livewire('usuarios.areas.foreach-select', ['areas' => $areas, 'selected' => $area->area_id, 'excludeId' => $area->id, 'nivel' => ''])
                       </select>
                       @error('area_id')
                           <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                       @enderror
                       <p class="mt-1 text-xs text-gray-500">Seleccione un área padre si esta área es una sub-área</p>
+                  </div>
+
+                  <div>
+                      <label for="tipo_area_id" class="block text-sm font-medium text-gray-700 mb-2">
+                          Tipo de Área
+                      </label>
+                      <select name="tipo_area_id"
+                              id="tipo_area_id"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                          <option value="">Sin tipo</option>
+                          @foreach ($tipos as $tipo)
+                              <option value="{{ $tipo->id }}" @selected(old('tipo_area_id', $area->tipo_area_id) == $tipo->id)>{{ $tipo->nombre }}</option>
+                          @endforeach
+                      </select>
+                      @error('tipo_area_id')
+                          <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                      @enderror
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                      <div>
+                          <label for="orden" class="block text-sm font-medium text-gray-700 mb-2">
+                              Orden
+                          </label>
+                          <input type="number"
+                                 name="orden"
+                                 id="orden"
+                                 min="0"
+                                 value="{{ old('orden', $area->orden) }}"
+                                 class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                          @error('orden')
+                              <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                          @enderror
+                          <p class="mt-1 text-xs text-gray-500">Orden entre áreas hermanas (menor primero).</p>
+                      </div>
+
+                      <div class="flex items-center pt-8">
+                          <input type="hidden" name="activa" value="0">
+                          <input type="checkbox"
+                                 name="activa"
+                                 id="activa"
+                                 value="1"
+                                 @checked(old('activa', $area->activa))
+                                 class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                          <label for="activa" class="ml-2 block text-sm text-gray-700">
+                              Área activa
+                          </label>
+                      </div>
                   </div>
               </div>
 
@@ -72,6 +120,11 @@
                   </button>
               </div>
           </form>
+      </div>
+
+      <!-- Personal del área (gestión en vivo) -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+          @livewire('usuarios.areas.miembros', ['area' => $area])
       </div>
   </div>
 </x-app-layout>

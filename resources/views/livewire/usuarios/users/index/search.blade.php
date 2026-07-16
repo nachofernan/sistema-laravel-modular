@@ -4,8 +4,14 @@
     <!-- Header con título y acciones -->
     <x-page-header title="Listado de Usuarios">
         <x-slot:actions>
+            @can('Usuarios/Usuarios/Editar')
+                <a href="{{ route('usuarios.cargos.index') }}"
+                   class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
+                    Cargos
+                </a>
+            @endcan
             @can('Usuarios/Usuarios/Crear')
-                <a href="{{ route('usuarios.users.create') }}" 
+                <a href="{{ route('usuarios.users.create') }}"
                    class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-colors">
                     + Nuevo Usuario
                 </a>

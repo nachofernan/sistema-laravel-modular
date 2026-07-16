@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Usuarios;
 
 use App\Models\Usuarios\Area;
+use App\Models\Usuarios\Cargo;
 use App\Models\Usuarios\PasswordSecurity;
 use App\Models\Usuarios\Sede;
 use App\Models\Usuarios\Role;
@@ -27,15 +28,6 @@ class UserController extends Controller
         ];
     }
 
-   /*  public function __construct()
-    {
-        $this->middleware('auth');
-        $this->middleware(['permission:Usuarios/Usuarios/Ver'])->only(['index', 'show']);
-        $this->middleware(['permission:Usuarios/Usuarios/Editar'])->only('edit', 'update');
-        $this->middleware(['permission:Usuarios/Usuarios/Crear'])->only('create', 'store');
-        $this->middleware(['permission:Usuarios/Usuarios/Eliminar'])->only('trashed');
-    } */
-
     /**
      * Display a listing of the resource.
      */
@@ -54,8 +46,9 @@ class UserController extends Controller
         //
         $areas = Area::whereNull('area_id')->get();
         $sedes = Sede::all();
+        $cargos = Cargo::orderBy('orden')->orderBy('nombre')->get();
         $modulos = Modulo::where('estado', '!=', 'inactivo')->orderBy('nombre')->get();
-        return view('usuarios.users.create', compact('areas', 'sedes', 'modulos'));
+        return view('usuarios.users.create', compact('areas', 'sedes', 'cargos', 'modulos'));
     }
 
     /**
@@ -108,8 +101,9 @@ class UserController extends Controller
         $user = User::find($id);
         $areas = Area::whereNull('area_id')->get();
         $sedes = Sede::all();
+        $cargos = Cargo::orderBy('orden')->orderBy('nombre')->get();
         $modulos = Modulo::where('estado', '!=', 'inactivo')->orderBy('nombre')->get();
-        return view('usuarios.users.edit', compact('user', 'areas', 'sedes', 'modulos'));
+        return view('usuarios.users.edit', compact('user', 'areas', 'sedes', 'cargos', 'modulos'));
     }
 
     /**

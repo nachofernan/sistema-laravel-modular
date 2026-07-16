@@ -9,6 +9,24 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-07-16
+
+### Usuarios — Organigrama (áreas tipificadas, responsables y cargos)
+Las áreas eran un árbol plano (solo `nombre` + `area_id`). Se las dotó de semántica de organigrama sin romper la recursión existente.
+
+- **Migración** `2026_07_16_090000_create_organigrama_structure` — catálogos `tipos_area` y `cargos`; `areas` suma `tipo_area_id`, `responsable_id`, `orden`, `activa`; `users` suma `cargo_id`. Se eliminó `users.puesto` (string libre nunca usado, no era `fillable`); su rol lo cubre `cargo_id`.
+- **Modelos** — `TipoArea` y `Cargo` (catálogos). `Area`: relaciones `tipo()`/`responsable()`, `hijos()` ordenado por `orden`, y `descendantIds()` (evita ciclos padre↔descendiente). `User`: relación `cargo()` y accessor `nombreCompleto` (prioriza `realname`).
+- **ABM de áreas** — `AreaController` con validación real (antes `$request->all()` pelado) y guarda anti-ciclos en `update`. Alta con tipo; edición con tipo/orden/activa. Catálogos `TipoAreaController` y `CargoController` (ABM inline, reutilizan permisos existentes).
+- **Personal del área** — componente Livewire `Areas/Miembros`: lista/agrega (modal con buscador)/quita personal y define el responsable en vivo (solo miembros del área, validado server-side). El cargo se elige en el ABM de usuario.
+- **Listado de áreas** — `ForeachTableTr` rehecho como árbol tipo explorador de archivos (indentación, íconos de carpeta, líneas guía `├`/`└`), con badges de tipo/estado y responsable. Reemplaza el prefijo `— —`.
+- **Fix** — `ForeachSelect` (select de área padre): el `disabled` marcaba mal la opción del padre actual (salía deshabilitada y sin seleccionar). Rediseñado con `selected` + `excludeId`: preselecciona el padre y deshabilita el área editada y su subárbol.
+
+### Tests y documentación
+- `tests/Feature/Usuarios/` — nuevos `TipoAreaTest`, `CargoTest`, `AreaMiembrosTest` (componente Livewire); ampliados `AreaTest` (tipo, responsable, orden, `descendantIds`, activa) y `UsuarioTest` (cargo, `nombreCompleto`). Factories `TipoAreaFactory` y `CargoFactory`. Suite del módulo: 29 tests verde.
+- `docs/modulos/01-USUARIOS.md` — sección de organigrama, tabla de modelos y componentes Livewire actualizadas, nota sobre la baja de `puesto`.
+
+---
+
 ## 2026-07-02
 
 ### Documentación inicial del proyecto
@@ -109,3 +127,13 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 - `app/Http/Controllers/Capacitaciones/RespuestaController.php` — eliminado. Resource controller 100% vacío (los 7 métodos), sin ninguna ruta registrada en `routes/capacitaciones.php`.
 - `docs/modulos/06-CAPACITACIONES.md` — quitada mención desactualizada de "no hay notificaciones al invitar" (ya se implementó, ver entrada del 2026-07-02).
 - `docs/modulos/10-DESPACHO.md` — documentado en detalle el proceso de carga de archivos PRN: tanto `CargaPrn` como `CargaAutomatica` son cargas manuales disparadas desde el browser (no hay cron ni ruta de red). "Automática" se refiere a que el registrador se autodetecta del header del archivo, no a que el proceso sea periódico — corrige una suposición equivocada que traía la documentación original.
+
+## 2026-07-07
+
+### Usuarios — limpieza y bug documentado en el panel de emails
+- `app/Http/Controllers/Usuarios/UserController.php` — eliminado constructor comentado (`__construct` viejo con `$this->middleware(...)`), reemplazado hace tiempo por el método `middleware()` estático que ya está activo.
+- `routes/usuarios.php` — eliminada ruta `email-queue.index` duplicada (una copia estaba comentada justo arriba de la activa) y comentarios de relleno sin información real ("Rutas existentes...", comentario desprolijo sobre organización de rutas).
+- `app/Http/Controllers/Usuarios/EmailQueueController.php` — eliminado `updateEnvFile()`, método privado que nunca se llamaba (sus dos únicos call-sites estaban comentados desde el principio).
+- Investigado y documentado un bug real: los toggles "Habilitar/deshabilitar envíos" y "Filtro de dominio" del panel `/usuarios/email-queue` hacen `config([...])` en tiempo de ejecución, lo que solo afecta el proceso PHP de esa request AJAX puntual. Ni el worker de la cola (disparado manualmente desde el mismo panel, no hay scheduler corriendo `queue:work` en background) ni el siguiente request ven el cambio — vuelven a leer la config real desde `.env`. El botón no hace nada persistente. Documentado en `docs/modulos/01-USUARIOS.md` con propuesta de fix (no implementado: requiere reemplazar `config()` runtime por `Cache` o una tabla de configuración).
+- `docs/modulos/01-USUARIOS.md` — documentados además los `destroy()`/`show()` vacíos sin implementar en `Area`/`Sede`/`Modulo`/`Permission`/`RoleController` (feature incompleta, no código muerto: nunca se dio de baja esos recursos desde la UI).
+- `docs/ROADMAP.md` — nueva sección de tareas de Usuarios con lo de arriba.

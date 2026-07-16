@@ -11,6 +11,7 @@ use App\Models\Inventario\Elemento;
 use App\Models\Inventario\Entrega;
 use App\Models\Tickets\Ticket;
 use App\Models\Usuarios\Area;
+use App\Models\Usuarios\Cargo;
 use App\Models\Usuarios\Log;
 use App\Models\Usuarios\PasswordSecurity;
 use App\Models\Usuarios\Sede;
@@ -58,6 +59,7 @@ class User extends Authenticatable
         'visible',
         'area_id',
         'sede_id',
+        'cargo_id',
         'password',
     ];
 
@@ -128,6 +130,24 @@ class User extends Authenticatable
     public function sede()
     {
         return $this->belongsTo(Sede::class);
+    }
+
+    public function cargo()
+    {
+        return $this->belongsTo(Cargo::class);
+    }
+
+    public function getNombreCompletoAttribute()
+    {
+        // realname es el nombre real; name se usa como username interno, así que
+        // queda como último recurso cuando no hay nada mejor cargado.
+        if (filled($this->realname)) {
+            return $this->realname;
+        }
+
+        $completo = trim(($this->apellido ? $this->apellido . ', ' : '') . $this->nombre);
+
+        return $completo !== '' ? $completo : $this->name;
     }
 
     public function logs()

@@ -1,8 +1,14 @@
 <x-app-layout>
     <x-page-header title="Listado de Áreas">
         <x-slot:actions>
+            @can('Usuarios/Areas/Editar')
+                <a href="{{ route('usuarios.tipos-area.index') }}"
+                   class="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-md transition-colors">
+                    Tipos de Área
+                </a>
+            @endcan
             @can('Usuarios/Areas/Crear')
-                <a href="{{ route('usuarios.areas.create') }}" 
+                <a href="{{ route('usuarios.areas.create') }}"
                    class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-colors">
                     + Nueva Área
                 </a>
@@ -33,7 +39,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @livewire('usuarios.areas.foreach-table-tr', ['areas' => $areas, 'nivel' => ''])
+                        @livewire('usuarios.areas.foreach-table-tr', ['areas' => $areas])
                     </tbody>
                 </table>
             </div>

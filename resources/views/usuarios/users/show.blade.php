@@ -67,14 +67,6 @@
                                         {{ $user->legajo }}
                                     </div>
 
-                                    @if($user->puesto)
-                                    <div class="atributo-show">
-                                        Puesto
-                                    </div>
-                                    <div class="valor-show">
-                                        {{ $user->puesto }}
-                                    </div>
-                                    @endif
 
                                     @if($user->cumpleanos)
                                     <div class="atributo-show">
@@ -177,6 +169,15 @@
                                     </div>
                                     <div class="valor-show">
                                         {{ $user->area->nombre }}
+                                    </div>
+                                    @endif
+
+                                    @if($user->cargo)
+                                    <div class="atributo-show">
+                                        Cargo
+                                    </div>
+                                    <div class="valor-show">
+                                        {{ $user->cargo->nombre }}
                                     </div>
                                     @endif
                                 </div>

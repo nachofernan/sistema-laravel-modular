@@ -155,22 +155,6 @@
                                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                         @enderror
                                     </div>
-
-                                    <!-- Puesto -->
-                                    <div>
-                                        <label for="puesto" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Puesto
-                                        </label>
-                                        <input type="text" 
-                                               id="puesto"
-                                               name="puesto" 
-                                               value="{{ old('puesto') }}" 
-                                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('puesto') border-red-300 @enderror" 
-                                               placeholder="Cargo o Puesto">
-                                        @error('puesto')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
                                 </div>
 
                                 <!-- Interno -->
@@ -219,9 +203,27 @@
                                             name="area_id" 
                                             class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('area_id') border-red-300 @enderror">
                                         <option value="">Seleccionar área...</option>
-                                        @livewire('usuarios.areas.foreach-select', ['areas' => $areas, 'area_id' => old('area_id', 0), 'disabled' => false, 'nivel' => ''])
+                                        @livewire('usuarios.areas.foreach-select', ['areas' => $areas, 'selected' => old('area_id', 0), 'nivel' => ''])
                                     </select>
                                     @error('area_id')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Cargo -->
+                                <div>
+                                    <label for="cargo_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Cargo
+                                    </label>
+                                    <select id="cargo_id"
+                                            name="cargo_id"
+                                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('cargo_id') border-red-300 @enderror">
+                                        <option value="">Sin cargo</option>
+                                        @foreach ($cargos as $cargo)
+                                            <option value="{{ $cargo->id }}" @selected(old('cargo_id') == $cargo->id)>{{ $cargo->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('cargo_id')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>

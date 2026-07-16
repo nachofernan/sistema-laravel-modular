@@ -28,6 +28,24 @@
                           <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                       @enderror
                   </div>
+
+                  <div>
+                      <label for="tipo_area_id" class="block text-sm font-medium text-gray-700 mb-2">
+                          Tipo de Área
+                      </label>
+                      <select name="tipo_area_id"
+                              id="tipo_area_id"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                          <option value="">Sin tipo</option>
+                          @foreach ($tipos as $tipo)
+                              <option value="{{ $tipo->id }}" @selected(old('tipo_area_id') == $tipo->id)>{{ $tipo->nombre }}</option>
+                          @endforeach
+                      </select>
+                      @error('tipo_area_id')
+                          <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                      @enderror
+                      <p class="mt-1 text-xs text-gray-500">Podés definir el responsable y otros datos después de crear el área.</p>
+                  </div>
               </div>
 
               <!-- Botones de acción -->
