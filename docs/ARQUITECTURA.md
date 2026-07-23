@@ -139,7 +139,7 @@ Existe un portal externo donde los proveedores pueden ver sus concursos, declara
 - Token se genera con CUIT + email del proveedor (válido 10 minutos).
 - Middleware `verify.jwt` valida el token en cada request.
 - Rutas en `routes/api.php`.
-- Ver `docs/ESPECIFICACIONES_TECNICAS_CONCURSOS.md` para detalle completo.
+- Ver `docs/api/ESPECIFICACIONES_TECNICAS_CONCURSOS.md` para detalle completo.
 
 ---
 

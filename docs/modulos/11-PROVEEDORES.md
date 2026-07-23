@@ -103,7 +103,7 @@ Rubro (ej: "Construcción")
 
 ## Portal externo (ProveedorExterno)
 
-El modelo `ProveedorExterno` vincula un proveedor con credenciales para acceder al portal externo (autenticación por CUIT/username). Ver documentación de la API en `docs/ESPECIFICACIONES_TECNICAS_CONCURSOS.md` y `docs/API_OVERVIEW.md`.
+El modelo `ProveedorExterno` vincula un proveedor con credenciales para acceder al portal externo (autenticación por CUIT/username). Ver documentación de la API en `docs/api/ESPECIFICACIONES_TECNICAS_CONCURSOS.md` y `docs/api/API_OVERVIEW.md`.
 
 ---
 

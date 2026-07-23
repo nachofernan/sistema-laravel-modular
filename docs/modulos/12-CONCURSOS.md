@@ -137,7 +137,7 @@ Esta operación es **irreversible**.
 
 ## API REST para el portal externo
 
-Ver `docs/ESPECIFICACIONES_TECNICAS_CONCURSOS.md` para detalle completo. Resumen:
+Ver `docs/api/ESPECIFICACIONES_TECNICAS_CONCURSOS.md` para detalle completo. Resumen:
 
 - Auth: JWT con CUIT + email del proveedor (token 10 min).
 - `GET /api/concursos` — concursos del proveedor.

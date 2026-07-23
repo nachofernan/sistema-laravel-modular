@@ -1,7 +1,7 @@
 # Roadmap
 
 Tareas pendientes y realizadas desde Julio 2026. Las tareas anteriores a esta fecha
-están en `docs/HOJA_DE_RUTA.md` (legacy).
+están en `docs/archivo/HOJA_DE_RUTA.md` (legacy).
 
 Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartado
 
