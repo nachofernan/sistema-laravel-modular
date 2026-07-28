@@ -30,23 +30,58 @@
                   </div>
 
                   <div>
-                      <label for="categoria_id" class="block text-sm font-medium text-gray-700 mb-2">
+                      <label for="categoria_padre_id" class="block text-sm font-medium text-gray-700 mb-2">
                           Categoría Padre
                       </label>
-                      <select name="categoria_id" 
-                              id="categoria_id"
+                      <select name="categoria_padre_id"
+                              id="categoria_padre_id"
                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                           <option value="">Es categoría principal</option>
                           @foreach ($categorias as $categoria)
-                              <option value="{{ $categoria->id }}">{{ $categoria->nombre }}</option>
+                              <option value="{{ $categoria->id }}" {{ old('categoria_padre_id') == $categoria->id ? 'selected' : '' }}>
+                                  {{ $categoria->nombre }}
+                              </option>
                           @endforeach
                       </select>
-                      @error('categoria_id')
+                      @error('categoria_padre_id')
                           <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                       @enderror
                       <p class="mt-1 text-xs text-gray-500">
-                          Seleccione una categoría padre si desea crear una subcategoría. Deje en blanco para crear una categoría principal.
+                          Seleccione una categoría padre si desea crear una subcategoría. Deje en blanco para crear una categoría principal. Los documentos se cuelgan de las subcategorías.
                       </p>
+                  </div>
+
+                  <div>
+                      <label for="orden" class="block text-sm font-medium text-gray-700 mb-2">
+                          Orden
+                      </label>
+                      <input type="number"
+                             name="orden"
+                             id="orden"
+                             min="0"
+                             value="{{ old('orden', 0) }}"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                      @error('orden')
+                          <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                      @enderror
+                      <p class="mt-1 text-xs text-gray-500">
+                          Define la posición en el menú. Menor número, más arriba.
+                      </p>
+                  </div>
+
+                  <div class="flex items-start">
+                      <input type="checkbox"
+                             name="publica"
+                             id="publica"
+                             value="1"
+                             {{ old('publica') ? 'checked' : '' }}
+                             class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                      <label for="publica" class="ml-2 text-sm text-gray-700">
+                          Visible sin iniciar sesión
+                          <span class="block text-xs text-gray-500">
+                              Las categorías principales marcadas así aparecen en el menú del portal público.
+                          </span>
+                      </label>
                   </div>
               </div>
 

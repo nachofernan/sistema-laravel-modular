@@ -5,7 +5,7 @@
                     <x-nav-link href="{{ route('home') }}" :active="request()->routeIs('home')">
                         {{ __('Buscador') }}
                     </x-nav-link>
-                    @foreach (App\Models\Documentos\Categoria::whereNull('categoria_padre_id')->get() as $categoria)
+                    @foreach ($categoriasPublicas as $categoria)
 
                     <x-nav-link href="{{ route('home.documentos.categoria', $categoria) }}" :active="url()->current() == route('home.documentos.categoria', ['categoria' => $categoria])">
                         {{ $categoria->nombre }}

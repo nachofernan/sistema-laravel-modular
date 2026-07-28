@@ -7,9 +7,9 @@ use App\Http\Controllers\Home\EncuestaController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Home\MensajeController;
 use App\Http\Controllers\Home\TicketController;
+use App\Models\User;
 use App\Models\Usuarios\Modulo;
 use App\Models\Usuarios\Role;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -18,16 +18,16 @@ use Livewire\Livewire;
 $prefix = env('LIVEWIRE_URL_PREFIX', 'plataforma');
 
 Livewire::setUpdateRoute(function ($handle) use ($prefix) {
-    return Route::post($prefix . '/livewire/update', $handle);
+    return Route::post($prefix.'/livewire/update', $handle);
 });
 
 Livewire::setScriptRoute(function ($handle) use ($prefix) {
-    return Route::get($prefix . '/livewire/livewire.js', $handle);
+    return Route::get($prefix.'/livewire/livewire.js', $handle);
 });
 
 Route::get('/refresh-csrf', function () {
     return response()->json([
-        'token' => csrf_token()
+        'token' => csrf_token(),
     ]);
 })->middleware('web');
 
@@ -36,8 +36,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Descarga de documentación pública
 Route::get('/cats/{categoria}', [HomeController::class, 'documentoCategoria'])->name('home.documentos.categoria');
-Route::get('/docs/{documento}', [HomeController::class, 'documentoDownload'])->name('home.documentos.download'); // Deprecated
-Route::get('/docs/{documento}/download', [HomeController::class, 'documentoDownloadWithLog'])->name('home.documentos.download-with-log');
+Route::get('/docs/{documento}/download', [HomeController::class, 'documentoDownload'])->name('home.documentos.download');
+// Forma vieja del link, que puede estar circulando fuera del sistema. Sirve el mismo
+// archivo por el mismo camino: antes armaba el path a mano y no registraba la descarga.
+Route::get('/docs/{documento}', [HomeController::class, 'documentoDownload'])->name('home.documentos.download-legacy');
 
 /* Route::get('/crearSuper', function() {
     //$role = Role::create(['name' => 'Super Admin']);
@@ -46,7 +48,7 @@ Route::get('/docs/{documento}/download', [HomeController::class, 'documentoDownl
     dd(Role::all());
     //$user = User::find(1);
     //$user->assignRole('Super Admin');
-    //dd($user->getRoleNames()); 
+    //dd($user->getRoleNames());
 }); */
 
 // Rutas del área personal del usuario (home). Incluye las rutas de usuario de Tickets y Capacitaciones;
@@ -65,7 +67,7 @@ Route::middleware(['auth', 'PasswordExpiryCheck'])->prefix('home')->name('home.'
 
 // Aplica el middleware auth globalmente a todas las rutas de los módulos
 Route::middleware(['auth', 'PasswordExpiryCheck'])->group(function () {
-    /*  
+    /*
     // Incluir rutas de cada módulo
     require base_path('routes/usuarios.php');
     require base_path('routes/tickets.php');
@@ -73,7 +75,7 @@ Route::middleware(['auth', 'PasswordExpiryCheck'])->group(function () {
     require base_path('routes/documentos.php');
     require base_path('routes/adminip.php');
     require base_path('routes/capacitaciones.php');
-    require base_path('routes/proveedores.php'); 
+    require base_path('routes/proveedores.php');
     */
     foreach (Modulo::where('estado', '!=', 'inactivo')->get() as $modulo) {
         $moduloLower = strtolower($modulo->nombre);
@@ -81,7 +83,7 @@ Route::middleware(['auth', 'PasswordExpiryCheck'])->group(function () {
             require base_path("routes/{$moduloLower}.php");
         }
     }
-    
+
     // Ruta para TitoBot
     Route::get('/titobot', [ChatController::class, 'titobot'])->name('titobot');
 });
@@ -102,11 +104,8 @@ Route::post('/reset-password', [PasswordResetController::class, 'reset'])
     ->middleware('guest')
     ->name('password.update');
 
-
 Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 Route::post('/chat/clear', [ChatController::class, 'clearHistory'])->name('chat.clear');
-
-
 
 // Rutas complementarias para distintas cosas
 
@@ -120,25 +119,25 @@ Route::get('/assign-bulk-role', function () {
         $user->assignRole($role);
     }
 
-    return "Éxito: Se asignó el rol '{$role->name}' a " . $users->count() . " usuarios sin afectar sus permisos previos.";
+    return "Éxito: Se asignó el rol '{$role->name}' a ".$users->count().' usuarios sin afectar sus permisos previos.';
 });
 
-Route::get('/test/tickets-2025', function() {
+Route::get('/test/tickets-2025', function () {
     $tickets = \App\Models\Tickets\Ticket::with(['user', 'encargado', 'estado', 'categoria'])
         ->whereYear('created_at', 2025)
         ->orderBy('created_at', 'asc')
         ->get();
-    
+
     return view('test-tickets-2025', compact('tickets'));
 });
 
-Route::get('/test/rubprov', function() {
+Route::get('/test/rubprov', function () {
     $rubros = \App\Models\Proveedores\Rubro::with(['subrubros.proveedores'])->get();
-    
+
     return view('rubprov', compact('rubros'));
 });
-Route::get('/test/prov', function() {
+Route::get('/test/prov', function () {
     $proveedores = \App\Models\Proveedores\Proveedor::all();
-    
+
     return view('prov', compact('proveedores'));
 });

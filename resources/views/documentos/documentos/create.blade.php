@@ -36,12 +36,31 @@
                         </div>
 
                         <div>
+                            <label for="codigo" class="block text-sm font-medium text-gray-700 mb-2">
+                                Código
+                            </label>
+                            <input type="text"
+                                   name="codigo"
+                                   id="codigo"
+                                   value="{{ old('codigo') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                   placeholder="Ej: L-07.2-003_v3">
+                            @error('codigo')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">
+                                Codificación de Control de Gestión, tal como figura en el documento.
+                            </p>
+                        </div>
+
+                        <div>
                             <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
                                 Descripción
                             </label>
-                            <input type="text" 
-                                   name="descripcion" 
+                            <input type="text"
+                                   name="descripcion"
                                    id="descripcion"
+                                   value="{{ old('descripcion') }}"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                    placeholder="Descripción del documento">
                             @error('descripcion')
@@ -50,15 +69,15 @@
                         </div>
 
                         <div>
-                            <label for="version" class="block text-sm font-medium text-gray-700 mb-2">
-                                Versión
+                            <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
+                                Observaciones
                             </label>
-                            <input type="text" 
-                                   name="version" 
-                                   id="version"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                   placeholder="Ej: 1.0, v2.1, etc.">
-                            @error('version')
+                            <textarea name="observaciones"
+                                      id="observaciones"
+                                      rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                      placeholder="Notas internas sobre el documento">{{ old('observaciones') }}</textarea>
+                            @error('observaciones')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -76,7 +95,7 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                             <p class="mt-1 text-xs text-gray-500">
-                                Seleccione el archivo del documento para subir al sistema.
+                                Hasta 50 MB. Formatos permitidos: PDF, Word, Excel, PowerPoint, texto, imágenes y MP4.
                             </p>
                         </div>
                     </div>
@@ -108,23 +127,55 @@
                         </div>
 
                         <div>
-                            <label for="sede_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Sede
+                            <label for="orden" class="block text-sm font-medium text-gray-700 mb-2">
+                                Orden
                             </label>
-                            <select name="sede_id" 
-                                    id="sede_id"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="">Todas las sedes</option>
-                                @foreach ($sedes as $sede)
-                                    <option value="{{ $sede->id }}">{{ $sede->nombre }}</option>
-                                @endforeach
-                            </select>
-                            @error('sede_id')
+                            <input type="number"
+                                   name="orden"
+                                   id="orden"
+                                   min="0"
+                                   value="{{ old('orden', 1000) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            @error('orden')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                             <p class="mt-1 text-xs text-gray-500">
-                                Deje en blanco para que esté disponible en todas las sedes.
+                                Posición dentro de la categoría. Menor número, más arriba.
                             </p>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4 space-y-3">
+                            <h4 class="text-sm font-medium text-gray-900">Visibilidad</h4>
+
+                            <div class="flex items-start">
+                                <input type="checkbox"
+                                       name="visible"
+                                       id="visible"
+                                       value="1"
+                                       {{ old('visible', true) ? 'checked' : '' }}
+                                       class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="visible" class="ml-2 text-sm text-gray-700">
+                                    Activo
+                                    <span class="block text-xs text-gray-500">
+                                        Si se desmarca, el documento queda dado de baja sin borrarse.
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="flex items-start">
+                                <input type="checkbox"
+                                       name="publico"
+                                       id="publico"
+                                       value="1"
+                                       {{ old('publico') ? 'checked' : '' }}
+                                       class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="publico" class="ml-2 text-sm text-gray-700">
+                                    Publicar sin iniciar sesión
+                                    <span class="block text-xs text-gray-500">
+                                        Queda descargable desde el portal público, siempre que su categoría también lo esté.
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>

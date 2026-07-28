@@ -119,7 +119,7 @@ $visibleModules = $sidebarService->getVisibleModules();
                 Buscador
             </a>
             
-            @foreach (App\Models\Documentos\Categoria::whereNull('categoria_padre_id')->get() as $categoria)
+            @foreach ($categoriasPublicas as $categoria)
             <a href="{{ route('home.documentos.categoria', $categoria) }}" 
                class="block px-3 py-1.5 text-sm transition-colors {{ url()->current() == route('home.documentos.categoria', ['categoria' => $categoria]) ? 'text-blue-600 font-semibold bg-blue-50/50 border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">
                 {{ $categoria->nombre }}

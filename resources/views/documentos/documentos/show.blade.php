@@ -31,38 +31,53 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">Código:</div>
+                        <div class="col-span-2 text-sm text-gray-900">
+                            @if($documento->codigo)
+                                <span class="font-mono text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-800">
+                                    {{ $documento->codigo }}
+                                </span>
+                            @else
+                                <span class="text-gray-400">Sin código</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
                         <div class="text-sm font-medium text-gray-500">Descripción:</div>
                         <div class="col-span-2 text-sm text-gray-900">{{ $documento->descripcion ?: 'Sin descripción' }}</div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
-                        <div class="text-sm font-medium text-gray-500">Versión:</div>
-                        <div class="col-span-2 text-sm text-gray-900">
-                            @if($documento->version)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $documento->version }}
-                                </span>
-                            @else
-                                <span class="text-gray-400">Sin versión</span>
-                            @endif
-                        </div>
+                        <div class="text-sm font-medium text-gray-500">Observaciones:</div>
+                        <div class="col-span-2 text-sm text-gray-900 whitespace-pre-line">{{ $documento->observaciones ?: 'Sin observaciones' }}</div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
                         <div class="text-sm font-medium text-gray-500">Categoría:</div>
                         <div class="col-span-2 text-sm text-gray-900">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                {{ $documento->categoria->nombre }}
+                                {{ $documento->categoria->padre?->nombre }} → {{ $documento->categoria->nombre }}
                             </span>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
-                        <div class="text-sm font-medium text-gray-500">Sede:</div>
+                        <div class="text-sm font-medium text-gray-500">Portal público:</div>
                         <div class="col-span-2 text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                {{ $documento->sede->nombre ?? 'Todas las sedes' }}
-                            </span>
+                            @if($documento->esPublico())
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Descargable sin iniciar sesión
+                                </span>
+                            @elseif($documento->publico)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Marcado público, pero su categoría no lo es
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                    Sólo interno
+                                </span>
+                            @endif
                         </div>
                     </div>
 
@@ -109,7 +124,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-blue-900">Total de Descargas</p>
-                                <p class="text-2xl font-bold text-blue-600">{{ count($documento->descargas) }}</p>
+                                <p class="text-2xl font-bold text-blue-600">{{ $documento->descargas_count }}</p>
                             </div>
                             <div class="text-blue-400">
                                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,8 +149,8 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div class="text-sm font-medium text-gray-500">Archivo:</div>
                         <div class="col-span-2 text-sm text-gray-900">
-                            <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
-                               target="_blank" 
+                            <a href="{{ route('documentos.documentos.download', $documento) }}"
+                               target="_blank"
                                class="text-blue-600 hover:text-blue-800 underline font-medium">
                                 {{ $documento->archivo }}
                             </a>
@@ -154,7 +169,7 @@
 
                 <!-- Botón de descarga prominente -->
                 <div class="mt-6 pt-4 border-t border-gray-200">
-                    <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
+                    <a href="{{ route('documentos.documentos.download', $documento) }}"
                        target="_blank"
                        class="w-full inline-flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

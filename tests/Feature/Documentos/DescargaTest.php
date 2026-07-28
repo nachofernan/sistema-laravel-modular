@@ -3,7 +3,6 @@
 namespace Tests\Feature\Documentos;
 
 use App\Models\Documentos\Descarga;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DescargaTest extends TestCase
@@ -17,4 +16,4 @@ class DescargaTest extends TestCase
             'id' => $descarga->id,
         ], 'documentos');
     }
-} 
+}

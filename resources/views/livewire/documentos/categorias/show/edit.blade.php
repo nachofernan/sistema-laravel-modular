@@ -33,9 +33,39 @@
                     @enderror
                 </div>
 
+                <div>
+                    <label for="orden_edit" class="block text-sm font-medium text-gray-700 mb-2">
+                        Orden
+                    </label>
+                    <input type="number"
+                           id="orden_edit"
+                           min="0"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                           wire:model="orden">
+                    @error('orden')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-500">
+                        Define la posición en el menú. Menor número, más arriba.
+                    </p>
+                </div>
+
+                <div class="flex items-start">
+                    <input type="checkbox"
+                           id="publica_edit"
+                           class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                           wire:model="publica">
+                    <label for="publica_edit" class="ml-2 text-sm text-gray-700">
+                        Visible sin iniciar sesión
+                        <span class="block text-xs text-gray-500">
+                            Si se desmarca, la categoría y sus documentos dejan de aparecer en el portal público.
+                        </span>
+                    </label>
+                </div>
+
                 <div class="bg-blue-50 rounded-md p-3">
                     <p class="text-xs text-blue-700">
-                        <strong>Nota:</strong> Al cambiar el nombre de la categoría se actualizará inmediatamente en todo el sistema.
+                        <strong>Nota:</strong> Los cambios se aplican inmediatamente en todo el sistema.
                     </p>
                 </div>
             </div>

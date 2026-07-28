@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
+use App\Models\Documentos\Categoria as DocumentoCategoria;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
 
         $hostMap = [
             'intranet.local' => 'http://intranet.local',
-            '172.17.8.80'      => 'http://172.17.8.80/plataforma',
+            '172.17.8.80' => 'http://172.17.8.80/plataforma',
         ];
 
         $host = $request->getHost();
@@ -35,5 +36,15 @@ class AppServiceProvider extends ServiceProvider
             config(['app.url' => $hostMap[$host]]);
             URL::forceRootUrl($hostMap[$host]);
         }
+
+        // Las categorías del menú de documentos se resuelven acá y no dentro de cada
+        // Blade, que era donde vivía la query repetida en las tres navegaciones.
+        View::composer([
+            'components.navigation-links.guest',
+            'layouts.partials.sidebar-navigation',
+            'layouts.partials.sidebar-navigation-new',
+        ], function ($view) {
+            $view->with('categoriasPublicas', DocumentoCategoria::raicesPublicas()->get());
+        });
     }
 }

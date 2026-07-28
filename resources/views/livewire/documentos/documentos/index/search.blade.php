@@ -21,16 +21,19 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v3H8V5z"></path>
                             </svg>
-                            <h3 class="text-base font-medium text-gray-900">{{ $categoria->nombre }}</h3>
+                            <h3 class="text-base font-medium text-gray-900">
+                                <span class="text-gray-500 font-normal">{{ $categoria->padre?->nombre }} →</span>
+                                {{ $categoria->nombre }}
+                            </h3>
                         </div>
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {{ $categoria->documentos->count() }} 
-                            {{ $categoria->documentos->count() == 1 ? 'documento' : 'documentos' }}
+                            {{ $categoria->documentos_count }}
+                            {{ $categoria->documentos_count == 1 ? 'documento' : 'documentos' }}
                         </span>
                     </div>
                 </div>
 
-                @if($categoria->documentos->count() > 0)
+                @if($categoria->documentos_count > 0)
                     <!-- Tabla de documentos -->
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -40,6 +43,9 @@
                                 </th>
                                 <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Estado
+                                </th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Código
                                 </th>
                                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Documento
@@ -56,7 +62,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($categoria->documentos->sortBy('orden') as $documento)
+                            @foreach ($categoria->documentos as $documento)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-3 py-2 whitespace-nowrap text-center">
                                     <span class="inline-flex items-center justify-center rounded p-1 text-xs font-medium bg-gray-100 text-gray-700">
@@ -65,12 +71,18 @@
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap text-center">
                                     @if($documento->visible)
-                                        <span class="inline-flex items-center w-4 h-4 rounded-full text-xs font-medium bg-green-500">
-                                        </span>
+                                        <span class="inline-flex items-center w-4 h-4 rounded-full bg-green-500" title="Activo"></span>
                                     @else
-                                        <span class="inline-flex items-center w-4 h-4 rounded-full text-xs font-medium bg-red-500">
-                                        </span>
+                                        <span class="inline-flex items-center w-4 h-4 rounded-full bg-red-500" title="Dado de baja"></span>
                                     @endif
+                                    @if($documento->publico)
+                                        <span class="inline-flex items-center w-4 h-4 rounded-full bg-blue-500" title="Público"></span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-2">
+                                    <div class="text-xs font-mono text-gray-600">
+                                        {{ $documento->codigo ?: '—' }}
+                                    </div>
                                 </td>
                                 <td class="px-4 py-2">
                                     <div class="text-sm font-medium text-gray-900 max-w-xs">
@@ -86,12 +98,12 @@
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap text-center">
                                     <span class="inline-flex items-center justify-center w-8 h-6 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ $documento->descargas->count() }}
+                                        {{ $documento->descargas_count }}
                                     </span>
                                 </td>
                                 <td class="px-3 py-2 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center space-x-1">
-                                        <a href="{{ $documento->getFirstMediaUrl('archivos') }}" 
+                                        <a href="{{ route('documentos.documentos.download', $documento) }}"
                                            target="_blank"
                                            class="inline-flex items-center px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs rounded transition-colors">
                                             Bajar

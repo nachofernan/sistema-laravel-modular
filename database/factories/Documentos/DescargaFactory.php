@@ -16,6 +16,13 @@ class DescargaFactory extends Factory
         return [
             'documento_id' => Documento::factory(),
             'user_id' => User::factory(),
+            'ip' => $this->faker->ipv4(),
         ];
     }
-} 
+
+    /** Descarga desde el portal público, sin usuario logueado. */
+    public function anonima(): static
+    {
+        return $this->state(fn () => ['user_id' => null]);
+    }
+}

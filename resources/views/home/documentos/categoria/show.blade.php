@@ -20,7 +20,7 @@
                 </div>
 
                 <!-- Tabla de documentos -->
-                @if($categoria_hijo->documentosVisibles->count() > 0)
+                @if($categoria_hijo->documentosPublicos->count() > 0)
                     <div class="overflow-hidden">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -37,7 +37,7 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($categoria_hijo->documentosVisibles as $documento)
+                                @foreach ($categoria_hijo->documentosPublicos as $documento)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4">
                                         <div class="flex items-center">
@@ -54,7 +54,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <a href="{{ route('home.documentos.download-with-log', $documento) }}" 
+                                        <a href="{{ route('home.documentos.download', $documento) }}"
                                            target="_blank"
                                            class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
                                             <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

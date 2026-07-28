@@ -38,6 +38,24 @@
                         </div>
 
                         <div>
+                            <label for="codigo" class="block text-sm font-medium text-gray-700 mb-2">
+                                Código
+                            </label>
+                            <input type="text"
+                                   name="codigo"
+                                   id="codigo"
+                                   value="{{ old('codigo', $documento->codigo) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                   placeholder="Ej: L-07.2-003_v3">
+                            @error('codigo')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">
+                                Codificación de Control de Gestión, tal como figura en el documento.
+                            </p>
+                        </div>
+
+                        <div>
                             <label for="descripcion" class="block text-sm font-medium text-gray-700 mb-2">
                                 Descripción
                             </label>
@@ -53,16 +71,15 @@
                         </div>
 
                         <div>
-                            <label for="version" class="block text-sm font-medium text-gray-700 mb-2">
-                                Versión
+                            <label for="observaciones" class="block text-sm font-medium text-gray-700 mb-2">
+                                Observaciones
                             </label>
-                            <input type="text" 
-                                   name="version" 
-                                   id="version"
-                                   value="{{ old('version', $documento->version) }}"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                   placeholder="Ej: 1.0, v2.1, etc.">
-                            @error('version')
+                            <textarea name="observaciones"
+                                      id="observaciones"
+                                      rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                      placeholder="Notas internas sobre el documento">{{ old('observaciones', $documento->observaciones) }}</textarea>
+                            @error('observaciones')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -117,58 +134,54 @@
                         </div>
 
                         <div>
-                            <label for="sede_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                Sede
+                            <label for="orden" class="block text-sm font-medium text-gray-700 mb-2">
+                                Orden
                             </label>
-                            <select name="sede_id" 
-                                    id="sede_id"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                <option value="">Todas las sedes</option>
-                                @foreach ($sedes as $sede)
-                                    <option value="{{ $sede->id }}" 
-                                            {{ $sede->id == $documento->sede_id ? 'selected' : '' }}>
-                                        {{ $sede->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('sede_id')
+                            <input type="number"
+                                   name="orden"
+                                   id="orden"
+                                   min="0"
+                                   value="{{ old('orden', $documento->orden) }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            @error('orden')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
+                            <p class="mt-1 text-xs text-gray-500">
+                                Posición dentro de la categoría. Menor número, más arriba.
+                            </p>
                         </div>
 
-                        <div class="border-t border-gray-200 pt-4">
-                            <h4 class="text-sm font-medium text-gray-900 mb-3">Configuración Avanzada</h4>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="orden" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Orden
-                                    </label>
-                                    <input type="number" 
-                                           name="orden" 
-                                           id="orden"
-                                           value="{{ old('orden', $documento->orden) }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                           placeholder="0">
-                                    @error('orden')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                        <div class="border-t border-gray-200 pt-4 space-y-3">
+                            <h4 class="text-sm font-medium text-gray-900">Visibilidad</h4>
 
-                                <div>
-                                    <label for="visible" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Visibilidad
-                                    </label>
-                                    <select name="visible" 
-                                            id="visible"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                        <option value="1" {{ $documento->visible ? 'selected' : '' }}>Visible</option>
-                                        <option value="0" {{ !$documento->visible ? 'selected' : '' }}>Oculto</option>
-                                    </select>
-                                    @error('visible')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                            <div class="flex items-start">
+                                <input type="checkbox"
+                                       name="visible"
+                                       id="visible"
+                                       value="1"
+                                       {{ old('visible', $documento->visible) ? 'checked' : '' }}
+                                       class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="visible" class="ml-2 text-sm text-gray-700">
+                                    Activo
+                                    <span class="block text-xs text-gray-500">
+                                        Si se desmarca, el documento queda dado de baja sin borrarse.
+                                    </span>
+                                </label>
+                            </div>
+
+                            <div class="flex items-start">
+                                <input type="checkbox"
+                                       name="publico"
+                                       id="publico"
+                                       value="1"
+                                       {{ old('publico', $documento->publico) ? 'checked' : '' }}
+                                       class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="publico" class="ml-2 text-sm text-gray-700">
+                                    Publicar sin iniciar sesión
+                                    <span class="block text-xs text-gray-500">
+                                        Queda descargable desde el portal público, siempre que su categoría también lo esté.
+                                    </span>
+                                </label>
                             </div>
                         </div>
                     </div>

@@ -6,146 +6,165 @@ use App\Http\Controllers\Controller;
 use App\Models\Documentos\Categoria;
 use App\Models\Documentos\Descarga;
 use App\Models\Documentos\Documento;
-use App\Models\Usuarios\Sede;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class DocumentoController extends Controller
 {
-
     public static function middleware(): array
     {
         return [
             'auth',
             new Middleware('permission:Documentos/Documentos/Ver', only: ['index', 'show']),
-            new Middleware('permission:Documentos/Documentos/Editar', only: ['edit', 'update']),
+            // La baja es lógica (SoftDeletes), así que va con el permiso de edición en
+            // vez de crear un permiso nuevo para el módulo.
+            new Middleware('permission:Documentos/Documentos/Editar', only: ['edit', 'update', 'destroy']),
             new Middleware('permission:Documentos/Documentos/Crear', only: ['create', 'store']),
         ];
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
         return view('documentos.documentos.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
-        $sedes = Sede::all();
-        $categorias = Categoria::whereNotNull('categoria_padre_id')->orderBy('categoria_padre_id', 'asc')->get();
-        return view('documentos.documentos.create', compact('sedes', 'categorias'));
+        $categorias = Categoria::subcategorias()->with('padre')->get();
+
+        return view('documentos.documentos.create', compact('categorias'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        $datos = $this->validar($request, archivoRequerido: true);
+
         $documento = new Documento([
-            'nombre' => $request->input('nombre'),
-            'descripcion' => $request->input('descripcion'),
-            'version' => $request->input('version'),
-            'categoria_id' => $request->input('categoria_id'),
-            'sede_id' => is_numeric($request->input('sede_id')) ? $request->input('sede_id') : null,
-            'user_id' => Auth::user()->id,
+            'nombre' => $datos['nombre'],
+            'codigo' => $datos['codigo'] ?? null,
+            'descripcion' => $datos['descripcion'] ?? null,
+            'observaciones' => $datos['observaciones'] ?? null,
+            'version' => $datos['version'] ?? null,
+            'categoria_id' => $datos['categoria_id'],
+            'orden' => $datos['orden'] ?? 1000,
+            'visible' => $request->boolean('visible'),
+            'publico' => $request->boolean('publico'),
+            'user_id' => Auth::id(),
         ]);
-        
-        if ($request->hasFile('archivo')) {
-            $media = $documento->addMediaFromRequest('archivo')
-                ->usingFileName($request->file('archivo')->getClientOriginalName())
-                ->toMediaCollection('archivos');
-            // Guardar metadatos en el modelo Documento
-            $documento->archivo = $media->file_name;
-            $documento->mimeType = $media->mime_type;
-            $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $request->file('archivo')->getClientOriginalName();
-            $documento->archivo_uploaded_at = now();
-            $documento->save();
-        } else {
-            return redirect()->route('documentos.documentos.create')->with('error', 'No se pudo subir el archivo');
-        }
+
+        $media = $documento->addMediaFromRequest('archivo')
+            ->usingFileName($request->file('archivo')->getClientOriginalName())
+            ->toMediaCollection('archivos');
+
+        $documento->archivo = $media->file_name;
+        $documento->mimeType = $media->mime_type;
+        $documento->extension = $media->getExtensionAttribute();
+        $documento->archivo_uploaded_at = now();
+        $documento->save();
+
         return redirect()->route('documentos.documentos.show', $documento);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Documento $documento)
     {
-        //
+        $documento->load('categoria.padre', 'user')->loadCount('descargas');
+
         return view('documentos.documentos.show', compact('documento'));
     }
 
     /**
-     * Display the specified resource.
+     * Descarga desde el panel interno: no exige que el documento sea público, sí que
+     * el usuario tenga permiso de ver el módulo (lo resuelve el middleware).
      */
     public function download(Documento $documento)
     {
+        $media = $documento->getFirstMedia('archivos');
+
+        abort_if($media === null, 404, 'Archivo no encontrado');
+
         Descarga::create([
             'documento_id' => $documento->id,
-            'user_id' => Auth::user()->id ?? 1,
+            'user_id' => Auth::id(),
+            'ip' => request()->ip(),
         ]);
-        $media = $documento->getFirstMedia('archivos');
-        if ($media) {
-            return $media->toResponse(request());
-        }
-        abort(404, 'Archivo no encontrado');
+
+        return $media->toResponse(request());
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Documento $documento)
     {
-        //
-        $sedes = Sede::all();
-        $categorias = Categoria::whereNotNull('categoria_padre_id')->orderBy('categoria_padre_id', 'asc')->get();
-        return view('documentos.documentos.edit', compact('documento', 'sedes', 'categorias'));
+        $categorias = Categoria::subcategorias()->with('padre')->get();
+
+        return view('documentos.documentos.edit', compact('documento', 'categorias'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Documento $documento)
     {
-        $file = $request->file('archivo');
-        if ($file) {
-            // Eliminar archivo anterior si existe
+        $datos = $this->validar($request, archivoRequerido: false);
+
+        if ($request->hasFile('archivo')) {
             $documento->clearMediaCollection('archivos');
-            $media = $documento->addMedia($file)
-                ->usingFileName($file->getClientOriginalName())
+            $media = $documento->addMediaFromRequest('archivo')
+                ->usingFileName($request->file('archivo')->getClientOriginalName())
                 ->toMediaCollection('archivos');
+
             $documento->archivo = $media->file_name;
             $documento->mimeType = $media->mime_type;
             $documento->extension = $media->getExtensionAttribute();
-            $documento->file_storage = $media->getPath();
             $documento->archivo_uploaded_at = now();
         }
-        $documento->nombre = $request->input('nombre');
-        $documento->descripcion = $request->input('descripcion');
-        $documento->categoria_id = $request->input('categoria_id');
-        $documento->sede_id = is_numeric($request->input('sede_id')) ? $request->input('sede_id') : null;
-        $documento->user_id = Auth::user()->id;
-        $documento->orden = $request->input('orden');
-        $documento->visible = $request->input('visible');
-        $documento->save();
+
+        $documento->fill([
+            'nombre' => $datos['nombre'],
+            'codigo' => $datos['codigo'] ?? null,
+            'descripcion' => $datos['descripcion'] ?? null,
+            'observaciones' => $datos['observaciones'] ?? null,
+            'version' => $datos['version'] ?? null,
+            'categoria_id' => $datos['categoria_id'],
+            'orden' => $datos['orden'] ?? $documento->orden,
+            'visible' => $request->boolean('visible'),
+            'publico' => $request->boolean('publico'),
+        ])->save();
+
         return redirect()->route('documentos.documentos.show', $documento);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Documento $documento)
     {
-        //
+        $documento->delete();
+
+        return redirect()->route('documentos.documentos.index')
+            ->with('success', 'Documento dado de baja.');
+    }
+
+    /**
+     * El archivo es obligatorio al crear y opcional al editar: si no viene, se conserva
+     * el que ya estaba cargado.
+     */
+    private function validar(Request $request, bool $archivoRequerido): array
+    {
+        return $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'codigo' => ['nullable', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string', 'max:255'],
+            'observaciones' => ['nullable', 'string'],
+            'version' => ['nullable', 'string', 'max:255'],
+            'categoria_id' => ['required', 'exists:documentos.categorias,id'],
+            'orden' => ['nullable', 'integer', 'min:0'],
+            'archivo' => [
+                $archivoRequerido ? 'required' : 'nullable',
+                'file',
+                'max:51200',
+                'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,odt,ods,txt,jpg,jpeg,png,mp4',
+            ],
+        ], [
+            'nombre.required' => 'El nombre del documento es obligatorio.',
+            'categoria_id.required' => 'Hay que elegir una categoría.',
+            'categoria_id.exists' => 'La categoría elegida no existe.',
+            'archivo.required' => 'Hay que adjuntar el archivo del documento.',
+            'archivo.max' => 'El archivo no puede superar los 50 MB.',
+            'archivo.mimes' => 'El tipo de archivo no está permitido.',
+        ]);
     }
 }

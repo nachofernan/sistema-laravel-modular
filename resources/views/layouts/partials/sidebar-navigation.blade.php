@@ -71,7 +71,7 @@ elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeN
         </a>
         
         {{-- Categorías dinámicas --}}
-        @foreach (App\Models\Documentos\Categoria::whereNull('categoria_padre_id')->get() as $categoria)
+        @foreach ($categoriasPublicas as $categoria)
         <a href="{{ route('home.documentos.categoria', $categoria) }}" 
            class="block px-3 py-1 text-sm transition-colors {{ url()->current() == route('home.documentos.categoria', ['categoria' => $categoria]) ? 'text-blue-600 font-medium border-l-2 border-blue-600 pb-1' : 'text-gray-600 hover:text-gray-900' }}">
             {{ $categoria->nombre }}
