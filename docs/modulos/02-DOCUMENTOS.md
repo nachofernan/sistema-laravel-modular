@@ -1,20 +1,23 @@
 # Módulo: Documentos
 
 **Base de datos**: `documentos` (`DB_DATABASE_DOCUMENTOS`)  
-**Rutas**: `routes/documentos.php`  
+**Rutas**: `routes/documentos.php` (panel) y `routes/web.php` (portal público)  
 **Complejidad**: Baja
 
 ---
 
 ## Qué hace
 
-Gestión de documentos institucionales de BAESA (reglamentos, procedimientos, circulares, etc.) que se ponen a disposición del personal. Permite:
+Repositorio de publicación de los documentos institucionales de BAESA (reglamentos, políticas,
+procedimientos, formularios, folletos). **No gestiona el ciclo de vida documental**: la elaboración,
+la codificación y la aprobación son trabajo del área de Control de Gestión, que las administra por
+fuera. Acá llega el documento terminado y se pone a disposición. Ver `docs/DECISIONES.md`
+(2026-07-28).
 
-- Subir documentos agrupados por categoría.
-- Filtrar por sede (cada sede ve sus propios documentos + los generales).
-- Registrar quién descargó cada documento y cuándo.
-- Acceso público (sin login) para algunos documentos desde la home.
-- Acceso autenticado desde el panel interno.
+- Documentos agrupados en categorías de dos niveles.
+- Publicación sin login, declarada por atributo (`publica` / `publico`).
+- Historial de versiones: reemplazar un archivo no borra el anterior.
+- Registro de cada descarga (quién, IP, cuándo).
 
 ---
 
@@ -22,42 +25,88 @@ Gestión de documentos institucionales de BAESA (reglamentos, procedimientos, ci
 
 | Modelo | Tabla | Descripción |
 |--------|-------|-------------|
-| `Documento` | `documentos` | Documento con archivo adjunto via Spatie MediaLibrary. |
-| `Categoria` | `categorias` | Categoría del documento (ej: Reglamentos, Procedimientos). |
-| `Descarga` | `descargas` | Registro de cada descarga (usuario, IP, fecha). |
+| `Documento` | `documentos` | Documento con archivo vía Spatie MediaLibrary. SoftDeletes. |
+| `Categoria` | `categorias` | Categoría o subcategoría. Jerarquía de dos niveles. |
+| `DocumentoVersion` | `documento_versiones` | Versión anterior del archivo de un documento. |
+| `Descarga` | `descargas` | Registro de cada descarga (usuario nullable, IP, fecha). |
 
 ---
 
 ## Documento: campos clave
 
 ```
-id, nombre, descripcion, archivo, file_storage, extension, mimeType,
-version, orden, visible, sede_id (null = visible para todas las sedes),
-user_id (quién lo subió), categoria_id, archivo_uploaded_at,
-created_at, updated_at
+id, nombre, codigo, descripcion, observaciones, archivo, extension, mimeType,
+version (int), orden, visible, publico, user_id, categoria_id,
+archivo_uploaded_at, created_at, updated_at, deleted_at
 ```
 
-`categoria_id` (FK a `categorias`, `onDelete cascade`) existía en la base real pero nunca había quedado versionado en una migración — corregido con `2026_07_03_120000_add_categoria_id_to_documentos_table.php`.
+- **`codigo`** — la codificación de Control de Gestión tal como viene (`L-07.2-003_v3`,
+  `PG-07.2-012-v4`, `APG-07.2-012-01-v3`). Es un **string libre**: no se parsea ni se valida el
+  formato, y puede estar vacío. El criterio de codificación es de esa área, no de la Plataforma.
+- **`version`** — entero propio del sistema: cuenta cuántas veces se reemplazó el archivo acá.
+  **No se sincroniza** con el `_vN` que trae el `codigo`; son dos numeraciones de dos sistemas.
+- **`visible`** — el documento está activo en el panel interno. Desmarcarlo es dar de baja sin borrar.
+- **`publico`** — descargable sin iniciar sesión, **siempre que su rama de categorías también lo sea**.
 
-El archivo físico se gestiona via Spatie MediaLibrary, colección `archivos`, disco `documentos`.
+---
+
+## Visibilidad pública
+
+La regla vive en el modelo, no en la vista:
+
+- `Categoria::esPublica()` — la categoría es pública y, si es subcategoría, su padre también.
+- `Documento::esPublico()` — el documento es público y su categoría es pública.
+
+El menú público se arma con `Categoria::raicesPublicas()`, inyectado por un View Composer en
+`AppServiceProvider` sobre las tres navegaciones (`components.navigation-links.guest`,
+`layouts.partials.sidebar-navigation`, `layouts.partials.sidebar-navigation-new`).
+
+`HomeController` verifica `esPublico()` / `esPublica()` antes de servir cualquier cosa: conocer el
+ID de un documento no alcanza para descargarlo.
+
+---
+
+## Versionado
+
+`Documento::reemplazarArchivo($archivo, $notas, $usuarioId)` es el único camino por el que entra un
+archivo al módulo (lo usan el alta y la edición del panel):
+
+1. El archivo vigente se **mueve** de la colección `archivos` a la colección `historial`.
+2. Se crea una fila en `documento_versiones` con el número de versión que tenía, el `media_id`
+   archivado, el nombre del archivo, las notas del cambio y quién lo hizo.
+3. El nuevo archivo entra en `archivos` y el documento pasa a la versión siguiente.
+
+`media_id` no tiene FK: la tabla `media` vive en otra base y el aislamiento entre bases no admite
+FK cruzadas (axioma 1).
+
+Las versiones anteriores se descargan desde el detalle del documento y **no se registran en
+`descargas`**: esa tabla mide el consumo del documento vigente.
 
 ---
 
 ## Rutas públicas (sin login)
 
-La home (`/`) expone una vista de documentos públicos, servida por `App\Http\Controllers\Home\HomeController` (no confundir con `Documentos\DocumentoController`, que es el CRUD del panel interno):
-- `GET /cats/{categoria}` → `HomeController::documentoCategoria()` — documentos de una categoría (público)
-- `GET /docs/{documento}` → `HomeController::documentoDownload()` — descarga directa, deprecada (construye el path a mano en vez de usar MediaLibrary)
-- `GET /docs/{documento}/download` → `HomeController::documentoDownloadWithLog()` — descarga con registro de log, vía MediaLibrary
-
-Esto permite compartir links directos a documentos sin que el receptor necesite cuenta en el sistema.
+- `GET /cats/{categoria}` → `HomeController::documentoCategoria()` — 404 si la categoría no es pública.
+- `GET /docs/{documento}/download` → `HomeController::documentoDownload()` — sirve el archivo y
+  registra la descarga. 404 si el documento no es público.
+- `GET /docs/{documento}` — forma vieja del link, que puede estar circulando fuera del sistema.
+  Apunta al mismo controlador y respeta la misma regla.
 
 ---
 
 ## Rutas internas (con login)
 
-- `GET /home/documentos` — listado por categorías (panel interno)
-- Upload y gestión de documentos requieren permiso `Documentos/ABM` o similar.
+Bajo el rol `Documentos/Acceso`:
+
+- `documentos.documentos.*` — resource completo. `destroy` es baja lógica (SoftDeletes) y usa el
+  permiso de edición: el módulo no tiene un permiso de borrado propio.
+- `documentos.documentos.download` — descarga del documento vigente, registra la descarga.
+- `documentos.documentos.versiones.download` — descarga de una versión del historial.
+- `documentos.categorias.*` — sólo `index`, `create`, `store`, `show`. Las categorías se editan
+  desde el listado (componente Livewire) y **no se borran**: la FK en cascada arrastraría sus
+  documentos.
+
+Permisos: `Documentos/Documentos/{Ver,Crear,Editar}` y `Documentos/Categorias/{Ver,Crear,Editar}`.
 
 ---
 
@@ -65,32 +114,26 @@ Esto permite compartir links directos a documentos sin que el receptor necesite 
 
 | Componente | Función |
 |-----------|---------|
-| `Documentos/Categorias` | Gestión de categorías |
-| `Documentos/Documentos` | Listado y upload de documentos |
+| `Documentos/Categorias/Show/Edit` | Modal de edición de categoría (nombre, orden, `publica`). Chequea permiso en el componente, no sólo en el `@can` de la vista. |
+| `Documentos/Documentos/Index/Search` | Listado del panel agrupado por subcategoría. |
 
 ---
 
-## Registro de descargas
+## Estado de los datos (julio 2026)
 
-La tabla `descargas` guarda: `documento_id`, `user_id`, `ip`, `created_at`. Permite auditar quién descargó qué y cuándo. El endpoint `download-with-log` registra la descarga automáticamente.
+76 documentos en 6 subcategorías bajo 3 categorías raíz; 72 públicos y 4 dados de baja que se
+conservan a pedido. Producción acumula ~3.850 descargas, concentradas en los formularios de RRHH
+("Solicitud de Licencia o Fracción" sola lleva más de 1.000). El último documento se cargó en
+septiembre de 2025.
 
----
-
-## Integración con Spatie MediaLibrary
-
-El modelo `Documento` implementa `HasMedia` con la colección `archivos` apuntando al disco `documentos`. El archivo se almacena en `storage/app/documentos/` (o el path configurado en `config/filesystems.php`).
-
----
-
-## Código eliminado
-
-`App\Http\Controllers\Home\DocumentoController` — resource controller con todos los métodos vacíos salvo `categoria_show()`, que duplicaba exactamente lo que ya hace `HomeController::documentoCategoria()`. Ninguna ruta lo referenciaba (las rutas públicas reales van a `HomeController`, ver arriba). Eliminado.
+**Deuda conocida:** unos 30 de los 76 archivos se subieron sin conservar el nombre original y
+quedaron con nombre aleatorio en MediaLibrary (`rg1gFXnpmqaN…pdf`). Su código de Control de Gestión
+se perdió y hay que reconstruirlo a mano en la columna `codigo`.
 
 ---
 
 ## Puntos a mejorar
 
-- No hay versionado de documentos (si se sube una nueva versión, no queda historial del archivo anterior).
-- Las categorías son planas (sin jerarquía). Para BAESA puede ser suficiente, pero si crecen los tipos de documentos, podría ser limitante.
-- La distinción "público / solo autenticado" se maneja por ruta, no por campo en el modelo — todos los documentos son accesibles si se conoce el ID. Habría que agregar un campo `publico` si se necesita control más fino.
-- `HomeController::documentoDownload()` (ruta deprecada `GET /docs/{documento}`) arma el path del archivo a mano con `storage_path()` en vez de usar Spatie MediaLibrary como el resto del módulo — posible fuente de inconsistencias si cambia el disco/estructura de storage. No se tocó por estar marcada deprecada y podría estar en links ya compartidos.
+- El componente `Search` no busca: sólo lista. Falta buscador real por nombre, código y descripción.
+- No hay pantalla de estadísticas de descargas (los datos están, la vista no).
+- Reordenar documentos y categorías se hace escribiendo el número de `orden` a mano.

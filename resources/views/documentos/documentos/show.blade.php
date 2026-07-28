@@ -158,6 +158,15 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
+                        <div class="text-sm font-medium text-gray-500">Versión:</div>
+                        <div class="col-span-2 text-sm text-gray-900">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                v{{ $documento->version }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
                         <div class="text-sm font-medium text-gray-500">Tipo - Extensión:</div>
                         <div class="col-span-2 text-sm text-gray-900">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -179,6 +188,65 @@
                     </a>
                 </div>
             </div>
+        </div>
+
+        <!-- Historial de versiones -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center">
+                <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900">Versiones anteriores</h3>
+            </div>
+
+            @forelse ($documento->versiones as $version)
+                @if($loop->first)
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Versión</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reemplazada</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Por</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notas</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                @endif
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                        v{{ $version->version }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-sm text-gray-900">{{ $version->archivo }}</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-600">
+                                    {{ $version->created_at->format('d-m-Y H:i') }}
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-600">
+                                    {{ $version->usuario?->realname ?? '—' }}
+                                </td>
+                                <td class="px-6 py-3 text-sm text-gray-600">{{ $version->notas ?: '—' }}</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-center">
+                                    <a href="{{ route('documentos.documentos.versiones.download', [$documento, $version]) }}"
+                                       target="_blank"
+                                       class="inline-flex items-center px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded transition-colors">
+                                        Bajar
+                                    </a>
+                                </td>
+                            </tr>
+                @if($loop->last)
+                        </tbody>
+                    </table>
+                @endif
+            @empty
+                <div class="px-6 py-8 text-center">
+                    <p class="text-sm text-gray-500">
+                        Este documento nunca fue reemplazado. Al subir un archivo nuevo, el actual queda guardado acá.
+                    </p>
+                </div>
+            @endforelse
         </div>
 
         <!-- Información adicional -->

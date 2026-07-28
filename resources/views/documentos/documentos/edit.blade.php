@@ -96,13 +96,32 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                             <p class="mt-1 text-xs text-gray-500">
-                                Deje en blanco para mantener el archivo actual. Seleccione un archivo para reemplazarlo.
+                                Deje en blanco para mantener el archivo actual. Al subir uno nuevo, el actual pasa
+                                al historial de versiones (no se borra) y el documento pasa a v{{ $documento->version + 1 }}.
                             </p>
                             @if($documento->archivo)
                                 <p class="mt-1 text-xs text-blue-600">
-                                    Archivo actual: {{ $documento->archivo }}
+                                    Archivo actual (v{{ $documento->version }}): {{ $documento->archivo }}
                                 </p>
                             @endif
+                        </div>
+
+                        <div>
+                            <label for="notas_version" class="block text-sm font-medium text-gray-700 mb-2">
+                                Qué cambia en esta versión
+                            </label>
+                            <input type="text"
+                                   name="notas_version"
+                                   id="notas_version"
+                                   value="{{ old('notas_version') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                   placeholder="Ej: actualización anual, corrección de anexo">
+                            @error('notas_version')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">
+                                Sólo se guarda si se sube un archivo nuevo. Queda en el historial.
+                            </p>
                         </div>
                     </div>
 

@@ -22,6 +22,7 @@ Route::prefix('documentos')->name('documentos.')->group(function () {
             ->names('categorias');
 
         Route::get('/documentos/{documento}/descargar', [DocumentoController::class, 'download'])->name('documentos.download');
+        Route::get('/documentos/{documento}/versiones/{version}/descargar', [DocumentoController::class, 'downloadVersion'])->name('documentos.versiones.download');
 
     });
 

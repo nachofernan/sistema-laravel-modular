@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Documentos\Categoria;
 use App\Models\Documentos\Descarga;
 use App\Models\Documentos\Documento;
+use App\Models\Documentos\DocumentoVersion;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class DocumentoController extends Controller
     {
         return [
             'auth',
-            new Middleware('permission:Documentos/Documentos/Ver', only: ['index', 'show']),
+            new Middleware('permission:Documentos/Documentos/Ver', only: ['index', 'show', 'downloadVersion']),
             // La baja es lógica (SoftDeletes), así que va con el permiso de edición en
             // vez de crear un permiso nuevo para el módulo.
             new Middleware('permission:Documentos/Documentos/Editar', only: ['edit', 'update', 'destroy']),
@@ -45,22 +46,17 @@ class DocumentoController extends Controller
             'codigo' => $datos['codigo'] ?? null,
             'descripcion' => $datos['descripcion'] ?? null,
             'observaciones' => $datos['observaciones'] ?? null,
-            'version' => $datos['version'] ?? null,
             'categoria_id' => $datos['categoria_id'],
             'orden' => $datos['orden'] ?? 1000,
             'visible' => $request->boolean('visible'),
             'publico' => $request->boolean('publico'),
+            'version' => 1,
             'user_id' => Auth::id(),
         ]);
 
-        $media = $documento->addMediaFromRequest('archivo')
-            ->usingFileName($request->file('archivo')->getClientOriginalName())
-            ->toMediaCollection('archivos');
-
-        $documento->archivo = $media->file_name;
-        $documento->mimeType = $media->mime_type;
-        $documento->extension = $media->getExtensionAttribute();
-        $documento->archivo_uploaded_at = now();
+        // MediaLibrary persiste el documento al adjuntarle el archivo; el save de
+        // abajo guarda los metadatos que deja `reemplazarArchivo`.
+        $documento->reemplazarArchivo($request->file('archivo'), usuarioId: Auth::id());
         $documento->save();
 
         return redirect()->route('documentos.documentos.show', $documento);
@@ -68,7 +64,7 @@ class DocumentoController extends Controller
 
     public function show(Documento $documento)
     {
-        $documento->load('categoria.padre', 'user')->loadCount('descargas');
+        $documento->load('categoria.padre', 'user', 'versiones.usuario')->loadCount('descargas');
 
         return view('documentos.documentos.show', compact('documento'));
     }
@@ -92,6 +88,21 @@ class DocumentoController extends Controller
         return $media->toResponse(request());
     }
 
+    /**
+     * Descarga un archivo del historial. No se registra en `descargas`: esa tabla
+     * mide el consumo del documento vigente, no las consultas al archivo muerto.
+     */
+    public function downloadVersion(Documento $documento, DocumentoVersion $version)
+    {
+        abort_unless($version->documento_id === $documento->id, 404);
+
+        $media = $version->media();
+
+        abort_if($media === null, 404, 'El archivo de esta versión ya no está disponible');
+
+        return $media->toResponse(request());
+    }
+
     public function edit(Documento $documento)
     {
         $categorias = Categoria::subcategorias()->with('padre')->get();
@@ -103,16 +114,13 @@ class DocumentoController extends Controller
     {
         $datos = $this->validar($request, archivoRequerido: false);
 
+        // El archivo anterior no se borra: pasa al historial y el documento sube de versión.
         if ($request->hasFile('archivo')) {
-            $documento->clearMediaCollection('archivos');
-            $media = $documento->addMediaFromRequest('archivo')
-                ->usingFileName($request->file('archivo')->getClientOriginalName())
-                ->toMediaCollection('archivos');
-
-            $documento->archivo = $media->file_name;
-            $documento->mimeType = $media->mime_type;
-            $documento->extension = $media->getExtensionAttribute();
-            $documento->archivo_uploaded_at = now();
+            $documento->reemplazarArchivo(
+                $request->file('archivo'),
+                $datos['notas_version'] ?? null,
+                Auth::id(),
+            );
         }
 
         $documento->fill([
@@ -120,7 +128,6 @@ class DocumentoController extends Controller
             'codigo' => $datos['codigo'] ?? null,
             'descripcion' => $datos['descripcion'] ?? null,
             'observaciones' => $datos['observaciones'] ?? null,
-            'version' => $datos['version'] ?? null,
             'categoria_id' => $datos['categoria_id'],
             'orden' => $datos['orden'] ?? $documento->orden,
             'visible' => $request->boolean('visible'),
@@ -149,7 +156,7 @@ class DocumentoController extends Controller
             'codigo' => ['nullable', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string', 'max:255'],
             'observaciones' => ['nullable', 'string'],
-            'version' => ['nullable', 'string', 'max:255'],
+            'notas_version' => ['nullable', 'string', 'max:255'],
             'categoria_id' => ['required', 'exists:documentos.categorias,id'],
             'orden' => ['nullable', 'integer', 'min:0'],
             'archivo' => [

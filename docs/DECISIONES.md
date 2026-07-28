@@ -27,6 +27,49 @@ Formato de cada entrada:
 
 ---
 
+## 2026-07-28 — El módulo Documentos publica, no gestiona el ciclo de vida documental
+
+**Decisión:** Documentos se modela como **repositorio de publicación**: recibe el documento
+terminado y lo pone a disposición. La codificación de Control de Gestión (`L-07.2-003_v3`,
+`PG-07.2-012-v4`) se guarda en una columna `codigo` que es **string libre**, sin parsear, sin
+catálogo de tipos documentales ni de procesos, y sin validación de formato. El `version` del
+sistema es un entero propio que cuenta reemplazos de archivo y **no se sincroniza** con el `_vN`
+del código.
+
+**Motivo:** El criterio de codificación, la numeración y la aprobación son trabajo del área de
+Control de Gestión, que los administra en Redmine. En la Plataforma se subían "sólo los públicos
+y finales". Modelar acá el ciclo de elaboración sería duplicar un proceso que no controlamos y
+que cambiaría por decisiones ajenas al sistema.
+
+**Se descartó:** (a) tablas de tipos documentales (`Z`/`M`/`L`/`PG`/`PE`/`F`/anexos) y de procesos
+(`07.2`, `09.0`, `17.1`) derivadas de los nombres de archivo — el patrón existe y es consistente,
+pero convertirlo en esquema ata la Plataforma a un criterio de otra área. (b) Correlativo
+autogenerado: lo asigna una persona. (c) Flujo de aprobación (elaboró/revisó/aprobó, vigencia
+formal) — sobreingeniería para lo que el módulo hace; en su lugar, un campo `observaciones` libre.
+(d) Un campo `estado`: `visible` y `publico` ya deciden todo lo que la aplicación decide, y un
+estado que sólo se muestra es texto con reglas de más.
+
+**Pendiente, no decidido:** absorber el contenido de Redmine es una idea conversada, sin acuerdo
+con la gerencia. Este modelo no la presupone ni la bloquea.
+
+---
+
+## 2026-07-28 — La visibilidad pública es un atributo, no una consecuencia
+
+**Decisión:** Que algo se vea sin iniciar sesión se declara en el modelo: `categorias.publica` y
+`documentos.publico`. Un documento es público sólo si él y toda su rama de categorías lo son, y el
+controlador lo verifica antes de servir el archivo.
+
+**Motivo:** La visibilidad se derivaba de la estructura y de la ruta: el menú público listaba toda
+categoría raíz que existiera (con la query adentro del Blade, repetida en tres navegaciones), y la
+descarga pública entregaba cualquier documento a quien conociera el ID —incluidos los marcados como
+no visibles— sin registrar la descarga. No había forma de tener una categoría interna.
+
+**Se descartó:** resolverlo con un filtro en la vista. La vista decide qué mostrar; qué se puede
+entregar es una regla del dominio y tiene que estar donde no se pueda esquivar.
+
+---
+
 ## 2026-07-23 — Reorganización de la carpeta `docs/`
 
 **Decisión:** Se reordena `docs/` en subcarpetas por propósito: la raíz queda con lo canónico y vigente

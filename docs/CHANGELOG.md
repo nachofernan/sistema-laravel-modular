@@ -9,6 +9,21 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-07-28
+
+### Documentos — visibilidad declarativa, versionado de archivos y limpieza
+El módulo llevaba 10 meses sin cargas nuevas pero con uso alto (3.853 descargas en producción). Se lo modeló sin cambiar lo que hace: publicar documentos institucionales.
+
+- **Migraciones** — `categorias` suma `publica` y `orden`, y `categoria_padre_id` pasa de `string` sin FK a `unsignedBigInteger` con FK. `documentos` suma `codigo` (codificación de Control de Gestión, string libre), `publico` (separado de `visible`), `observaciones` y SoftDeletes; se eliminan `sede_id` (NULL en los 76 documentos, nunca se filtró por sede) y `file_storage` (guardaba el nombre al crear y el path absoluto del servidor al actualizar, truncado y repetido entre documentos). `descargas` suma `ip` y admite `user_id` nulo. Nueva tabla `documento_versiones`.
+- **Acceso público** — `HomeController` verifica que el documento y toda su rama de categorías sean públicos antes de servir el archivo: antes bastaba conocer el ID para bajar cualquier documento, incluidos los ocultos, sin pasar por el log. El menú público se arma desde un View Composer con las raíces marcadas públicas, en vez de una query dentro de tres Blade.
+- **Versionado** — `Documento::reemplazarArchivo()` archiva el archivo vigente en la colección `historial` de MediaLibrary y registra la versión en `documento_versiones` (número, archivo, notas, quién). `version` pasa de string libre a entero. Antes, reemplazar un archivo borraba el anterior del disco. El detalle del documento lista el historial con descarga por versión.
+- **CRUD** — validación real de tipo y tamaño en el upload (antes ninguna), `destroy()` implementado como baja lógica, edición de categorías con `publica`/`orden` y chequeo de permiso en el componente Livewire. Los links de descarga del panel dejan de apuntar a la URL directa del disco y pasan por el controlador, que registra la descarga.
+- **Eliminado** — `MigrarDocumentosASpatie` (comando one-shot ya ejecutado sobre los 76 documentos, dependía de `file_storage`).
+
+### Tests e infraestructura
+- `tests/Feature/Documentos/` — nuevos `PortalPublicoTest` (10 tests de acceso público) y `VersionadoTest` (6); ampliado `DocumentoTest`. Factories con estados `interna`/`interno`/`oculto`/`hijaDe`/`anonima`. Suite del módulo: 26 tests verde.
+- `phpunit.xml` — se fija `APP_URL=http://localhost`: la URL local apunta a un subdirectorio y con ella ningún test HTTP del proyecto podía matchear una ruta.
+
 ## 2026-07-16
 
 ### Usuarios — Organigrama (áreas tipificadas, responsables y cargos)
