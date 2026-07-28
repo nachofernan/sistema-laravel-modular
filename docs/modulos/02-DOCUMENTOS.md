@@ -79,6 +79,10 @@ archivo al módulo (lo usan el alta y la edición del panel):
 `media_id` no tiene FK: la tabla `media` vive en otra base y el aislamiento entre bases no admite
 FK cruzadas (axioma 1).
 
+Desde el detalle del documento hay un modal **Nueva versión** que hace el reemplazo sin abrir la
+edición completa: pide el archivo, la nota del cambio y el `codigo` (que suele traer su propio `_vN`
+nuevo). Todo lo demás se sigue editando desde el formulario de edición.
+
 Las versiones anteriores se descargan desde el detalle del documento y **no se registran en
 `descargas`**: esa tabla mide el consumo del documento vigente.
 
@@ -115,7 +119,8 @@ Permisos: `Documentos/Documentos/{Ver,Crear,Editar}` y `Documentos/Categorias/{V
 | Componente | Función |
 |-----------|---------|
 | `Documentos/Categorias/Show/Edit` | Modal de edición de categoría (nombre, orden, `publica`). Chequea permiso en el componente, no sólo en el `@can` de la vista. |
-| `Documentos/Documentos/Index/Search` | Listado del panel agrupado por subcategoría. |
+| `Documentos/Documentos/Index/Search` | Listado del panel agrupado por subcategoría, con búsqueda por nombre, código y descripción (`Documento::scopeBuscar`). El término va en la URL (`?q=`); buscando, las categorías sin coincidencias no se muestran. |
+| `Documentos/Documentos/Show/NuevaVersion` | Modal para reemplazar el archivo desde el detalle, sin pasar por la edición completa. Sólo toca archivo, `codigo` y la nota del cambio. Chequea permiso en el componente. |
 
 ---
 
@@ -134,6 +139,5 @@ se perdió y hay que reconstruirlo a mano en la columna `codigo`.
 
 ## Puntos a mejorar
 
-- El componente `Search` no busca: sólo lista. Falta buscador real por nombre, código y descripción.
 - No hay pantalla de estadísticas de descargas (los datos están, la vista no).
 - Reordenar documentos y categorías se hace escribiendo el número de `orden` a mano.

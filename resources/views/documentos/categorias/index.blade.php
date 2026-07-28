@@ -102,7 +102,7 @@
                                             </a>
                                         @endcan
                                         @can('Documentos/Categorias/Editar')
-                                            @livewire('documentos.categorias.show.edit', ['categoria' => $categoria_hijo], key($categoria->id))
+                                            @livewire('documentos.categorias.show.edit', ['categoria' => $categoria_hijo], key($categoria_hijo->id))
                                         @endcan
                                     </div>
                                 </td>

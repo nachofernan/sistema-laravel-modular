@@ -11,6 +11,41 @@
     </x-page-header>
 
     <div class="w-full mb-12 xl:mb-0 mx-auto space-y-6">
+        <!-- Buscador -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"></path>
+                        </svg>
+                    </span>
+                    <input type="search"
+                           wire:model.live.debounce.300ms="buscar"
+                           placeholder="Buscar por nombre, código o descripción…"
+                           class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                </div>
+
+                @if($termino !== '')
+                    <button wire:click="limpiar"
+                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition-colors whitespace-nowrap">
+                        Limpiar
+                    </button>
+                @endif
+
+                <div wire:loading wire:target="buscar" class="text-xs text-gray-500 whitespace-nowrap">
+                    Buscando…
+                </div>
+            </div>
+
+            @if($termino !== '')
+                <p class="mt-2 text-xs text-gray-500">
+                    {{ $resultados }} {{ $resultados == 1 ? 'documento coincide' : 'documentos coinciden' }} con
+                    <span class="font-medium text-gray-700">"{{ $termino }}"</span>
+                </p>
+            @endif
+        </div>
+
         @forelse ($categorias as $categoria)
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <!-- Header de la categoría -->
@@ -27,13 +62,13 @@
                             </h3>
                         </div>
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {{ $categoria->documentos_count }}
-                            {{ $categoria->documentos_count == 1 ? 'documento' : 'documentos' }}
+                            {{ $categoria->documentos->count() }}
+                            {{ $categoria->documentos->count() == 1 ? 'documento' : 'documentos' }}
                         </span>
                     </div>
                 </div>
 
-                @if($categoria->documentos_count > 0)
+                @if($categoria->documentos->isNotEmpty())
                     <!-- Tabla de documentos -->
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -134,17 +169,29 @@
                 <svg class="h-10 w-10 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <h3 class="text-base font-medium text-gray-900 mb-2">No hay documentos registrados</h3>
-                <p class="text-gray-500 mb-4">Comience creando el primer documento del sistema.</p>
-                @can('Documentos/Documentos/Crear')
-                    <a href="{{ route('documentos.documentos.create') }}" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        Crear Primer Documento
-                    </a>
-                @endcan
+
+                @if($termino !== '')
+                    <h3 class="text-base font-medium text-gray-900 mb-2">Sin resultados</h3>
+                    <p class="text-gray-500 mb-4">
+                        Ningún documento coincide con "{{ $termino }}".
+                    </p>
+                    <button wire:click="limpiar"
+                            class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors">
+                        Ver todos los documentos
+                    </button>
+                @else
+                    <h3 class="text-base font-medium text-gray-900 mb-2">No hay documentos registrados</h3>
+                    <p class="text-gray-500 mb-4">Comience creando el primer documento del sistema.</p>
+                    @can('Documentos/Documentos/Crear')
+                        <a href="{{ route('documentos.documentos.create') }}"
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Crear Primer Documento
+                        </a>
+                    @endcan
+                @endif
             </div>
         @endforelse
     </div>

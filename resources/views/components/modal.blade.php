@@ -32,7 +32,10 @@ $maxWidth = [
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
     </div>
 
-    <div x-show="show" class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+    {{-- text-start y whitespace-normal cortan la herencia: si el modal se declara dentro
+         de una celda con `text-center whitespace-nowrap`, el contenido salía centrado y sin
+         cortar líneas. Los modales que quieran centrar algo lo declaran adentro. --}}
+    <div x-show="show" class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto text-start whitespace-normal"
                     x-trap.inert.noscroll="show"
                     x-transition:enter="ease-out duration-300"
                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"

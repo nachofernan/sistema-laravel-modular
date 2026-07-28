@@ -3,6 +3,7 @@
 namespace App\Models\Documentos;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -59,6 +60,18 @@ class Documento extends Model implements HasMedia
     public function versiones()
     {
         return $this->hasMany(DocumentoVersion::class)->orderByDesc('version');
+    }
+
+    /**
+     * Busca por nombre, código y descripción. El término va agrupado en su propio
+     * where para no romper los filtros que traiga la query de afuera.
+     */
+    public function scopeBuscar(Builder $query, string $termino): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->where('nombre', 'like', "%{$termino}%")
+            ->orWhere('codigo', 'like', "%{$termino}%")
+            ->orWhere('descripcion', 'like', "%{$termino}%"));
     }
 
     /**

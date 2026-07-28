@@ -20,8 +20,13 @@ El módulo llevaba 10 meses sin cargas nuevas pero con uso alto (3.853 descargas
 - **CRUD** — validación real de tipo y tamaño en el upload (antes ninguna), `destroy()` implementado como baja lógica, edición de categorías con `publica`/`orden` y chequeo de permiso en el componente Livewire. Los links de descarga del panel dejan de apuntar a la URL directa del disco y pasan por el controlador, que registra la descarga.
 - **Eliminado** — `MigrarDocumentosASpatie` (comando one-shot ya ejecutado sobre los 76 documentos, dependía de `file_storage`).
 
+### Documentos — buscador del panel y modal de nueva versión
+- **Búsqueda** — `Documento::scopeBuscar()` (nombre, código, descripción) enganchado al componente `Index/Search`, que hasta ahora sólo listaba. El término queda en la URL (`?q=`) y las categorías sin coincidencias se ocultan mientras se busca. El contador de cada categoría pasa a salir de la colección ya cargada en vez de un `withCount` que divergía del filtro.
+- **Nueva versión** — componente `Show/NuevaVersion`: modal en el detalle del documento para reemplazar el archivo sin abrir la edición completa. Pide archivo, nota del cambio y `codigo` (que suele traer su propio `_vN`), con la misma validación que el CRUD y chequeo de permiso en el componente.
+- **Modal de categoría** — el contenido salía centrado y con el texto de ayuda cortado: el modal se declara dentro de una celda con `text-center whitespace-nowrap` y heredaba ambas. Se corta la herencia en el componente `x-modal` (afecta a todos los modales del sistema) y se rehízo el formulario. Además, en el listado los modales de las subcategorías usaban la `key()` de la categoría padre: Livewire quedaba con componentes de clave repetida en la misma página.
+
 ### Tests e infraestructura
-- `tests/Feature/Documentos/` — nuevos `PortalPublicoTest` (10 tests de acceso público) y `VersionadoTest` (6); ampliado `DocumentoTest`. Factories con estados `interna`/`interno`/`oculto`/`hijaDe`/`anonima`. Suite del módulo: 26 tests verde.
+- `tests/Feature/Documentos/` — nuevos `PortalPublicoTest` (10 tests de acceso público), `VersionadoTest` (10, incluidos los del modal) y `BusquedaTest` (6); ampliado `DocumentoTest`. Factories con estados `interna`/`interno`/`oculto`/`hijaDe`/`anonima`. Suite del módulo: 36 tests verde.
 - `phpunit.xml` — se fija `APP_URL=http://localhost`: la URL local apunta a un subdirectorio y con ella ningún test HTTP del proyecto podía matchear una ruta.
 
 ## 2026-07-16

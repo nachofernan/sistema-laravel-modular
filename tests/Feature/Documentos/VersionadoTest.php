@@ -1,9 +1,14 @@
 <?php
 
+use App\Livewire\Documentos\Documentos\Show\NuevaVersion;
 use App\Models\Documentos\Categoria;
 use App\Models\Documentos\Documento;
+use App\Models\User;
+use App\Models\Usuarios\Permission;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Reemplazar el archivo de un documento no puede perder el anterior: hasta esta
@@ -20,8 +25,24 @@ function documentoConArchivoLlamado(string $nombreArchivo): Documento
     return $documento->fresh();
 }
 
+/**
+ * Usuario con el permiso que exige el modal de nueva versión. El permiso ya existe
+ * en la base de dev; firstOrCreate lo reutiliza si está.
+ */
+function usuarioQueEditaDocumentos(): User
+{
+    $permiso = Permission::firstOrCreate(['name' => 'Documentos/Documentos/Editar', 'guard_name' => 'web']);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $user = User::factory()->create();
+    $user->givePermissionTo($permiso);
+
+    return $user;
+}
+
 beforeEach(function () {
     Storage::fake('documentos');
+    Storage::fake('local');
 });
 
 test('el primer archivo no genera una version en el historial', function () {
@@ -99,4 +120,58 @@ test('dar de baja un documento conserva su historial', function () {
     $documento->delete();
 
     expect(Documento::withTrashed()->find($documento->id)->versiones)->toHaveCount(1);
+});
+
+test('el modal de nueva version reemplaza el archivo y sube la version', function () {
+    $this->actingAs(usuarioQueEditaDocumentos());
+    $documento = documentoConArchivoLlamado('original.pdf');
+
+    Livewire::test(NuevaVersion::class, ['documento' => $documento])
+        ->set('archivo', UploadedFile::fake()->create('nuevo.pdf', 30))
+        ->set('notas', 'actualización anual')
+        ->call('guardar')
+        ->assertRedirect(route('documentos.documentos.show', $documento, absolute: false));
+
+    $documento = $documento->fresh();
+
+    expect($documento->version)->toBe(2)
+        ->and($documento->archivo)->toBe('nuevo.pdf')
+        ->and($documento->versiones->first()->archivo)->toBe('original.pdf')
+        ->and($documento->versiones->first()->notas)->toBe('actualización anual');
+});
+
+test('el modal de nueva version actualiza el codigo', function () {
+    $this->actingAs(usuarioQueEditaDocumentos());
+    $documento = documentoConArchivoLlamado('original.pdf');
+    $documento->update(['codigo' => 'PG-07.2-012_v3']);
+
+    Livewire::test(NuevaVersion::class, ['documento' => $documento])
+        ->set('archivo', UploadedFile::fake()->create('nuevo.pdf', 30))
+        ->set('codigo', 'PG-07.2-012_v4')
+        ->call('guardar');
+
+    expect($documento->fresh()->codigo)->toBe('PG-07.2-012_v4');
+});
+
+test('el modal de nueva version exige el archivo', function () {
+    $this->actingAs(usuarioQueEditaDocumentos());
+    $documento = documentoConArchivoLlamado('original.pdf');
+
+    Livewire::test(NuevaVersion::class, ['documento' => $documento])
+        ->call('guardar')
+        ->assertHasErrors(['archivo' => 'required']);
+
+    expect($documento->fresh()->version)->toBe(1);
+});
+
+test('un usuario sin permiso no puede subir una version nueva', function () {
+    $this->actingAs(User::factory()->create());
+    $documento = documentoConArchivoLlamado('original.pdf');
+
+    Livewire::test(NuevaVersion::class, ['documento' => $documento])
+        ->set('archivo', UploadedFile::fake()->create('nuevo.pdf', 30))
+        ->call('guardar')
+        ->assertForbidden();
+
+    expect($documento->fresh()->version)->toBe(1);
 });
