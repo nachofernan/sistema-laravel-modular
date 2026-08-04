@@ -52,6 +52,25 @@ Las conexiones están configuradas en `config/database.php` y sus credenciales e
 
 **Implicación importante**: las relaciones entre modelos de distintas bases de datos NO pueden usar JOINs SQL nativos. Se resuelven en PHP cargando los modelos por separado o usando `belongsTo` con la clave foránea manual.
 
+### Migrar un módulo
+
+Las migraciones están separadas por módulo en `database/migrations/<Modulo>/` y cada tanda se corre
+contra la conexión de ese módulo.
+
+```
+php artisan modulo:migrar documentos                          # todas las pendientes
+php artisan modulo:migrar documentos --desde=2026_07_03_120000 # desde una en adelante
+php artisan modulo:migrar documentos --simular                 # muestra el SQL, no ejecuta
+```
+
+`modulo:migrar` corre **de a un archivo por vez**, muestra el plan (base, host y estado de cada
+migración) y pide confirmación. **No usa `--force`**: se planta si `APP_ENV` no es `local`, si la
+conexión termina en `_prod` y pide confirmación extra si el host no es esta máquina. Es el comando
+para aplicar migraciones nuevas sobre una base de dev con datos reales viendo qué pasa en cada paso.
+
+`module:migrate-all` y `module:migrate-fresh` (los viejos) sí pasan `--force` y `migrate-fresh`
+**borra la base del módulo**. Sirven para levantar un entorno de cero, no para una base con datos.
+
 ---
 
 ## Estructura de directorios

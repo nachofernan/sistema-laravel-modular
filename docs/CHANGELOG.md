@@ -11,6 +11,13 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ## 2026-08-04
 
+### Consola — `modulo:migrar`
+Comando para aplicar las migraciones de un módulo sobre una base con datos, sin el `--force` de `module:migrate-all`.
+
+- Corre **de a un archivo por vez** contra la conexión del módulo, con `--desde=` para arrancar en una migración puntual y `--simular` para ver el SQL sin ejecutarlo. Muestra el plan (base, host, estado de cada migración) y pide confirmación.
+- **Barreras**: se planta si `APP_ENV` no es `local`, si la conexión termina en `_prod`, y pide confirmación extra si el host de la conexión no es esta máquina. Resuelve la carpeta `database/migrations/<Modulo>/` sin depender de mayúsculas (en Windows da igual, en un deploy Linux no).
+- `tests/Feature/Consola/ModuloMigrarTest.php` — 5 tests, todos sobre lo que el comando **no** hace.
+
 ### Documentos — el número de versión lo pone la persona
 `documentos.version` dejó de autoincrementarse: un documento puede llegar a la Plataforma ya en la v4 de Control de Gestión y no había forma de indicarlo.
 
