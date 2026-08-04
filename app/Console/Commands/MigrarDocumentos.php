@@ -9,7 +9,7 @@ class MigrarDocumentos extends Command
 {
     protected $signature = 'documentos:migrar';
 
-    protected $description = 'Corre las migraciones del módulo Documentos posteriores al 2026_07_03 en la base documentos.';
+    protected $description = 'Corre las migraciones del módulo Documentos posteriores al 2026_07_04 en la base documentos.';
 
     public function handle(): int
     {
@@ -22,7 +22,7 @@ class MigrarDocumentos extends Command
 
         $migraciones = collect(File::files(database_path('migrations/Documentos')))
             ->map(fn ($archivo) => $archivo->getBasename('.php'))
-            ->filter(fn ($nombre) => $nombre > '2026_07_03')
+            ->filter(fn ($nombre) => $nombre > '2026_07_04')
             ->sort();
 
         foreach ($migraciones as $migracion) {
