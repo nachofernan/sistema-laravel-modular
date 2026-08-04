@@ -27,6 +27,46 @@ Formato de cada entrada:
 
 ---
 
+## 2026-08-04 — Los agentes son fases del trabajo, no rangos
+
+**Decisión:** Se reemplazan los tres agentes por rango (`baesa-mentor` Opus, `baesa-senior` Opus,
+`baesa-junior` Sonnet) por tres agentes por **fase**: `explorador` (Haiku, solo lectura — rastrea y
+devuelve la conclusión con rutas exactas), `ejecutor` (Sonnet, edita periferia con la decisión ya
+tomada) y `testeador` (Haiku, corre tests y devuelve el veredicto destilado). Se eliminan el mentor y
+el senior. El criterio que ordena: **se delega el trabajo mecánico o de fan-out, no el juicio**; todo
+lo que toca el núcleo sagrado se planea y se implementa en el hilo principal, con el usuario presente.
+Se actualiza `CLAUDE.md` §"Los modos de trabajo" en consecuencia.
+
+**Motivo:** Baja de consumo de tokens por tarea, verificada en otro proyecto (Consultorio) donde la
+estructura ya venía funcionando. Mentor/senior/junior son el mismo trabajo a tres potencias:
+`baesa-senior` era Opus arrancando **en frío**, y su propio prompt le mandaba leer `CLAUDE.md` +
+`ARQUITECTURA.md` + el `docs/modulos/` correspondiente + `DECISIONES.md` (~650 líneas) antes de tocar
+un archivo — contexto que el hilo principal ya tenía cargado, pagado dos veces a precio de Opus. Y
+`baesa-mentor` era redundante por definición: el propio `CLAUDE.md` establecía que la sesión principal
+trabaja con ese stance por defecto, con más contexto que el subagente y con capacidad de repreguntar.
+Lo que sí paga es Haiku destilando volumen sin ejercer juicio: un barrido de archivos que vuelve como
+tres rutas, una corrida de PHPUnit que vuelve como `110 passed`.
+
+**Se descartó:** (a) Copiar el modelo tal cual de Consultorio — allá el núcleo es un dominio único
+concentrado en `app/Services/` y `app/Actions/`, así que el ejecutor detecta el nervio **por ruta de
+archivo**; en BAESA el núcleo es infraestructura transversal esparcida en 12 módulos, y el límite hubo
+que definirlo **por tipo de cambio**. Se conservó para el `ejecutor` la lista de límites de
+`baesa-junior`, que ya era esa traducción. (b) Conservar el `senior` para fan-out estructural ya
+decidido: ese caso lo cubre el `ejecutor` con el paso cerrado, y dejarlo disponible reinstala la
+tentación de usarlo para lo que no es fan-out. (c) Conservar el `mentor`, por lo dicho en el motivo.
+(d) Adoptar dos cosas más que venían en el mismo paquete de Consultorio y no se tomaron: pasar
+`DECISIONES.md` de append-only a "referencia viva" reescribible por tema (con 4 años de historia, el
+*por qué cayó* una decisión vale más que la prolijidad) y bajar el piso de testing a "el default es no
+testear" (allá el riesgo es un saldo que el usuario ve al día siguiente; acá es un módulo que rompe
+otro en silencio — el ahorro real ya lo da la regla de alcance `--filter`/checkpoint, que no se toca).
+Sí se tomó del paquete el docblock que **nombra el test que lo cubre**, para el núcleo sagrado.
+
+**Reemplaza a:** 2026-07-23 — Adopción de la estructura de trabajo por roles y bitácora de decisiones
+(solo en la parte de los agentes; el resto de esa entrada —principio cero, axiomas, testing dosificado,
+esta bitácora— sigue vigente).
+
+---
+
 ## 2026-07-28 — El módulo Documentos publica, no gestiona el ciclo de vida documental
 
 **Decisión:** Documentos se modela como **repositorio de publicación**: recibe el documento

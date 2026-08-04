@@ -30,34 +30,40 @@ que la reemplaza.
 
 ## Los modos de trabajo
 
-Este proyecto se conversa antes de codearse. Hay tres roles, encarnados como agentes en
-`.claude/agents/`, y hay que saber en cuál se está:
+Este proyecto se conversa antes de codearse. **El hilo principal —donde vos y el usuario piensan,
+deciden y tocan la infraestructura transversal— es el centro.** Ahí se discute el diseño, se cierra
+una decisión y se implementa todo lo que toca el núcleo sagrado: la integridad del núcleo se protege
+con *presencia* (el usuario en la conversación), no con potencia. **El núcleo sagrado no se delega.**
 
-- **Mentor** (`baesa-mentor` — Opus, solo lectura). La voz de asesor del proyecto: se discute
-  arquitectura multi-módulo, modelo de datos, permisos por módulo, integraciones (API externa de
-  proveedores, email por MS Graph), deuda técnica, roadmap y decisiones de largo plazo. No escribe
-  código ni "aprovecha" la charla para dejar un archivo hecho. **La sesión principal trabaja por
-  defecto con este stance**: antes de mandar a ejecutar algo grande, se piensa y se recomienda. El
-  agente `baesa-mentor` es para clavarse en una decisión pesada y devolver un análisis de un tiro. Si
-  de la charla sale una decisión, se anota en `docs/DECISIONES.md` y ahí termina.
-- **Senior** (`baesa-senior` — Opus, todas las tools). Implementa el trabajo profundo que toca
-  estructura o reglas: migraciones, modelos con su `$connection`, permisos y roles, lógica de negocio,
-  relaciones Eloquent nuevas, jobs de cola, endpoints de la API externa, refactors con efecto en
-  cascada. En pasos chicos explicados antes. Corre el test local relevante durante el trabajo y la
-  suite en el checkpoint, pasa Pint sobre lo tocado, y commitea al cerrar una etapa con sentido propio.
-- **Junior** (`baesa-junior` — Sonnet, solo edición). Ejecuta ediciones directas y acotadas que no
-  tocan estructura: copy en vistas, ajustes de Blade/Tailwind/Alpine, typos, agregar un campo a
-  `$fillable` cuando la columna ya existe, renombrar una variable local, mover un partial. Cumple lo
-  pedido, sin dudar mucho y con poco preámbulo. No corre tests, no commitea, no testea visualmente. Si
-  la tarea resulta ser estructural (migración, permiso, regla de negocio, ruta, relación nueva,
-  conexión de DB) o toca el núcleo sagrado, **frena y la devuelve para el senior**.
+Los agentes de `.claude/agents/` **no son rangos** (un junior, un senior, un jefe): son **fases del
+trabajo**. Un subagente no le sirve al usuario, le sirve al hilo principal: es una función acotada
+que corre en su propia ventana de contexto y devuelve un resultado destilado, para no ensuciar la
+conversación con material crudo. Se delega el trabajo *mecánico o de fan-out*, no el juicio.
 
-Si el rol no está claro, se pregunta cuál corresponde antes de hacer nada. Ante la duda, mentor: una
-pregunta de más cuesta menos que un archivo escrito de más.
+- **Explorador** (`explorador` — Haiku, solo lectura). El sabueso: rastrea dónde vive una lógica, cómo
+  se conectan dos módulos, qué permiso gobierna una acción, si ya existe un componente para X, y
+  **devuelve la conclusión con rutas exactas, no el volcado de archivos.** Se usa cuando contestar algo
+  implica barrer muchos archivos o varios módulos y solo importa el resultado. Con 12 módulos y las
+  relaciones cross-módulo resueltas en Eloquent, ese barrido es caro y frecuente. Buscar bien es
+  mecánico; por eso es Haiku, no porque sea tonto.
+- **Ejecutor** (`ejecutor` — Sonnet, edita). Ejecuta **decisiones ya tomadas** en la **periferia**:
+  copy en vistas, Blade/Tailwind/Alpine, typos, un campo a `$fillable` cuando la columna ya existe,
+  renombrar una variable local, mover un partial. Cumple con poco preámbulo y sin reabrir lo decidido.
+  No corre tests ni commitea. Si el pedido resulta estructural (migración, permiso, `$connection`,
+  ruta, relación nueva, API externa, cola/email) o toca el núcleo sagrado, **corta y lo devuelve al
+  hilo principal.**
+- **Testeador** (`testeador` — Haiku, solo corre y reporta). Corre `php artisan test` y devuelve un
+  veredicto destilado —`110 passed`, o los que fallan con su detalle— sin cargar el volcado verde en
+  la conversación. Distingue un fallo real de la MySQL de XAMPP apagada. **No arregla:** un test que
+  falla nunca se maquilla para que pase; el arreglo se decide en el hilo principal.
+
+Regla que ordena todo: **planear y ejecutar el núcleo sagrado pasan por el hilo principal, con el
+usuario presente.** Los subagentes están para lo que *no* es esa decisión — encontrar, ejecutar
+periferia, verificar. Si dudás de si algo es núcleo o periferia, es núcleo: preguntá antes de delegar.
 
 > Nota: un subagente corre en contexto aislado y **no puede preguntarte en vivo** — el ida y vuelta
 > ocurre en el hilo principal, que es quien delega y releva las dudas que el subagente devuelve en su
-> reporte.
+> reporte. Por eso no se delega lo que va a necesitar una charla a mitad de camino.
 
 ### Cómo se pregunta
 
@@ -196,7 +202,9 @@ externa, email en cola):**
 - La **suite completa** es un evento de *checkpoint*: al cerrar un bloque grande, antes de commitear
   algo del núcleo sagrado, o cuando se tocó algo transversal (un modelo base, una conexión, config).
 - Se reporta el **resumen** (`110 passed`, o los que fallan con su detalle), no el volcado verde línea
-  por línea. Si fallan por no conectar a MySQL, se dice — no se maquilla ni se oculta.
+  por línea. Si fallan por no conectar a MySQL, se dice — no se maquilla ni se oculta. **El costo no es
+  correr los tests: es cargar su output en la conversación.** Por eso la corrida —sobre todo la suite
+  completa— va por el `testeador`, que devuelve el veredicto sin el volcado.
 
 **Testeo visual**: no lo hace Claude. Nada de `curl`, Playwright ni levantar navegador para "ver" una
 pantalla, salvo pedido explícito. La revisión visual la hace el usuario; a lo sumo manda un screenshot.
@@ -224,6 +232,11 @@ pantalla, salvo pedido explícito. La revisión visual la hace el usuario; a lo 
 - Comentarios inline solo cuando el *por qué* no es obvio. Métodos nuevos o sustancialmente cambiados
   llevan docblock breve si el nombre no alcanza para explicar qué disparan / quién los llama / de qué
   dependen.
+- Cuando un método del **núcleo sagrado** tiene lógica real (una regla, un cálculo, un chequeo de
+  permiso no trivial), su docblock **nombra el test que lo cubre** — por nombre del test, no por
+  `archivo:línea`. Así se puede tirar ese test con `--filter` sin barrer la suite buscando cuál era.
+  No va en getters ni en un cambio de `true`/`false`. Si el test se renombra, se actualiza el
+  docblock: es una línea.
 - `docs/ARQUITECTURA.md` — el **qué** global del sistema (módulos, capas, decisiones estructurales).
 - `docs/modulos/` — un archivo por módulo (12 hoy). Actualizar cuando cambia algo estructural del módulo.
 - `docs/DECISIONES.md` — bitácora **append-only** de decisiones de diseño/arquitectura, con el motivo y
