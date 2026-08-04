@@ -112,6 +112,19 @@ test('las versiones se listan de la mas nueva a la mas vieja', function () {
     expect($documento->fresh()->versiones->pluck('archivo')->all())->toBe(['v2.pdf', 'v1.pdf']);
 });
 
+test('el numero de version lo decide quien sube el archivo', function () {
+    $documento = documentoConArchivoLlamado('v1.pdf');
+
+    // El documento ya venía en la v4 de Control de Gestión: el sistema no impone la v2.
+    $documento->reemplazarArchivo(UploadedFile::fake()->create('v4.pdf', 30), version: 4);
+    $documento->save();
+
+    $documento = $documento->fresh();
+
+    expect($documento->version)->toBe(4)
+        ->and($documento->versiones->first()->version)->toBe(1);
+});
+
 test('dar de baja un documento conserva su historial', function () {
     $documento = documentoConArchivoLlamado('original.pdf');
     $documento->reemplazarArchivo(UploadedFile::fake()->create('nuevo.pdf', 30));
@@ -151,6 +164,32 @@ test('el modal de nueva version actualiza el codigo', function () {
         ->call('guardar');
 
     expect($documento->fresh()->codigo)->toBe('PG-07.2-012_v4');
+});
+
+test('el modal de nueva version sugiere la siguiente pero acepta otra', function () {
+    $this->actingAs(usuarioQueEditaDocumentos());
+    $documento = documentoConArchivoLlamado('original.pdf');
+
+    Livewire::test(NuevaVersion::class, ['documento' => $documento])
+        ->assertSet('version', 2)
+        ->set('archivo', UploadedFile::fake()->create('nuevo.pdf', 30))
+        ->set('version', 5)
+        ->call('guardar');
+
+    expect($documento->fresh()->version)->toBe(5);
+});
+
+test('el modal de nueva version no acepta un numero que ya paso', function () {
+    $this->actingAs(usuarioQueEditaDocumentos());
+    $documento = documentoConArchivoLlamado('original.pdf');
+
+    Livewire::test(NuevaVersion::class, ['documento' => $documento])
+        ->set('archivo', UploadedFile::fake()->create('nuevo.pdf', 30))
+        ->set('version', 1)
+        ->call('guardar')
+        ->assertHasErrors(['version' => 'min']);
+
+    expect($documento->fresh()->version)->toBe(1);
 });
 
 test('el modal de nueva version exige el archivo', function () {

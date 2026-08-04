@@ -9,6 +9,18 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-08-04
+
+### Documentos — el número de versión lo pone la persona
+`documentos.version` dejó de autoincrementarse: un documento puede llegar a la Plataforma ya en la v4 de Control de Gestión y no había forma de indicarlo.
+
+- **Campo de versión** en el alta (default 1), en la edición (corregible sin subir archivo) y en el modal de nueva versión, donde viene sugerido el siguiente número pero se puede pisar.
+- **`reemplazarArchivo()`** acepta el número de versión; sin él sigue la numeración automática.
+- **Validación** — la versión nueva tiene que ser mayor que la vigente, que es la que pasa al historial: repetir un número rompería el índice único `(documento_id, version)` de `documento_versiones`. Sin archivo nuevo, el mínimo es la última versión archivada.
+- Ver `docs/DECISIONES.md` (2026-08-04), que reemplaza la definición de `version` de la entrada del 2026-07-28.
+
+---
+
 ## 2026-07-28
 
 ### Documentos — visibilidad declarativa, versionado de archivos y limpieza

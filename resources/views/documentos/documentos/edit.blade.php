@@ -97,13 +97,34 @@
                             @enderror
                             <p class="mt-1 text-xs text-gray-500">
                                 Deje en blanco para mantener el archivo actual. Al subir uno nuevo, el actual pasa
-                                al historial de versiones (no se borra) y el documento pasa a v{{ $documento->version + 1 }}.
+                                al historial de versiones (no se borra) y hay que indicar el número de la versión nueva.
                             </p>
                             @if($documento->archivo)
                                 <p class="mt-1 text-xs text-blue-600">
                                     Archivo actual (v{{ $documento->version }}): {{ $documento->archivo }}
                                 </p>
                             @endif
+                        </div>
+
+                        <div>
+                            <label for="version" class="block text-sm font-medium text-gray-700 mb-2">
+                                Versión *
+                            </label>
+                            <input type="number"
+                                   name="version"
+                                   id="version"
+                                   min="1"
+                                   value="{{ old('version', $documento->version) }}"
+                                   class="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                   required>
+                            @error('version')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">
+                                El número lo ponés vos: sirve para corregirlo o para seguir la numeración que
+                                trae el documento. Si subís un archivo nuevo, tiene que ser mayor
+                                que v{{ $documento->version }}.
+                            </p>
                         </div>
 
                         <div>

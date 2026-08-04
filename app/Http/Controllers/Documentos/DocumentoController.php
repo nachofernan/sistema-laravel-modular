@@ -50,7 +50,8 @@ class DocumentoController extends Controller
             'orden' => $datos['orden'] ?? 1000,
             'visible' => $request->boolean('visible'),
             'publico' => $request->boolean('publico'),
-            'version' => 1,
+            // Un documento puede llegar ya versionado desde Control de Gestión.
+            'version' => $datos['version'],
             'user_id' => Auth::id(),
         ]);
 
@@ -112,7 +113,11 @@ class DocumentoController extends Controller
 
     public function update(Request $request, Documento $documento)
     {
-        $datos = $this->validar($request, archivoRequerido: false);
+        // Subiendo un archivo, la versión actual pasa al historial: la nueva tiene que
+        // ser mayor. Sin archivo, el número se puede corregir sin bajar de lo archivado.
+        $datos = $this->validar($request, archivoRequerido: false, versionMinima: $request->hasFile('archivo')
+            ? $documento->version + 1
+            : (int) $documento->versiones()->max('version') + 1);
 
         // El archivo anterior no se borra: pasa al historial y el documento sube de versión.
         if ($request->hasFile('archivo')) {
@@ -120,6 +125,7 @@ class DocumentoController extends Controller
                 $request->file('archivo'),
                 $datos['notas_version'] ?? null,
                 Auth::id(),
+                $datos['version'],
             );
         }
 
@@ -128,6 +134,7 @@ class DocumentoController extends Controller
             'codigo' => $datos['codigo'] ?? null,
             'descripcion' => $datos['descripcion'] ?? null,
             'observaciones' => $datos['observaciones'] ?? null,
+            'version' => $datos['version'],
             'categoria_id' => $datos['categoria_id'],
             'orden' => $datos['orden'] ?? $documento->orden,
             'visible' => $request->boolean('visible'),
@@ -148,14 +155,18 @@ class DocumentoController extends Controller
     /**
      * El archivo es obligatorio al crear y opcional al editar: si no viene, se conserva
      * el que ya estaba cargado.
+     *
+     * `$versionMinima` evita que la numeración retroceda y pise una versión ya
+     * archivada, que rompería el índice único de `documento_versiones`.
      */
-    private function validar(Request $request, bool $archivoRequerido): array
+    private function validar(Request $request, bool $archivoRequerido, int $versionMinima = 1): array
     {
         return $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'codigo' => ['nullable', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string', 'max:255'],
             'observaciones' => ['nullable', 'string'],
+            'version' => ['required', 'integer', "min:{$versionMinima}"],
             'notas_version' => ['nullable', 'string', 'max:255'],
             'categoria_id' => ['required', 'exists:documentos.categorias,id'],
             'orden' => ['nullable', 'integer', 'min:0'],
@@ -169,6 +180,8 @@ class DocumentoController extends Controller
             'nombre.required' => 'El nombre del documento es obligatorio.',
             'categoria_id.required' => 'Hay que elegir una categoría.',
             'categoria_id.exists' => 'La categoría elegida no existe.',
+            'version.required' => 'Hay que indicar el número de versión.',
+            'version.min' => "La versión no puede ser menor que {$versionMinima}: ese número ya lo usa una versión anterior.",
             'archivo.required' => 'Hay que adjuntar el archivo del documento.',
             'archivo.max' => 'El archivo no puede superar los 50 MB.',
             'archivo.mimes' => 'El tipo de archivo no está permitido.',

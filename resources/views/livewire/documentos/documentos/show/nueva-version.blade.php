@@ -44,6 +44,26 @@
                 </div>
 
                 <div>
+                    <label for="numero_version" class="block text-sm font-medium text-gray-700 mb-2">
+                        Versión nueva
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-500">v</span>
+                        <input type="number"
+                               id="numero_version"
+                               min="1"
+                               wire:model="version"
+                               class="w-24 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    </div>
+                    @error('version')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-500">
+                        Viene sugerida la siguiente. Cambiala si el documento trae su propia numeración.
+                    </p>
+                </div>
+
+                <div>
                     <label for="codigo_version" class="block text-sm font-medium text-gray-700 mb-2">
                         Código
                     </label>
@@ -77,8 +97,7 @@
                 <div class="bg-blue-50 rounded-md p-3">
                     <p class="text-xs text-blue-700">
                         <strong>Nota:</strong> el archivo actual no se borra: pasa al historial de versiones
-                        y el documento queda en v{{ $documento->version + 1 }}. El resto de los datos se
-                        cambian desde la edición.
+                        como v{{ $documento->version }}. El resto de los datos se cambian desde la edición.
                     </p>
                 </div>
             </div>

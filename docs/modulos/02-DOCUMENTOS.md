@@ -43,8 +43,10 @@ archivo_uploaded_at, created_at, updated_at, deleted_at
 - **`codigo`** — la codificación de Control de Gestión tal como viene (`L-07.2-003_v3`,
   `PG-07.2-012-v4`, `APG-07.2-012-01-v3`). Es un **string libre**: no se parsea ni se valida el
   formato, y puede estar vacío. El criterio de codificación es de esa área, no de la Plataforma.
-- **`version`** — entero propio del sistema: cuenta cuántas veces se reemplazó el archivo acá.
-  **No se sincroniza** con el `_vN` que trae el `codigo`; son dos numeraciones de dos sistemas.
+- **`version`** — entero que **escribe la persona**, no el sistema: viene sugerido (el siguiente) en
+  el modal de nueva versión y es editable en el alta y en la edición. Un documento puede llegar ya
+  en la v4 de Control de Gestión. El sistema no parsea el `_vN` del `codigo` para deducirlo: que los
+  dos números coincidan lo decide quien carga. Ver `docs/DECISIONES.md` (2026-08-04).
 - **`visible`** — el documento está activo en el panel interno. Desmarcarlo es dar de baja sin borrar.
 - **`publico`** — descargable sin iniciar sesión, **siempre que su rama de categorías también lo sea**.
 
@@ -74,7 +76,12 @@ archivo al módulo (lo usan el alta y la edición del panel):
 1. El archivo vigente se **mueve** de la colección `archivos` a la colección `historial`.
 2. Se crea una fila en `documento_versiones` con el número de versión que tenía, el `media_id`
    archivado, el nombre del archivo, las notas del cambio y quién lo hizo.
-3. El nuevo archivo entra en `archivos` y el documento pasa a la versión siguiente.
+3. El nuevo archivo entra en `archivos` y el documento pasa al número de versión indicado (sin
+   indicar, al siguiente).
+
+La versión nueva tiene que ser **mayor que la vigente**, que es la que se acaba de archivar: repetir
+un número rompería el índice único `(documento_id, version)` de `documento_versiones`. Sin subir
+archivo, el número se puede corregir desde la edición mientras no baje de lo ya archivado.
 
 `media_id` no tiene FK: la tabla `media` vive en otra base y el aislamiento entre bases no admite
 FK cruzadas (axioma 1).

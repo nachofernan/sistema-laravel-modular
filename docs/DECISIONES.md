@@ -67,6 +67,30 @@ esta bitácora— sigue vigente).
 
 ---
 
+## 2026-08-04 — El número de versión lo pone la persona, no el sistema
+
+**Decisión:** `documentos.version` deja de autoincrementarse. El número se escribe en el alta, en
+la edición y en el modal de nueva versión, donde viene **sugerido** (el siguiente) pero es editable.
+La única regla es que no puede pisar una versión ya archivada: al subir un archivo tiene que ser
+mayor que la vigente, que es la que pasa al historial.
+
+**Motivo:** los documentos no nacen en la Plataforma. Uno puede llegar a la Plataforma ya en la v4
+de Control de Gestión, y con la numeración automática quedaba registrado como v1 —o como v2 al
+reemplazarlo— sin forma de corregirlo. El número que importa es el del documento, no el de cuántas
+veces se lo subió acá.
+
+**Se descartó:** (a) derivar la versión del `_vN` del `codigo` parseándolo — vuelve a atar la
+Plataforma al criterio de codificación de otra área, que es justo lo que se decidió no hacer el
+2026-07-28; además hay documentos sin código. (b) Dejar el autoincremento y agregar aparte un
+campo de "versión del documento": dos numeraciones para la misma cosa.
+
+**Reemplaza a:** la parte de *2026-07-28 — El módulo Documentos publica, no gestiona el ciclo de
+vida documental* que definía `version` como "entero propio que cuenta reemplazos de archivo". Sigue
+en pie que **no se parsea el `codigo`**: que los dos números coincidan es decisión de quien carga,
+no una sincronización del sistema.
+
+---
+
 ## 2026-07-28 — El módulo Documentos publica, no gestiona el ciclo de vida documental
 
 **Decisión:** Documentos se modela como **repositorio de publicación**: recibe el documento

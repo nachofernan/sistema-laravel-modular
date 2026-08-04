@@ -77,12 +77,18 @@ class Documento extends Model implements HasMedia
     /**
      * Reemplaza el archivo vigente y archiva el anterior: el que estaba pasa a la
      * colección `historial` y queda registrado en `documento_versiones` con el
-     * número de versión que tenía. El documento avanza a la versión siguiente.
+     * número de versión que tenía.
      *
-     * Lo llama el alta y la edición del panel, que son los dos únicos lugares por
-     * donde entra un archivo al módulo.
+     * El número de la versión nueva lo decide quien sube el archivo (`$version`):
+     * un documento puede venir de Control de Gestión ya en la v4 sin haber pasado
+     * por las tres anteriores acá. Sin número, se sigue la numeración del sistema.
+     *
+     * Lo llaman el alta y la edición del panel y el modal de nueva versión, que son
+     * los únicos lugares por donde entra un archivo al módulo.
+     *
+     * Cubierto por `el numero de version lo decide quien sube el archivo`.
      */
-    public function reemplazarArchivo(UploadedFile $archivo, ?string $notas = null, ?int $usuarioId = null): void
+    public function reemplazarArchivo(UploadedFile $archivo, ?string $notas = null, ?int $usuarioId = null, ?int $version = null): void
     {
         $anterior = $this->getFirstMedia('archivos');
 
@@ -97,7 +103,7 @@ class Documento extends Model implements HasMedia
                 'subido_por' => $usuarioId,
             ]);
 
-            $this->version = $this->version + 1;
+            $this->version = $version ?? $this->version + 1;
         }
 
         $media = $this->addMedia($archivo)
