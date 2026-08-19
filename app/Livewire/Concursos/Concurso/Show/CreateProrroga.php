@@ -8,10 +8,13 @@ use Livewire\Component;
 class CreateProrroga extends Component
 {
     public $open = false;
+
     public $concurso;
+
     public $fecha_cierre;
 
-    public function mount(Concurso $concurso) {
+    public function mount(Concurso $concurso)
+    {
         $this->concurso = $concurso;
     }
 
@@ -19,12 +22,12 @@ class CreateProrroga extends Component
     public function updatedFechaCierre($value)
     {
         $this->validate([
-            'fecha_cierre' => 'after:' . $this->concurso->fecha_cierre,
+            'fecha_cierre' => 'after:'.$this->concurso->fecha_cierre,
         ], [
-            'fecha_cierre.after' => 'La fecha debe ser posterior al cierre actual (' . $this->concurso->fecha_cierre->format('d/m/Y H:i') . ').'
+            'fecha_cierre.after' => 'La fecha debe ser posterior al cierre actual ('.$this->concurso->fecha_cierre->format('d/m/Y h:i A').').',
         ]);
     }
-    
+
     public function render()
     {
         return view('livewire.concursos.concurso.show.create-prorroga');

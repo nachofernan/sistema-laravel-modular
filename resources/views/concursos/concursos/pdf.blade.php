@@ -42,15 +42,15 @@
 
     <div class="section-title">Vigencia y Período</div>
     <table>
-        <tr><td class="label">Inicio:</td><td>{{ $concurso->fecha_inicio->format('d/m/Y H:i') }} hs</td></tr>
-        <tr><td class="label">Cierre:</td><td>{{ $concurso->fecha_cierre->format('d/m/Y H:i') }} hs</td></tr>
+        <tr><td class="label">Inicio:</td><td>{{ $concurso->fecha_inicio->format('d/m/Y h:i A') }}</td></tr>
+        <tr><td class="label">Cierre:</td><td>{{ $concurso->fecha_cierre->format('d/m/Y h:i A') }}</td></tr>
     </table>
     @if($concurso->prorrogas->count() > 0)
     <table>
         @foreach($concurso->prorrogas as $prorroga)
         <tr>
             <td class="label">Prórroga {{ $loop->iteration }}:</td>
-            <td>Fecha anterior: {{ $prorroga->fecha_anterior->format('d/m/Y H:i') }} hs - Nueva fecha: {{ $prorroga->fecha_actual->format('d/m/Y H:i') }} hs</td>
+            <td>Fecha anterior: {{ $prorroga->fecha_anterior->format('d/m/Y h:i A') }} - Nueva fecha: {{ $prorroga->fecha_actual->format('d/m/Y h:i A') }}</td>
         </tr>
         @endforeach
     </table>

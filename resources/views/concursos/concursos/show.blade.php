@@ -151,7 +151,7 @@
 
                             <div class="grid grid-cols-3 gap-4">
                                 <div class="text-sm font-medium text-gray-500">Fecha Inicio:</div>
-                                <div class="col-span-2 text-sm text-gray-900">{{ $concurso->fecha_inicio->format('d-m-Y - H:i') }}</div>
+                                <div class="col-span-2 text-sm text-gray-900">{{ $concurso->fecha_inicio->format('d-m-Y - h:i A') }}</div>
                             </div>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                     <div class="bg-gray-50 px-6 py-6 border-t border-gray-200">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold text-gray-700">Fecha de Cierre:</span>
-                            <span class="text-xl font-bold text-gray-900">{{ $concurso->fecha_cierre->format('d-m-Y - H:i') }}</span>
+                            <span class="text-xl font-bold text-gray-900">{{ $concurso->fecha_cierre->format('d-m-Y - h:i A') }}</span>
                             @if(auth()->user()->can('Concursos/Concursos/Editar') || $concurso->user_id === auth()->id())
                                 @if ($concurso->estado->id == 2 && $concurso->fecha_cierre > now())
                                     @livewire('concursos.concurso.show.create-prorroga', ['concurso' => $concurso], key($concurso->id))
@@ -174,9 +174,9 @@
                                     <div class="flex justify-between items-center px-4">
                                         <span class="font-medium">Prórroga {{ $key+1 }}</span>
                                         <div class="text-xs text-gray-600">
-                                            {{ $prorroga->fecha_anterior->format('d-m-Y - H:i') }} 
-                                            <span class="mx-2">➔</span> 
-                                            {{ $prorroga->fecha_actual->format('d-m-Y - H:i') }}
+                                            {{ $prorroga->fecha_anterior->format('d-m-Y - h:i A') }}
+                                            <span class="mx-2">➔</span>
+                                            {{ $prorroga->fecha_actual->format('d-m-Y - h:i A') }}
                                         </div>
                                     </div>
                                 @endforeach
@@ -231,7 +231,7 @@
                                         </div>
                                         <div>
                                             <div class="text-sm font-medium text-gray-900">{{ $historial->estado->nombre }}</div>
-                                            <div class="text-xs text-gray-500">{{ $historial->created_at->format('d-m-Y - H:i') }}</div>
+                                            <div class="text-xs text-gray-500">{{ $historial->created_at->format('d-m-Y - h:i A') }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -245,7 +245,7 @@
                                             </div>
                                             <div>
                                                 <div class="text-sm font-medium text-gray-900">Cerrado por Fecha</div>
-                                                <div class="text-xs text-gray-500">{{ $concurso->fecha_cierre->format('d-m-Y - H:i') }}</div>
+                                                <div class="text-xs text-gray-500">{{ $concurso->fecha_cierre->format('d-m-Y - h:i A') }}</div>
                                             </div>
                                         </div>
                                     </div>

@@ -43,11 +43,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                 <div>
                                     <h3 class="text-sm font-medium text-gray-500">Fecha de Inicio</h3>
-                                    <p class="text-gray-900">{{ $concurso->fecha_inicio->format('d-m-Y H:i') }}</p>
+                                    <p class="text-gray-900">{{ $concurso->fecha_inicio->format('d-m-Y h:i A') }}</p>
                                 </div>
                                 <div>
                                     <h3 class="text-sm font-medium text-gray-500">Fecha de Cierre</h3>
-                                    <p class="text-gray-900">{{ $concurso->fecha_cierre->format('d-m-Y H:i') }}</p>
+                                    <p class="text-gray-900">{{ $concurso->fecha_cierre->format('d-m-Y h:i A') }}</p>
                                 </div>
                                 <div>
                                     <h3 class="text-sm font-medium text-gray-500">Tiempo Restante</h3>

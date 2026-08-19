@@ -38,10 +38,10 @@
                                 {{ $concurso->nombre }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $concurso->fecha_inicio->format('d-m-Y H:i') }}
+                                {{ $concurso->fecha_inicio->format('d-m-Y h:i A') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $concurso->fecha_cierre->format('d-m-Y H:i') }}
+                                {{ $concurso->fecha_cierre->format('d-m-Y h:i A') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @if ($concurso->estado->id == 4)

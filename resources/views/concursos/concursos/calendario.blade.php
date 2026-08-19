@@ -146,11 +146,11 @@
                         <div class="grid grid-cols-2 gap-4 text-sm mt-3">
                             <div>
                                 <span class="text-gray-500 block">Inicio</span>
-                                <span class="font-medium">{{ $concurso->fecha_inicio->format('d-m-Y H:i') }}</span>
+                                <span class="font-medium">{{ $concurso->fecha_inicio->format('d-m-Y h:i A') }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500 block">Cierre</span>
-                                <span class="font-medium">{{ $concurso->fecha_cierre->format('d-m-Y H:i') }}</span>
+                                <span class="font-medium">{{ $concurso->fecha_cierre->format('d-m-Y h:i A') }}</span>
                             </div>
                         </div>
                         

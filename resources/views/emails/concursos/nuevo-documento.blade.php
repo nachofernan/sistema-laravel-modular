@@ -53,7 +53,7 @@
                                 <br><br>
                                 <strong>Documento cargado:</strong> {{ $documento->documentoTipo->nombre }}.
                                 <br><br>
-                                <strong>Fecha de carga:</strong> {{ $documento->created_at->format('d-m-Y H:i') }}.
+                                <strong>Fecha de carga:</strong> {{ $documento->created_at->format('d-m-Y h:i A') }}.
                             </p>
                             <p style="margin: 10px 0 10px 0; font-size: 16px; color: #4B5563;">Para conocer más detalles acceda al siguiente enlace:</p>
                         </td>

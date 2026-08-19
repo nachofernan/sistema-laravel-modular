@@ -62,7 +62,7 @@
                                 <br><br>
                                 <strong>Descripción del Concurso:</strong> {{ $concurso->descripcion }}.
                                 <br><br>
-                                <strong>Fecha de Cierre:</strong> {{ $concurso->fecha_cierre->format('d-m-Y H:i') }}.
+                                <strong>Fecha de Cierre:</strong> {{ $concurso->fecha_cierre->format('d-m-Y h:i A') }}.
                             </p>
                             @if($tipo != 'interno')
                             <p style="margin: 10px 0 10px 0; font-size: 16px; color: #4B5563;">Solicitamos tengan a bien
