@@ -247,7 +247,7 @@
                                                 <span class="text-[10px] font-bold uppercase tracking-widest">Cierre</span>
                                             </div>
                                             <span class="text-xs font-bold text-gray-600">
-                                                {{ $concurso->fecha_cierre->format('d/m/Y H:i') }}
+                                                {{ $concurso->fecha_cierre->format('d/m/Y h:i A') }}
                                             </span>
                                         </div>
                                     </div>
