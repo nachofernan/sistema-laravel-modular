@@ -4,12 +4,15 @@ namespace Tests\Feature\Concursos;
 
 use Tests\TestCase;
 use App\Models\Concursos\Concurso;
+use App\Models\Concursos\Contacto;
 use App\Models\Concursos\Invitacion;
 use App\Models\Concursos\OfertaDocumento;
 use App\Models\Proveedores\Proveedor;
 use App\Models\User;
+use App\Jobs\Emails\EnviarCorreoAutomatizado;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
@@ -222,5 +225,53 @@ class ConcursoControllerTest extends TestCase
         // Verificar que solo se eliminó el documento del proveedor
         $this->assertDatabaseMissing('oferta_documentos', ['id' => $documentoProveedor->id]);
         $this->assertDatabaseHas('oferta_documentos', ['id' => $documentoEmpresa->id]);
+    }
+
+    /** @test */
+    public function subir_documento_adicional_en_analisis_notifica_al_personal_interno()
+    {
+        Queue::fake();
+
+        $gestor = User::factory()->create();
+        $concursoAnalisis = Concurso::factory()->create([
+            'estado_id' => 3, // Análisis
+            'permite_carga' => true,
+            'user_id' => $gestor->id,
+        ]);
+        Contacto::factory()->count(2)->create(['concurso_id' => $concursoAnalisis->id]);
+
+        Invitacion::factory()->create([
+            'concurso_id' => $concursoAnalisis->id,
+            'proveedor_id' => $this->proveedor->id,
+            'intencion' => 2,
+        ]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token
+        ])->postJson("/api/concursos/{$concursoAnalisis->id}/documentos", [
+            'file' => UploadedFile::fake()->create('adicional.pdf', 100),
+        ]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+
+        // Gestor + 2 contactos = 3 destinatarios internos, ninguno es el proveedor
+        Queue::assertPushed(EnviarCorreoAutomatizado::class, 3);
+    }
+
+    /** @test */
+    public function subir_documento_en_estado_activo_no_notifica_al_personal_interno()
+    {
+        Queue::fake();
+
+        // $this->concurso (setUp) está en estado_id = 2 (Activo)
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token
+        ])->postJson("/api/concursos/{$this->concurso->id}/documentos", [
+            'file' => UploadedFile::fake()->create('adicional.pdf', 100),
+        ]);
+
+        $response->assertStatus(200)->assertJson(['success' => true]);
+
+        Queue::assertNotPushed(EnviarCorreoAutomatizado::class);
     }
 } 

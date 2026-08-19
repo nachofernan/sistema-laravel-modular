@@ -157,6 +157,23 @@ El sistema puede enviar emails masivos a todos los invitados de un concurso. El 
 3. Se disparan jobs en cola para enviar sin bloquear la UI.
 4. Los envíos quedan registrados en `email_logs`.
 
+`getCorreosInteresados()` admite pedir solo un subconjunto de grupos. El grupo `'contactos_concurso'`
+agrega el gestor (`concurso->usuario`) y los `contactos` (tipo `administrativo`/`tecnico`) sin incluir
+proveedor — es el que usa la notificación interna descrita abajo. Hasta 2026-08-19 este grupo nunca
+agregaba al gestor: comparaba `$this->usuario_id` (columna inexistente, la columna real es `user_id`)
+y leía `$this->usuario->correo` (el modelo `User` no tiene `correo`, es `email`). Afectaba en silencio
+también a prórroga/apertura/cierre/anulación, que tampoco le llegaban al gestor. Corregido en
+`Concurso.php`, ver `docs/DECISIONES.md` (2026-08-19).
+
+### Notificación: documentación adicional cargada en análisis
+
+Cuando el concurso está en estado **análisis** (`estado_id = 3`) con `permite_carga = true`, el
+proveedor puede seguir subiendo documentos adicionales a su oferta ya presentada
+(`ConcursoController::subirDocumento`). Cada carga en esa etapa dispara
+`App\Mail\Concursos\DocumentacionAdicionalAnalisis` solo a `getCorreosInteresados(['contactos_concurso'])`
+— gestor + contactos técnicos/administrativos, nunca al proveedor, que es quien generó el evento. En
+estado activo (carga normal de oferta) no se notifica nada.
+
 ---
 
 ## Reestructuración de documentos (2025)

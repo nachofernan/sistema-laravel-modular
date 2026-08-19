@@ -118,7 +118,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | ✅ | Panel de resumen previo a apertura de sobres (invitados, ofertas, docs a desencriptar/eliminar) |
 | ✅ | Limpieza de código muerto en Concurso model, ProrrogaController y AccionesConcurso |
 | ✅ | Limpieza de drift de esquema post-migración `reestructurar_documentos_concursos` (jul 2025): eliminado modelo `Documento`/factory/test viejos (tabla `documentos` ya no existe), corregidos `DocumentoTipoFactory` y `OfertaDocumentoFactory` (campos `encriptado`/`validado` que no existen en las tablas actuales) |
-| 🔲 | `ConcursoControllerTest` (API JWT) falla con 401 en vez del status esperado en 6 de 8 tests: usa `RefreshDatabase` en vez de `DatabaseTransactions` (inconsistente con el resto de la suite) y el token de `/api/generate-token` no autentica bien en el entorno de test. Requiere investigación aparte |
+| 🔲 | `ConcursoControllerTest` (API JWT) falla con 401 en vez del status esperado en los 9 tests del archivo (confirmado 2026-08-19 con `git stash` sobre el código sin tocar — no es un cambio nuevo): usa `RefreshDatabase` en vez de `DatabaseTransactions` (inconsistente con el resto de la suite) y el token de `/api/generate-token` no autentica bien en el entorno de test. Requiere investigación aparte |
 
 ---
 

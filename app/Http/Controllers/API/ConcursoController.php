@@ -24,6 +24,8 @@ use App\Http\Requests\API\ConcursoCambiarIntencionRequest;
 use App\Http\Requests\API\ConcursoSubirDocumentoRequest;
 use App\Models\Media;
 use App\Services\ConcursoEncryptionService;
+use App\Mail\Concursos\DocumentacionAdicionalAnalisis;
+use App\Helpers\EmailHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -309,7 +311,22 @@ class ConcursoController extends Controller
             }
             
             DB::commit();
-            
+
+            // Notificar al personal interno del concurso (gestor + contactos técnicos/administrativos)
+            // cuando se carga documentación adicional en etapa de análisis. Nunca al proveedor.
+            if ($concurso->estado_id == 3) {
+                $destinatarios = $concurso->getCorreosInteresados(['contactos_concurso']);
+
+                EmailHelper::enviarMasivo(
+                    $destinatarios,
+                    new DocumentacionAdicionalAnalisis($documento),
+                    'documentacion_adicional_analisis',
+                    "Documentación adicional cargada - Concurso #{$concurso->numero}",
+                    Concurso::class,
+                    $concurso->id
+                );
+            }
+
             // Determinar qué resource usar basado en si es documento requerido o adicional
             if ($documento->documento_tipo_id) {
                 $resource = new OfertaDocumentoResource($documento->load('documentoTipo'));

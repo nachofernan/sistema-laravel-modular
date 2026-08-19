@@ -22,8 +22,16 @@ trait ConcursoMailableTrait
         if ($this->entidad instanceof Concurso) {
             return $this->entidad->id;
         }
-        
-        return $this->entidad->concurso_id ?? 0;
+
+        if (isset($this->entidad->concurso_id)) {
+            return $this->entidad->concurso_id;
+        }
+
+        if (method_exists($this->entidad, 'invitacion') && $this->entidad->invitacion) {
+            return $this->entidad->invitacion->concurso_id;
+        }
+
+        return 0;
     }
 
     /**

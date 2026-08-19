@@ -9,6 +9,19 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-08-19
+
+### Concursos — notificación interna de documentación adicional cargada en análisis
+Cuando un concurso está en estado análisis con carga adicional habilitada, el proveedor puede seguir subiendo documentos a su oferta y nadie de BAESA se enteraba salvo revisión manual.
+
+- **`app/Mail/Concursos/DocumentacionAdicionalAnalisis.php`** (nuevo) + vista — se dispara desde `ConcursoController::subirDocumento()` cuando `estado_id == 3`, solo a `getCorreosInteresados(['contactos_concurso'])` (gestor + contactos técnicos/administrativos, nunca al proveedor).
+- **Bug corregido en `Concurso::getCorreosInteresados()`** — el grupo `'contactos_concurso'` comparaba una columna inexistente (`usuario_id` en vez de `user_id`) y leía un campo inexistente del gestor (`correo` en vez de `email`): el gestor nunca recibía nada, tampoco en prórroga/apertura/cierre/anulación. Ver `docs/DECISIONES.md` (2026-08-19).
+- `ConcursoMailableTrait::getConcursoId()` — nuevo fallback vía `entidad->invitacion->concurso_id` para entidades sin `concurso_id` directo (caso `OfertaDocumento`).
+- `tests/Feature/Concursos/ConcursoControllerTest.php` — 2 tests nuevos, bloqueados por el bug preexistente de JWT en tests de este archivo (ver `docs/ROADMAP.md` → Concursos).
+- Detalle completo en `docs/updates/2026-08-19_documentacion-adicional-analisis-concursos.md`.
+
+---
+
 ## 2026-08-04
 
 ### Documentos — el número de versión lo pone la persona

@@ -181,9 +181,9 @@ class Concurso extends Model
 
         // 4. Contactos directos del concurso (Estos suelen ir siempre si se invita al grupo)
         if (in_array('contactos_concurso', $grupos)) {
-            if($this->usuario_id) {
+            if($this->user_id) {
                 $destinatarios->push([
-                    'email' => strtolower(trim($this->usuario->correo)),
+                    'email' => strtolower(trim($this->usuario->email)),
                     'nombre' => $this->usuario->nombre,
                     'tipo' => 'interno',
                     'cargo' => 'Gestor del Concurso'

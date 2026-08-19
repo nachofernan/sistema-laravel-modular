@@ -27,6 +27,28 @@ Formato de cada entrada:
 
 ---
 
+## 2026-08-19 — El gestor del concurso se corrige para que reciba sus notificaciones
+
+**Decisión:** En `Concurso::getCorreosInteresados()`, el bloque que arma el grupo `'contactos_concurso'`
+usaba `$this->usuario_id` (columna inexistente — la columna real de `concursos` es `user_id`) y
+`$this->usuario->correo` (el modelo `User` no tiene `correo`, es `email`). Se corrigen ambos a
+`user_id`/`email`.
+
+**Motivo:** Surgió al armar la notificación de documentación adicional cargada en análisis (ver
+`docs/updates/2026-08-19_documentacion-adicional-analisis-concursos.md`), que depende de que ese grupo
+incluya al gestor. Con el bug, el `if($this->usuario_id)` siempre era falso: el gestor **nunca** se
+agregó a ese grupo, en ningún envío. Como el mismo método sirve a prórroga, apertura, cierre y
+anulación (`ProrrogaController`, `AccionesConcurso`), el fix cambia también el comportamiento de esos
+envíos existentes: a partir de ahora el gestor sí los recibe, que es lo que el código siempre pretendió
+hacer. Aprobado explícitamente por el usuario antes de tocar el método compartido, por el efecto en
+cascada sobre notificaciones ya en producción.
+
+**Se descartó:** resolver el caso nuevo agregando el email del gestor a mano solo en el controller de
+la notificación nueva, dejando el bug intacto en el método compartido — hubiera dejado sin arreglo el
+mismo problema en prórroga/apertura/cierre/anulación.
+
+---
+
 ## 2026-08-04 — Los agentes son fases del trabajo, no rangos
 
 **Decisión:** Se reemplazan los tres agentes por rango (`baesa-mentor` Opus, `baesa-senior` Opus,
