@@ -2,16 +2,17 @@
 
 namespace App\Http\Resources\API;
 
-use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Proveedores\Proveedor;
 use App\Models\Concursos\Invitacion;
 use App\Models\Concursos\OfertaDocumento;
-use Illuminate\Support\Facades\Log;
+use App\Models\Proveedores\Proveedor;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class DocumentoTipoOfertaResource extends JsonResource
 {
     protected $proveedor_id;
+
     protected $concurso_id;
+
     protected $fecha_cierre;
 
     public function __construct($resource, $proveedor_id = null, $concurso_id = null, $fecha_cierre = null)
@@ -27,10 +28,7 @@ class DocumentoTipoOfertaResource extends JsonResource
         // CRÍTICO: Para mantener consistencia auditable, solo se incluyen documentos del proveedor
         // que estaban válidos y cargados ANTES del cierre del concurso
         // Los documentos de oferta se incluyen todos sin restricción de fecha
-        if ($this->fecha_cierre) {
-            Log::info("DocumentoTipoOfertaResource - Fecha de cierre: " . $this->fecha_cierre . " para tipo: " . $this->nombre);
-        }
-        
+
         // Obtener documentos de oferta cargados por el proveedor para este tipo
         // Los documentos de oferta se incluyen todos, sin filtro de fecha, porque son parte de la oferta específica
         $documentosOferta = [];
@@ -38,13 +36,14 @@ class DocumentoTipoOfertaResource extends JsonResource
             $invitacion = Invitacion::where('concurso_id', $this->concurso_id)
                 ->where('proveedor_id', $this->proveedor_id)
                 ->first();
-            
+
             if ($invitacion) {
                 $documentosOferta = OfertaDocumento::where('invitacion_id', $invitacion->id)
                     ->where('documento_tipo_id', $this->id)
                     ->get()
                     ->map(function ($documento) {
                         $media = $documento->getFirstMedia('archivos');
+
                         return [
                             'id' => $documento->id,
                             'media_id' => $media ? $media->id : null,
@@ -74,12 +73,12 @@ class DocumentoTipoOfertaResource extends JsonResource
         $tipoDocumentoProveedor = null;
         if ($this->tipo_documento_proveedor_id && $this->tipo_documento_proveedor) {
             $fechaVencimiento = null;
-            
+
             // Si el tipo de documento requiere vencimiento y existe un documento del proveedor
             if ($this->tipo_documento_proveedor->vencimiento && $documentoProveedor && $documentoProveedor->vencimiento) {
                 $fechaVencimiento = $documentoProveedor->vencimiento->format('Y-m-d');
             }
-            
+
             $tipoDocumentoProveedor = [
                 'id' => $documentoProveedor ? $documentoProveedor->id : null,
                 'nombre' => $this->tipo_documento_proveedor->nombre,
@@ -104,4 +103,4 @@ class DocumentoTipoOfertaResource extends JsonResource
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
-} 
+}

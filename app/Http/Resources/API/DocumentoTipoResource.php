@@ -2,16 +2,12 @@
 
 namespace App\Http\Resources\API;
 
-use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Proveedores\Proveedor;
 use App\Models\Proveedores\Documento;
-use Illuminate\Support\Facades\Log;
+use App\Models\Proveedores\Proveedor;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class DocumentoTipoResource extends JsonResource
 {
-    
-
-
     public function toArray($request)
     {
         // Preparar datos del tipo de documento del proveedor
@@ -34,4 +30,4 @@ class DocumentoTipoResource extends JsonResource
             'tipo_documento_proveedor' => $tipoDocumentoProveedor,
         ];
     }
-} 
+}

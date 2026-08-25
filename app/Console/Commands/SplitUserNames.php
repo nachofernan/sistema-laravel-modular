@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class SplitUserNames extends Command
 {
@@ -30,8 +29,9 @@ class SplitUserNames extends Command
     {
         $apiKey = env('GROQ_API');
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             $this->error('GROQ_API not found in .env');
+
             return 1;
         }
 
@@ -45,6 +45,7 @@ class SplitUserNames extends Command
 
         if ($totalUsers === 0) {
             $this->info('No users found to process.');
+
             return 0;
         }
 
@@ -55,7 +56,7 @@ class SplitUserNames extends Command
         $bar->start();
 
         $query->chunk($chunkSize, function ($users) use ($apiKey, $bar) {
-            $payload = $users->map(fn($user) => [
+            $payload = $users->map(fn ($user) => [
                 'id' => $user->id,
                 'realname' => $user->realname,
             ])->toArray();
@@ -74,7 +75,7 @@ class SplitUserNames extends Command
             }
 
             $bar->advance($users->count());
-            
+
             // Add a delay to avoid rate limits (TPM: 6000 is very low)
             sleep(5);
         });
@@ -99,7 +100,7 @@ class SplitUserNames extends Command
         3. Si hay ambigüedad, usa tu conocimiento de nombres comunes (ej: 'Martin' puede ser nombre o apellido, pero si está al principio suele ser apellido).
         4. No inventes datos.
         
-        Usuarios: " . json_encode($payload);
+        Usuarios: ".json_encode($payload);
 
         try {
             $response = Http::withToken($apiKey)
@@ -108,24 +109,26 @@ class SplitUserNames extends Command
                     'model' => 'llama-3.1-8b-instant',
                     'messages' => [
                         ['role' => 'system', 'content' => 'Eres un procesador de datos que responde solo en JSON.'],
-                        ['role' => 'user', 'content' => $prompt]
+                        ['role' => 'user', 'content' => $prompt],
                     ],
                     'temperature' => 0,
-                    'response_format' => ['type' => 'json_object']
+                    'response_format' => ['type' => 'json_object'],
                 ]);
 
             if ($response->failed()) {
-                $this->error("\nAPI call failed: " . $response->body());
+                $this->error("\nAPI call failed: ".$response->body());
+
                 return null;
             }
 
             $content = $response->json('choices.0.message.content');
             $data = json_decode($content, true);
 
-            return $data['usuarios'] ?? $data['users'] ?? (is_array($data) && !isset($data['id']) ? $data : null);
+            return $data['usuarios'] ?? $data['users'] ?? (is_array($data) && ! isset($data['id']) ? $data : null);
 
         } catch (\Exception $e) {
-            $this->error("\nError: " . $e->getMessage());
+            $this->error("\nError: ".$e->getMessage());
+
             return null;
         }
     }

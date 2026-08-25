@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Servicio de encriptación para documentos de oferta de concursos (sistema de sobre cerrado digital).
@@ -39,22 +39,18 @@ use Illuminate\Support\Facades\Log;
 class ConcursoEncryptionService
 {
     private $key;
+
     private $cipher = 'AES-256-CBC';
+
     private $chunkSize = 8192; // 8KB chunks para streaming
 
     public function __construct()
     {
         $this->key = base64_decode(config('app.concurso_encryption_key'));
-        
+
         if (empty($this->key)) {
             throw new \Exception('CONCURSO_ENCRYPTION_KEY no está configurada en .env');
         }
-        
-        Log::info('ConcursoEncryptionService inicializado', [
-            'key_length' => strlen($this->key),
-            'key_hex_start' => bin2hex(substr($this->key, 0, 16)),
-            'cipher' => $this->cipher
-        ]);
     }
 
     /**
@@ -63,59 +59,39 @@ class ConcursoEncryptionService
     public function encryptFile($sourcePath, $destinationPath)
     {
         try {
-            Log::info('Iniciando encryptFile', [
-                'source_path' => $sourcePath,
-                'destination_path' => $destinationPath,
-                'key_hex_start' => bin2hex(substr($this->key, 0, 16))
-            ]);
-            
             $sourceHandle = fopen($sourcePath, 'rb');
             $destHandle = fopen($destinationPath, 'wb');
-            
-            if (!$sourceHandle || !$destHandle) {
+
+            if (! $sourceHandle || ! $destHandle) {
                 throw new \Exception('No se pudo abrir el archivo fuente o destino');
             }
 
             // Generar IV (Initialization Vector)
             $iv = random_bytes(openssl_cipher_iv_length($this->cipher));
-            
-            Log::info('IV generado para encriptación', [
-                'iv_length' => strlen($iv),
-                'iv_hex' => bin2hex($iv)
-            ]);
-            
+
             // Escribir IV al inicio del archivo encriptado
             fwrite($destHandle, $iv);
 
             // Leer todo el archivo y encriptarlo de una vez
             $fileContent = file_get_contents($sourcePath);
-            
-            Log::info('Archivo leído para encriptación', [
-                'file_size' => strlen($fileContent)
-            ]);
-            
+
             $encryptedContent = openssl_encrypt($fileContent, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
             if ($encryptedContent === false) {
                 Log::error('Error al encriptar archivo completo', [
-                    'openssl_error' => openssl_error_string()
+                    'openssl_error' => openssl_error_string(),
                 ]);
                 throw new \Exception('Error al encriptar archivo');
             }
-            
+
             fwrite($destHandle, $encryptedContent);
-            
-            Log::info('Encriptación completada', [
-                'original_size' => strlen($fileContent),
-                'encrypted_size' => strlen($encryptedContent),
-                'iv_used' => bin2hex($iv)
-            ]);
 
             fclose($sourceHandle);
             fclose($destHandle);
 
             Log::info('Archivo encriptado exitosamente', [
                 'source' => $sourcePath,
-                'destination' => $destinationPath
+                'destination' => $destinationPath,
+                'size' => strlen($encryptedContent),
             ]);
 
             return true;
@@ -123,7 +99,7 @@ class ConcursoEncryptionService
             Log::error('Error al encriptar archivo', [
                 'source' => $sourcePath,
                 'destination' => $destinationPath,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -137,47 +113,39 @@ class ConcursoEncryptionService
         try {
             $sourceHandle = fopen($sourcePath, 'rb');
             $destHandle = fopen($destinationPath, 'wb');
-            
-            if (!$sourceHandle || !$destHandle) {
+
+            if (! $sourceHandle || ! $destHandle) {
                 throw new \Exception('No se pudo abrir el archivo fuente o destino');
             }
 
             // Leer IV del inicio del archivo
             $ivLength = openssl_cipher_iv_length($this->cipher);
             $iv = fread($sourceHandle, $ivLength);
-            
+
             if (strlen($iv) !== $ivLength) {
                 throw new \Exception('Archivo encriptado corrupto o inválido');
             }
 
             // Leer todo el archivo encriptado y desencriptarlo de una vez
             $encryptedContent = file_get_contents($sourcePath, false, null, $ivLength);
-            
-            Log::info('Archivo encriptado leído para desencriptación', [
-                'encrypted_size' => strlen($encryptedContent)
-            ]);
-            
+
             $decryptedContent = openssl_decrypt($encryptedContent, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
             if ($decryptedContent === false) {
                 Log::error('Error al desencriptar archivo completo', [
-                    'openssl_error' => openssl_error_string()
+                    'openssl_error' => openssl_error_string(),
                 ]);
                 throw new \Exception('Error al desencriptar archivo');
             }
-            
+
             fwrite($destHandle, $decryptedContent);
-            
-            Log::info('Desencriptación completada', [
-                'encrypted_size' => strlen($encryptedContent),
-                'decrypted_size' => strlen($decryptedContent)
-            ]);
 
             fclose($sourceHandle);
             fclose($destHandle);
 
             Log::info('Archivo desencriptado exitosamente', [
                 'source' => $sourcePath,
-                'destination' => $destinationPath
+                'destination' => $destinationPath,
+                'size' => strlen($decryptedContent),
             ]);
 
             return true;
@@ -185,7 +153,7 @@ class ConcursoEncryptionService
             Log::error('Error al desencriptar archivo', [
                 'source' => $sourcePath,
                 'destination' => $destinationPath,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -197,62 +165,45 @@ class ConcursoEncryptionService
     public function decryptAndStream($encryptedPath, $filename, $mimeType)
     {
         try {
-            Log::info('Iniciando decryptAndStream', [
-                'encrypted_path' => $encryptedPath,
-                'filename' => $filename,
-                'mime_type' => $mimeType,
-                'file_exists' => file_exists($encryptedPath),
-                'file_size' => file_exists($encryptedPath) ? filesize($encryptedPath) : 'N/A'
-            ]);
-            
             // Leer IV del inicio del archivo
             $ivLength = openssl_cipher_iv_length($this->cipher);
             $iv = file_get_contents($encryptedPath, false, null, 0, $ivLength);
-            
-            Log::info('IV leído', [
-                'iv_length' => $ivLength,
-                'iv_actual_length' => strlen($iv),
-                'iv_hex' => bin2hex($iv)
-            ]);
-            
+
             if (strlen($iv) !== $ivLength) {
                 throw new \Exception('Archivo encriptado corrupto o inválido');
             }
 
             // Leer todo el contenido encriptado (sin el IV)
             $encryptedContent = file_get_contents($encryptedPath, false, null, $ivLength);
-            
-            Log::info('Contenido encriptado leído', [
-                'encrypted_size' => strlen($encryptedContent)
-            ]);
-            
+
             // Desencriptar todo el contenido de una vez
             $decryptedContent = openssl_decrypt($encryptedContent, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
             if ($decryptedContent === false) {
                 Log::error('Error al desencriptar archivo completo', [
-                    'openssl_error' => openssl_error_string()
+                    'openssl_error' => openssl_error_string(),
                 ]);
                 throw new \Exception('Error al desencriptar archivo');
             }
-            
+
             Log::info('Archivo desencriptado exitosamente', [
-                'decrypted_size' => strlen($decryptedContent)
+                'path' => $encryptedPath,
+                'decrypted_size' => strlen($decryptedContent),
             ]);
 
             // Crear respuesta con el contenido desencriptado
             return response($decryptedContent, 200, [
                 'Content-Type' => $mimeType,
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
                 'Content-Length' => strlen($decryptedContent),
                 'Cache-Control' => 'no-cache, no-store, must-revalidate',
                 'Pragma' => 'no-cache',
-                'Expires' => '0'
+                'Expires' => '0',
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error al desencriptar archivo', [
                 'path' => $encryptedPath,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -266,7 +217,7 @@ class ConcursoEncryptionService
         try {
             $invitaciones = \App\Models\Concursos\Invitacion::where('concurso_id', $concursoId)
                 ->where('intencion', 3)
-                ->with(['documentos' => function($q) {
+                ->with(['documentos' => function ($q) {
                     $q->where('encriptado', true);
                 }])
                 ->get();
@@ -278,7 +229,9 @@ class ConcursoEncryptionService
                 foreach ($invitacion->documentos as $documento) {
                     try {
                         $media = $documento->getFirstMedia('archivos');
-                        if (!$media) continue;
+                        if (! $media) {
+                            continue;
+                        }
 
                         $encryptedPath = $media->getPath(); // Ruta completa al .enc
                         // Definimos la ruta de salida quitando el .enc
@@ -305,7 +258,7 @@ class ConcursoEncryptionService
 
                         Log::info('Documento desencriptado y actualizado', [
                             'id' => $documento->id,
-                            'archivo' => $media->file_name
+                            'archivo' => $media->file_name,
                         ]);
 
                     } catch (\Exception $e) {
@@ -320,7 +273,7 @@ class ConcursoEncryptionService
             return [
                 'success' => true,
                 'decrypted_count' => $decryptedCount,
-                'errors' => $errors
+                'errors' => $errors,
             ];
 
         } catch (\Exception $e) {
@@ -359,13 +312,13 @@ class ConcursoEncryptionService
                         Log::info('Documento de oferta no presentada eliminado', [
                             'documento_id' => $documento->id,
                             'invitacion_id' => $invitacion->id,
-                            'concurso_id' => $concursoId
+                            'concurso_id' => $concursoId,
                         ]);
 
                     } catch (\Exception $e) {
                         Log::error('Error al eliminar documento de oferta no presentada', [
                             'documento_id' => $documento->id,
-                            'error' => $e->getMessage()
+                            'error' => $e->getMessage(),
                         ]);
                     }
                 }
@@ -373,7 +326,7 @@ class ConcursoEncryptionService
 
             Log::info('Limpieza de ofertas no presentadas completada', [
                 'concurso_id' => $concursoId,
-                'deleted_count' => $deletedCount
+                'deleted_count' => $deletedCount,
             ]);
 
             return $deletedCount;
@@ -381,7 +334,7 @@ class ConcursoEncryptionService
         } catch (\Exception $e) {
             Log::error('Error en limpieza de ofertas no presentadas', [
                 'concurso_id' => $concursoId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -392,7 +345,7 @@ class ConcursoEncryptionService
      */
     public function isEncrypted($filePath)
     {
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             return false;
         }
 
@@ -402,15 +355,16 @@ class ConcursoEncryptionService
         // Pero para estar 100% seguros, chequeamos el contenido abajo.
 
         $handle = fopen($filePath, 'rb');
-        if (!$handle) {
+        if (! $handle) {
             return false;
         }
 
         // 2. Verificación de "Magic Numbers" (Firma del archivo)
         // Leemos los primeros 4 bytes para ver si es un PDF estándar (%PDF)
         $fileSignature = fread($handle, 4);
-        if ($fileSignature === "%PDF") {
+        if ($fileSignature === '%PDF') {
             fclose($handle);
+
             return false; // Es un PDF plano, salir de acá.
         }
 
@@ -426,6 +380,6 @@ class ConcursoEncryptionService
         }
 
         // Solo si no es PDF y tiene caracteres no imprimibles, asumimos encriptación
-        return strlen($iv) === $ivLength && !ctype_print($iv);
+        return strlen($iv) === $ivLength && ! ctype_print($iv);
     }
-} 
+}
