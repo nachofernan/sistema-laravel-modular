@@ -50,10 +50,11 @@ class ConcursoControllerTest extends TestCase
         
         // Generar token JWT
         $response = $this->postJson('/api/generate-token', [
-            'cuit' => $this->proveedor->cuit
+            'cuit' => $this->proveedor->cuit,
+            'email' => $this->proveedor->correo
         ]);
-        
-        $this->token = $response->json('data.token');
+
+        $this->token = $response->json('token');
     }
 
     /** @test */
