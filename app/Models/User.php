@@ -192,4 +192,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Invitacion::class);
     }
+
+    public function tieneEncuestasPendientes(): bool
+    {
+        return $this->invitaciones()
+            ->with('capacitacion.encuestas.preguntas')
+            ->get()
+            ->contains(fn ($invitacion) => $invitacion->tieneEncuestasPendientes());
+    }
 }

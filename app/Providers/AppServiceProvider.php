@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Documentos\Categoria as DocumentoCategoria;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
             'layouts.partials.sidebar-navigation-new',
         ], function ($view) {
             $view->with('categoriasPublicas', DocumentoCategoria::raicesPublicas()->get());
+            $view->with('tieneEncuestasPendientes', Auth::check() ? Auth::user()->tieneEncuestasPendientes() : false);
         });
     }
 }

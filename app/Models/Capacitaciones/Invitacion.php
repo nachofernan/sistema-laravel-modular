@@ -15,6 +15,7 @@ class Invitacion extends Model
     protected $guarded = [];
 
     const TIPO_PRESENCIAL = 'presencial';
+
     const TIPO_VIRTUAL = 'virtual';
 
     public static function getTipos()
@@ -33,5 +34,15 @@ class Invitacion extends Model
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function tieneEncuestasPendientes(): bool
+    {
+        if (! $this->presente) {
+            return false;
+        }
+
+        return $this->capacitacion->encuestas
+            ->contains(fn ($encuesta) => $encuesta->estado == 1 && $encuesta->respondida_por($this->user_id)->isEmpty());
     }
 }

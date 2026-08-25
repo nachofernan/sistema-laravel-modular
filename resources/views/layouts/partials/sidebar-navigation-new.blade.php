@@ -132,9 +132,12 @@ $visibleModules = $sidebarService->getVisibleModules();
                class="block px-3 py-1.5 text-sm transition-colors {{ (request()->routeIs('home.dashboard') || request()->routeIs('home.tickets.*')) ? 'text-blue-600 font-semibold bg-blue-50/50 border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">
                 Sistemas
             </a>
-            <a href="{{ route('home.capacitacions.index') }}" 
-               class="block px-3 py-1.5 text-sm transition-colors {{ (request()->routeIs('home.capacitacions.*') || request()->routeIs('home.encuestas.*')) ? 'text-blue-600 font-semibold bg-blue-50/50 border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">
-                Capacitaciones
+            <a href="{{ route('home.capacitacions.index') }}"
+               class="flex items-center px-3 py-1.5 text-sm transition-colors {{ (request()->routeIs('home.capacitacions.*') || request()->routeIs('home.encuestas.*')) ? 'text-blue-600 font-semibold bg-blue-50/50 border-l-2 border-blue-600 -ml-[1px]' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">
+                <span>Capacitaciones</span>
+                @if($tieneEncuestasPendientes ?? false)
+                    <span class="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full bg-sky-500 text-white text-[10px] font-bold leading-none" title="Faltan responder encuestas">i</span>
+                @endif
             </a>
             @endauth
         </div>

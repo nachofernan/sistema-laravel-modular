@@ -63,6 +63,13 @@
                                 {{ Str::limit($capacitacion->descripcion, 50) }}
                             </div>
                             @endif
+                            @if($invitacion->tieneEncuestasPendientes())
+                            <div class="mt-1">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
+                                    Tiene encuestas para responder
+                                </span>
+                            </div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             @if($esHoy)
