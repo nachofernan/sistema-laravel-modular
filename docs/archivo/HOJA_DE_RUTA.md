@@ -21,9 +21,9 @@ Estas tareas son transversales y habilitan todo lo demás:
 - [ ] Agregar validación de formato de IP a nivel de Request.
 - [ ] Agregar índice único en campo `ip` a nivel de DB.
 
-### ~~Fichadas~~ — DEPRECADO, ver sección "Módulos a eliminar"
+### ~~Fichadas~~ — eliminado, ver sección "Módulos eliminados"
 
-### ~~Mesa de Entradas~~ — DEPRECADO, ver sección "Módulos a eliminar"
+### ~~Mesa de Entradas~~ — eliminado, ver sección "Módulos eliminados"
 
 ### Tickets
 - [ ] Agregar notificación por email cuando se crea un ticket y cuando hay un mensaje nuevo.
@@ -81,34 +81,29 @@ Estas tareas son transversales y habilitan todo lo demás:
 
 ---
 
-## Módulos a eliminar
+## Módulos eliminados
 
-Estos módulos nunca se usaron en producción y no tienen futuro en el sistema. Se deben eliminar cuando haya una ventana de tiempo segura.
+Nunca se usaron en producción. Eliminados el 2026-08-25 (ver `docs/CHANGELOG.md`).
 
-### Fichadas
-Qué borrar:
-- [ ] Archivo `routes/fichadas.php`
-- [ ] Carpeta `app/Http/Controllers/Fichadas/`
-- [ ] Carpeta `app/Models/Fichadas/`
-- [ ] Carpeta `app/Livewire/Fichadas/` (si existe)
-- [ ] Carpeta `resources/views/fichadas/`
-- [ ] Registro en tabla `modulos` (base `usuarios`)
-- [ ] Variable `DB_DATABASE_FICHADAS` en `.env` (y su conexión en `config/database.php`)
-- [ ] Base de datos `fichadas` (coordinar con quien la creó; puede ser externa)
+### Fichadas — ✅ eliminado
+- [x] Archivo `routes/fichadas.php`
+- [x] Carpeta `app/Http/Controllers/Fichadas/`
+- [x] Carpeta `app/Models/Fichadas/`
+- [x] Carpeta `app/Livewire/Fichadas/`
+- [x] Carpeta `resources/views/fichadas/`
+- [x] Registro en tabla `modulos` (base `usuarios`)
+- [x] Variable `DB_DATABASE_FICHADAS` en `.env` (y su conexión en `config/database.php`)
+- [ ] Base de datos `fichadas` — no se dropea, es externa (sistema de RRHH ajeno al proyecto)
 
-### Mesa de Entradas
-Qué borrar:
-- [ ] Archivo `routes/mesadeentradas.php`
-- [ ] Carpeta `app/Http/Controllers/MesaDeEntradas/`
-- [ ] Carpeta `app/Models/MesaDeEntradas/`
-- [ ] Carpeta `app/Livewire/MesaDeEntradas/` (si existe)
-- [ ] Carpeta `resources/views/mesadeentradas/`
-- [ ] Carpeta `database/migrations/MesaDeEntradas/`
-- [ ] Registro en tabla `modulos` (base `usuarios`)
-- [ ] Variable `DB_DATABASE_MESADEENTRADAS` en `.env` (y su conexión en `config/database.php`)
-- [ ] Base de datos `mesadeentradas`
-
-**Precaución**: verificar que el módulo esté en estado `inactivo` en la tabla `modulos` antes de borrar el archivo de rutas, para que no explote si hay alguna referencia colgada.
+### Mesa de Entradas — ✅ eliminado
+- [x] Archivo `routes/mesadeentradas.php`
+- [x] Carpeta `app/Http/Controllers/MesaDeEntradas/`
+- [x] Carpeta `app/Models/MesaDeEntradas/`
+- [x] Carpeta `resources/views/mesadeentradas/`
+- [x] Carpeta `database/migrations/MesaDeEntradas/`
+- [x] Registro en tabla `modulos` (base `usuarios`)
+- [x] Variable `DB_DATABASE_MESADEENTRADAS` en `.env` (y su conexión en `config/database.php`)
+- [ ] Base de datos `mesadeentradas` — no se dropea por ahora, se conserva como backup local
 
 ---
 

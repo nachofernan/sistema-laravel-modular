@@ -160,7 +160,6 @@ class SidebarService
             'documentos.' => 'documentos',
             'tickets.' => 'tickets',
             'capacitaciones.' => 'capacitaciones',
-            'fichadas.' => 'fichadas',
             'adminip.' => 'adminip',
             'automotores.' => 'automotores',
             'despacho.' => 'despacho',

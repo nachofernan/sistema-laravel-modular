@@ -46,8 +46,6 @@ Las conexiones están configuradas en `config/database.php` y sus credenciales e
 | `concursos` | `DB_DATABASE_CONCURSOS` | Concursos de precios |
 | `automotores` | `DB_DATABASE_AUTOMOTORES` | Flota vehicular |
 | `despacho` | `DB_DATABASE_DESPACHO` | Lecturas de máquinas |
-| `mesadeentradas` | `DB_DATABASE_MESADEENTRADAS` | Mesa de entradas |
-| `fichadas` | `DB_DATABASE_FICHADAS` | Fichadas (solo lectura) |
 | (externos) | `DB_DATABASE_PROVEEDORES_EXTERNOS` | Portal externo de proveedores |
 
 **Implicación importante**: las relaciones entre modelos de distintas bases de datos NO pueden usar JOINs SQL nativos. Se resuelven en PHP cargando los modelos por separado o usando `belongsTo` con la clave foránea manual.
@@ -153,9 +151,7 @@ Existe un portal externo donde los proveedores pueden ver sus concursos, declara
 | 4 | AdminIP | Baja | [ver](modulos/04-ADMINIP.md) |
 | 5 | Tickets | Baja | [ver](modulos/05-TICKETS.md) |
 | 6 | Capacitaciones | Media | [ver](modulos/06-CAPACITACIONES.md) |
-| 7 | ~~Fichadas~~ | ~~Baja~~ | [ver](modulos/07-FICHADAS.md) — **DEPRECADO, a eliminar** |
 | 8 | Automotores | Baja | [ver](modulos/08-AUTOMOTORES.md) |
-| 9 | ~~Mesa de Entradas~~ | ~~Baja~~ | [ver](modulos/09-MESA-DE-ENTRADAS.md) — **DEPRECADO, a eliminar** |
 | 10 | Despacho | Media | [ver](modulos/10-DESPACHO.md) |
 | 11 | Proveedores | Alta | [ver](modulos/11-PROVEEDORES.md) |
 | 12 | Concursos | Alta | [ver](modulos/12-CONCURSOS.md) |

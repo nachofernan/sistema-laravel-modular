@@ -1,7 +1,7 @@
 <?php
 
 return [
-    
+
     /*
     |--------------------------------------------------------------------------
     | Configuración del Sidebar
@@ -9,9 +9,9 @@ return [
     |
     | Este archivo define la estructura del sidebar de navegación.
     | Permite agregar, modificar o quitar módulos de forma centralizada.
-    | 
+    |
     | NOTA: Los módulos se ordenan por el campo 'order' en orden ascendente.
-    | 
+    |
     | NOTA: Los módulos se muestran en el sidebar si el usuario tiene permiso para ver al menos uno de sus submenús.
     |
     | IMPORTANTE: Editar la configuración de los módulos en el servicio SidebarService!!!
@@ -19,7 +19,7 @@ return [
     */
 
     'modules' => [
-        
+
         // Módulos con submenú
         'usuarios' => [
             'name' => 'Usuarios',
@@ -33,39 +33,39 @@ return [
                     'route' => 'usuarios.users.index',
                     'permission' => 'Usuarios/Usuarios/Ver',
                     'active_when' => 'usuarios.users.*',
-                    'exclude_when' => 'usuarios.users.trashed'
+                    'exclude_when' => 'usuarios.users.trashed',
                 ],
                 [
                     'name' => 'Borrados',
                     'route' => 'usuarios.users.trashed',
                     'permission' => 'Usuarios/Usuarios/Eliminar',
-                    'active_when' => 'usuarios.users.trashed'
+                    'active_when' => 'usuarios.users.trashed',
                 ],
                 [
                     'name' => 'Areas',
                     'route' => 'usuarios.areas.index',
                     'permission' => 'Usuarios/Areas/Ver',
-                    'active_when' => 'usuarios.areas.*'
+                    'active_when' => 'usuarios.areas.*',
                 ],
                 [
                     'name' => 'Sedes',
                     'route' => 'usuarios.sedes.index',
                     'permission' => 'Usuarios/Sedes/Ver',
-                    'active_when' => 'usuarios.sedes.*'
+                    'active_when' => 'usuarios.sedes.*',
                 ],
                 [
                     'name' => 'Módulos',
                     'route' => 'usuarios.modulos.index',
                     'permission' => 'Usuarios/Modulos/Ver',
-                    'active_when' => 'usuarios.modulos.*'
+                    'active_when' => 'usuarios.modulos.*',
                 ],
                 [
                     'name' => 'Cola de Correos',
                     'route' => 'usuarios.email-queue.index',
                     'permission' => 'Usuarios/Modulos/Ver',
-                    'active_when' => 'usuarios.email-queue.*'
-                ]
-            ]
+                    'active_when' => 'usuarios.email-queue.*',
+                ],
+            ],
         ],
 
         'proveedores' => [
@@ -79,51 +79,51 @@ return [
                     'route' => 'proveedores.proveedors.index',
                     'permission' => 'Proveedores/Proveedores/Ver',
                     'active_when' => 'proveedores.proveedors.*',
-                    'exclude_when' => 'proveedores.proveedors.eliminados'
+                    'exclude_when' => 'proveedores.proveedors.eliminados',
                 ],
                 [
                     'name' => 'Exportar Excel',
                     'route' => 'proveedores.proveedors.export',
                     'permission' => 'Proveedores/Proveedores/Ver',
-                    'type' => 'action' // No se marca como activo
+                    'type' => 'action', // No se marca como activo
                 ],
                 [
                     'name' => 'Eliminados',
                     'route' => 'proveedores.proveedors.eliminados',
                     'permission' => 'Proveedores/Proveedores/EditarEstado',
-                    'active_when' => 'proveedores.proveedors.eliminados'
+                    'active_when' => 'proveedores.proveedors.eliminados',
                 ],
                 [
                     'name' => 'Validaciones',
                     'route' => 'proveedores.validacions.index',
                     'permission' => 'Proveedores/Proveedores/EditarEstado',
-                    'active_when' => 'proveedores.validacions.*'
+                    'active_when' => 'proveedores.validacions.*',
                 ],
                 [
                     'name' => 'Tipos de Documentos',
                     'route' => 'proveedores.documento_tipos.index',
                     'permission' => 'Proveedores/DocumentoTipos/Ver',
-                    'active_when' => 'proveedores.documento_tipos.*'
+                    'active_when' => 'proveedores.documento_tipos.*',
                 ],
                 [
                     'name' => 'Rubros y Subrubros',
                     'route' => 'proveedores.rubros.index',
                     'permission' => 'Proveedores/Rubros/Ver',
-                    'active_when' => 'proveedores.rubros.*'
+                    'active_when' => 'proveedores.rubros.*',
                 ],
                 [
                     'name' => 'Usuarios Externos',
                     'route' => 'proveedores.externos.index',
                     'permission' => 'Proveedores/Externos/Ver',
-                    'active_when' => 'proveedores.externos.*'
+                    'active_when' => 'proveedores.externos.*',
                 ],
                 [
                     'name' => 'Crear Anexo Solped',
                     'route' => 'proveedores.anexosolped',
                     'permission' => 'Proveedores/Proveedores/Ver',
-                    'active_when' => 'proveedores.anexosolped'
-                ]
-            ]
+                    'active_when' => 'proveedores.anexosolped',
+                ],
+            ],
         ],
 
         'concursos' => [
@@ -136,34 +136,34 @@ return [
                     'name' => 'Concursos Activos',
                     'route' => 'concursos.concursos.index',
                     'permission' => 'Concursos/Concursos/Ver',
-                    'active_when' => function() {
-                        return request()->routeIs('concursos.concursos.index') || 
+                    'active_when' => function () {
+                        return request()->routeIs('concursos.concursos.index') ||
                                (request()->routeIs('concursos.concursos.show') && request()->route('concurso')?->estado_id <= 3) ||
                                request()->routeIs('concursos.concursos.create');
-                    }
+                    },
                 ],
                 [
                     'name' => 'Calendario',
                     'route' => 'concursos.calendario',
                     'permission' => 'Concursos/Concursos/Ver',
-                    'active_when' => 'concursos.calendario*'
+                    'active_when' => 'concursos.calendario*',
                 ],
                 [
                     'name' => 'Concursos Terminados',
                     'route' => 'concursos.concursos.terminados',
                     'permission' => 'Concursos/Concursos/Ver',
-                    'active_when' => function() {
+                    'active_when' => function () {
                         return request()->routeIs('concursos.concursos.terminados') ||
                                (request()->routeIs('concursos.concursos.show') && request()->route('concurso')?->estado_id > 3);
-                    }
+                    },
                 ],
                 [
                     'name' => 'Tipos de Documentos',
                     'route' => 'concursos.documento_tipos.index',
                     'permission' => 'Concursos/DocumentoTipos/Ver',
-                    'active_when' => 'concursos.documento_tipos.*'
-                ]
-            ]
+                    'active_when' => 'concursos.documento_tipos.*',
+                ],
+            ],
         ],
 
         'inventario' => [
@@ -176,27 +176,27 @@ return [
                     'name' => 'Inventario',
                     'route' => 'inventario.elementos.index',
                     'permission' => 'Inventario/Elementos/Ver',
-                    'active_when' => 'inventario.elementos.*'
+                    'active_when' => 'inventario.elementos.*',
                 ],
                 [
                     'name' => 'Categorias',
                     'route' => 'inventario.categorias.index',
                     'permission' => 'Inventario/Categorias/Ver',
-                    'active_when' => 'inventario.categorias.*'
+                    'active_when' => 'inventario.categorias.*',
                 ],
                 [
                     'name' => 'Usuarios',
                     'route' => 'inventario.users.index',
                     'permission' => 'Inventario/Usuarios/Ver',
-                    'active_when' => 'inventario.users.*'
+                    'active_when' => 'inventario.users.*',
                 ],
                 [
                     'name' => 'Periféricos',
                     'route' => 'inventario.perifericos.index',
                     'permission' => 'Inventario/Perifericos/Ver',
-                    'active_when' => 'inventario.perifericos.*'
-                ]
-            ]
+                    'active_when' => 'inventario.perifericos.*',
+                ],
+            ],
         ],
 
         'documentos' => [
@@ -209,15 +209,15 @@ return [
                     'name' => 'Documentos',
                     'route' => 'documentos.documentos.index',
                     'permission' => 'Documentos/Documentos/Ver',
-                    'active_when' => 'documentos.documentos.*'
+                    'active_when' => 'documentos.documentos.*',
                 ],
                 [
                     'name' => 'Categorias',
                     'route' => 'documentos.categorias.index',
                     'permission' => 'Documentos/Categorias/Ver',
-                    'active_when' => 'documentos.categorias.*'
-                ]
-            ]
+                    'active_when' => 'documentos.categorias.*',
+                ],
+            ],
         ],
 
         'automotores' => [
@@ -230,15 +230,15 @@ return [
                     'name' => 'Vehículos',
                     'route' => 'automotores.vehiculos.index',
                     'permission' => 'Automotores/Vehículos/Ver',
-                    'active_when' => 'automotores.vehiculos.*'
+                    'active_when' => 'automotores.vehiculos.*',
                 ],
                 [
                     'name' => 'COPRES',
                     'route' => 'automotores.copres.index',
                     'permission' => 'Automotores/COPRES/Ver',
-                    'active_when' => 'automotores.copres.*'
-                ]
-            ]
+                    'active_when' => 'automotores.copres.*',
+                ],
+            ],
         ],
 
         'despacho' => [
@@ -251,21 +251,21 @@ return [
                     'name' => 'Visor',
                     'route' => 'despacho.visor',
                     'permission' => 'Despacho/Visor/Ver',
-                    'active_when' => 'despacho.visor*'
+                    'active_when' => 'despacho.visor*',
                 ],
                 [
                     'name' => 'Maquinas',
                     'route' => 'despacho.maquinas',
                     'permission' => 'Despacho/Maquinas/Ver',
-                    'active_when' => 'despacho.maquinas*'
+                    'active_when' => 'despacho.maquinas*',
                 ],
                 [
                     'name' => 'Carga PRN',
                     'route' => 'despacho.carga-prn',
                     'permission' => 'Despacho/CargaPRN/Ver',
-                    'active_when' => 'despacho.carga-prn*'
-                ]
-            ]
+                    'active_when' => 'despacho.carga-prn*',
+                ],
+            ],
         ],
 
         // Módulos de enlace directo
@@ -275,7 +275,7 @@ return [
             'permission_check' => ['Tickets/Tickets/Ver'],
             'route' => 'tickets.tickets.index',
             'active_when' => 'tickets.tickets.*',
-            'order' => 60
+            'order' => 60,
         ],
 
         'capacitaciones' => [
@@ -284,16 +284,7 @@ return [
             'permission_check' => ['Capacitaciones/Capacitaciones/Ver'],
             'route' => 'capacitaciones.capacitacions.index',
             'active_when' => 'capacitaciones.capacitacions.*',
-            'order' => 70
-        ],
-
-        'fichadas' => [
-            'name' => 'Fichadas',
-            'type' => 'link',
-            'permission_check' => ['Fichadas/Fichadas/Ver'],
-            'route' => 'fichadas.fichadas.index',
-            'active_when' => 'fichadas.fichadas.*',
-            'order' => 80
+            'order' => 70,
         ],
 
         'adminip' => [
@@ -303,8 +294,8 @@ return [
             'route' => 'adminip.ips.index',
             'active_when' => 'adminip.ips.*',
             'order' => 90,
-            'module_name' => 'AdminIP' // Nombre específico en BD si difiere
-        ]
+            'module_name' => 'AdminIP', // Nombre específico en BD si difiere
+        ],
     ],
 
     /*
@@ -312,10 +303,10 @@ return [
     | Configuración de Indicadores de Estado
     |--------------------------------------------------------------------------
     */
-    
+
     'maintenance_indicator' => [
         'enabled' => true,
         'style' => 'icon', // 'dot', 'badge', 'icon'
-        'position' => 'right' // 'right', 'left'
-    ]
-]; 
+        'position' => 'right', // 'right', 'left'
+    ],
+];

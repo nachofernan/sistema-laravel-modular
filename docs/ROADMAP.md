@@ -140,5 +140,5 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
-| 🔲 | Eliminar módulo Fichadas (rutas, controllers, modelos, vistas, registro en `modulos`) |
-| 🔲 | Eliminar módulo Mesa de Entradas (ídem) |
+| ✅ | Eliminar módulo Fichadas (rutas, controllers, modelos, vistas, registro en `modulos`) — 2026-08-25 |
+| ✅ | Eliminar módulo Mesa de Entradas (ídem) — 2026-08-25 |

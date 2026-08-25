@@ -153,46 +153,6 @@ return [
             'database' => 'despacho',
         ]),
 
-        'mesadeentradas' => array_merge(require __DIR__.'/database_default.php', [
-            'database' => env('DB_DATABASE_MESADEENTRADAS', 'forge'),
-            'username' => env('DB_USERNAME_MESADEENTRADAS', 'forge'),
-            'password' => env('DB_PASSWORD_MESADEENTRADAS', ''),
-        ]),
-
-        'mesadeentradas_prod' => array_merge(require __DIR__.'/database_prod.php', [
-            'database' => 'mesadeentradas',
-        ]),
-
-        'fichadas' => array_merge(require __DIR__.'/database_default.php', [
-            'database' => env('DB_DATABASE_FICHADAS', 'forge'),
-            'username' => env('DB_USERNAME_FICHADAS', 'forge'),
-            'password' => env('DB_PASSWORD_FICHADAS', ''),
-        ]),
-
-        /* 'fichadas' => array_merge(require __DIR__.'/database_prod.php', [
-            'database' => 'fichadas',
-        ]), */
-
-        /* 'fichadas' => [
-            'driver' => 'mysql',
-            'url' => env('DB_URL'),
-            'host' => '172.17.8.63',
-            'port' => '3306',
-            'database' =>'fichadas',
-            'username' => 'fichadas',
-            'password' => 'fichadas123',
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => env('DB_CHARSET', 'utf8mb4'),
-            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ], */
-
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

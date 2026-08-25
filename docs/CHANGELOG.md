@@ -9,6 +9,11 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-08-25
+
+### Eliminación de módulos deprecados Fichadas y Mesa de Entradas
+Ambos módulos nunca se usaron en producción y estaban marcados como deprecados desde hace tiempo. Se elimina todo el código: rutas, controllers, modelos, vistas, componente Livewire de Fichadas, migración de Mesa de Entradas, y las referencias cruzadas (`User::fichadas()`, `SidebarService`, `config/sidebar.php`, sidebar de navegación, `SyncModuleData`, `tests/TestCase.php`). Se quitan también las conexiones y variables de entorno de ambas bases (`fichadas`, `mesadeentradas`) sin dropear ninguna base física — `fichadas` es una base externa ajena al proyecto. El registro en la tabla `modulos` y los permisos Spatie asociados se eliminaron manualmente en la base `usuarios` (no estaban versionados en ningún seeder).
+
 ## 2026-08-19
 
 ### Concursos — notificación interna de documentación adicional cargada en análisis

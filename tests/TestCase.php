@@ -22,6 +22,5 @@ abstract class TestCase extends BaseTestCase
         'concursos',
         'automotores',
         'despacho',
-        'mesadeentradas',
     ];
 }

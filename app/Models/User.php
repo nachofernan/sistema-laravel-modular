@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Models\Capacitaciones\Invitacion;
 use App\Models\Documentos\Documento;
-use App\Models\Fichadas\Fichada;
 use App\Models\Inventario\Elemento;
 use App\Models\Inventario\Entrega;
 use App\Models\Tickets\Ticket;
@@ -15,7 +14,6 @@ use App\Models\Usuarios\Cargo;
 use App\Models\Usuarios\Log;
 use App\Models\Usuarios\PasswordSecurity;
 use App\Models\Usuarios\Sede;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,23 +21,18 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
-
-use App\Notifications\Auth\CustomResetPasswordNotification;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
+    use HasPermissions, HasRoles;
     use HasProfilePhoto;
     use Notifiable;
-    use TwoFactorAuthenticatable;
-
-    use HasRoles, HasPermissions;
     use SoftDeletes;
-
-    
+    use TwoFactorAuthenticatable;
 
     protected $connection = 'usuarios';
 
@@ -95,11 +88,14 @@ class User extends Authenticatable
 
     public function getSistemasAcceso()
     {
-        $retorno = array();
-        foreach($this->getRoleNames()->toArray() as $role) {
-            if($role == 'Plataforma/Admin') { continue; }
+        $retorno = [];
+        foreach ($this->getRoleNames()->toArray() as $role) {
+            if ($role == 'Plataforma/Admin') {
+                continue;
+            }
             $retorno[] = explode('/', $role)[0];
         }
+
         return array_unique($retorno);
     }
 
@@ -110,8 +106,6 @@ class User extends Authenticatable
     {
         return $this->roles->contains('name', 'Plataforma/Admin');
     }
-
-
 
     /**
      * Un usuario tiene una seguridad en su contraseña
@@ -145,7 +139,7 @@ class User extends Authenticatable
             return $this->realname;
         }
 
-        $completo = trim(($this->apellido ? $this->apellido . ', ' : '') . $this->nombre);
+        $completo = trim(($this->apellido ? $this->apellido.', ' : '').$this->nombre);
 
         return $completo !== '' ? $completo : $this->name;
     }
@@ -198,11 +192,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Invitacion::class);
     }
-
-    //Fichadas
-    public function fichadas()
-    {
-        return $this->hasMany(Fichada::class, 'idEmpleado', 'legajo');
-    }
-
 }

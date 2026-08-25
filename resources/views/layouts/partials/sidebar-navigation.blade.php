@@ -9,9 +9,7 @@ elseif (str_starts_with($routeName, 'concursos.')) $currentModule = 'concursos';
 elseif (str_starts_with($routeName, 'inventario.')) $currentModule = 'inventario';
 elseif (str_starts_with($routeName, 'documentos.')) $currentModule = 'documentos';
 elseif (str_starts_with($routeName, 'tickets.')) $currentModule = 'tickets';
-/* elseif (str_starts_with($routeName, 'mesadeentradas.')) $currentModule = 'mesadeentradas'; */
 elseif (str_starts_with($routeName, 'capacitaciones.')) $currentModule = 'capacitaciones';
-elseif (str_starts_with($routeName, 'fichadas.')) $currentModule = 'fichadas';
 elseif (str_starts_with($routeName, 'adminip.')) $currentModule = 'adminip';
 elseif (str_starts_with($routeName, 'home.') || $routeName === 'home' || $routeName === 'titobot') $currentModule = 'plataforma';
 @endphp
@@ -363,13 +361,6 @@ $moduloTickets = App\Models\Usuarios\Modulo::where('nombre', 'Tickets')->first()
 </a>
 @endcan
 
-{{-- @can('MesaDeEntradas/Entradas/Ver')
-<a href="{{ route('mesadeentradas.entradas.index') }}" 
-   class="block px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('mesadeentradas.entradas.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-    Mesa de Entradas
-</a>
-@endcan --}}
-
 @can('Capacitaciones/Capacitaciones/Ver')
 @php
 $moduloCapacitaciones = App\Models\Usuarios\Modulo::where('nombre', 'Capacitaciones')->first();
@@ -379,21 +370,6 @@ $moduloCapacitaciones = App\Models\Usuarios\Modulo::where('nombre', 'Capacitacio
     <div class="flex items-center">
         <span>Capacitaciones</span>
         @if ($moduloCapacitaciones && $moduloCapacitaciones->estado == 'mantenimiento')
-        <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
-        @endif
-    </div>
-</a>
-@endcan
-
-@can('Fichadas/Fichadas/Ver')
-@php
-$moduloFichadas = App\Models\Usuarios\Modulo::where('nombre', 'Fichadas')->first();
-@endphp
-<a href="{{ route('fichadas.fichadas.index') }}" 
-   class="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('fichadas.fichadas.*') ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-    <div class="flex items-center">
-        <span>Fichadas</span>
-        @if ($moduloFichadas && $moduloFichadas->estado == 'mantenimiento')
         <span class="ml-2 font-bold bg-red-800 text-white text-xs rounded px-2 py-0.5" title="Módulo en mantenimiento">!</span>
         @endif
     </div>

@@ -50,10 +50,6 @@ Cada módulo representa un área funcional independiente, con sus propios contro
 - **Funcionalidad:** Administración de concursos públicos, documentos, tipos de documentos, prórrogas y calendario de eventos. Permite la descarga de documentación y generación de resúmenes en PDF.
 - **Rutas:** `routes/concursos.php`
 
-### 8. Mesa de Entradas
-- **Funcionalidad:** Registro y gestión de entradas administrativas, seguimiento y control de documentación recibida.
-- **Rutas:** `routes/mesadeentradas.php`
-
 ### 9. AdminIP
 - **Funcionalidad:** Gestión de direcciones IP y categorías asociadas para administración de red interna.
 - **Rutas:** `routes/adminip.php`
