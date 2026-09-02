@@ -19,3 +19,18 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Secretos / credenciales (prevención)
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+
+# Dumps de base de datos
+*.sql
+*.sql.gz
+*.dump
+
+# Backups sueltos
+*.bak
