@@ -14,10 +14,8 @@ class NotificarVencimiento extends Component
     public $proveedor;
 
     public function enviarNotificacion() {
-        //Enviar mail a mesa de entradas
-        //Mail::to(['ifernandez@ccasa.com.ar'])->send(new EnviarNotificacionVencimiento($this->proveedor));
         EmailHelper::enviarNotificacion(
-            ['ssanchez@buenosairesenergia.com.ar', 'jpzacoutegui@buenosairesenergia.com.ar'],
+            config('notificaciones.proveedores.vencimiento_documentos'),
             new EnviarNotificacionVencimiento($this->proveedor),
             'Notificación de vencimiento de documentos del proveedor: ' . $this->proveedor->razonsocial
         );

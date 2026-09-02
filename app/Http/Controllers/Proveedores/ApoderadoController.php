@@ -9,7 +9,6 @@ use App\Models\Proveedores\Apoderado;
 use App\Models\Proveedores\DocumentoApoderado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class ApoderadoController extends Controller
@@ -71,9 +70,8 @@ class ApoderadoController extends Controller
 
             $documento->validacion()->create();
             
-            //Mail::to(['egaitero@buenosairesenergia.com.ar', 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar'])->send(new NuevoArchivoValidacion($documento->validacion));
             EmailHelper::enviarNotificacion(
-                ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
+                config('notificaciones.proveedores.nuevo_archivo_validacion'),
                 new NuevoArchivoValidacion($documento->validacion),
                 'Nuevo archivo para validación del proveedor ' . $apoderado->proveedor->razonsocial
             );
@@ -131,9 +129,8 @@ class ApoderadoController extends Controller
 
             $documento->validacion()->create();
             
-            //Mail::to('ifernandez@buenosairesenergia.com.ar')->send(new NuevoArchivoValidacion($documento->validacion));
             EmailHelper::enviarNotificacion(
-                ['egaitero@buenosairesenergia.com.ar', /* 'jprojeda@buenosairesenergia.com.ar', 'mmartin@buenosairesenergia.com.ar' */],
+                config('notificaciones.proveedores.nuevo_archivo_validacion'),
                 new NuevoArchivoValidacion($documento->validacion),
                 'Nuevo archivo de validación para el proveedor ' . $apoderado->proveedor->razon_social
             );

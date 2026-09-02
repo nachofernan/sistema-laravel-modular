@@ -166,20 +166,15 @@ return [
     */
     'domain_filter_enabled' => env('MAIL_DOMAIN_FILTER_ENABLED', false),
     
-    'allowed_domains' => [
-        // Dejarlo vacío para que NO permita ningún dominio automáticamente
-        'buenosairesenergia.com.ar'
-    ],
-    
-    'allowed_emails' => [
-        'ifernandez@buenosairesenergia.com.ar' // Solo este email específico
-    ],
-    
+    'allowed_domains' => array_filter(explode(',', env('MAIL_ALLOWED_DOMAINS', ''))),
+
+    'allowed_emails' => array_filter(explode(',', env('MAIL_ALLOWED_EMAILS', ''))),
+
     // Comportamiento cuando se bloquea un email
     'blocked_email_behavior' => env('MAIL_BLOCKED_EMAIL_BEHAVIOR', 'log'), // 'log', 'redirect', 'throw'
-    
+
     // Email de redirección para testing
-    'testing_redirect_email' => env('MAIL_TESTING_REDIRECT_EMAIL', 'ifernandez@buenosairesenergia.com.ar'),
+    'testing_redirect_email' => env('MAIL_TESTING_REDIRECT_EMAIL', ''),
 
 
 ];

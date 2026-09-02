@@ -3,11 +3,9 @@
 namespace App\Livewire\Concursos\Concurso;
 
 use App\Helpers\EmailHelper;
-use App\Mail\Concursos\NuevaInvitacion;
 use App\Models\Concursos\Concurso;
 use App\Models\Concursos\Invitacion;
 use App\Models\Proveedores\Proveedor;
-use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class InvitarProveedor extends Component
@@ -61,10 +59,6 @@ class InvitarProveedor extends Component
             'proveedor_id' => $proveedor->id
         ]);
         if($this->concurso->estado->id == 2) {
-            // Crear el modelo del mail y el mail
-            /* if(str_ends_with($invitacion->proveedor->correo, '@buenosairesenergia.com.ar')) {
-                Mail::to([$invitacion->proveedor->correo])->send(new NuevaInvitacion($invitacion));
-            } */
             $destinatarios[] = [
                 'email' => $invitacion->proveedor->correo,
                 'nombre' => $invitacion->proveedor->razonsocial,
@@ -115,7 +109,6 @@ class InvitarProveedor extends Component
             ];
         }
         EmailHelper::notificarAperturaConcurso($this->concurso, $destinatarios);
-        //Mail::to(['ifernandez@ccasa.com.ar'])->send(new NuevaInvitacion($invitacion));
         $this->cargarProveedoresRecomendados();
     }
 

@@ -68,7 +68,7 @@ class TicketController extends Controller
 
 
         EmailHelper::enviarNotificacion(
-            ['emartinez@ccasa.com.ar', 'azugazua@ccasa.com.ar'],
+            config('notificaciones.tickets.nuevo'),
             new TicketNuevo($ticket),
             'Ingreso de nuevo Ticket'
         );

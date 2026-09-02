@@ -62,11 +62,7 @@ class DocumentoController extends Controller
         $documento->validacion()->create();
 
         EmailHelper::enviarNotificacion(
-            [
-                'egaitero@buenosairesenergia.com.ar',
-                // 'jprojeda@buenosairesenergia.com.ar',
-                // 'mmartin@buenosairesenergia.com.ar',
-            ],
+            config('notificaciones.proveedores.nuevo_archivo_validacion'),
             new NuevoArchivoValidacion($documento->validacion),
             'Nuevo archivo para validación del proveedor ' . $proveedor->razonsocial
         );
