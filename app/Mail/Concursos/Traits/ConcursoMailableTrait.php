@@ -43,8 +43,8 @@ trait ConcursoMailableTrait
         if ($tipo === 'interno') {
             // Link interno según entorno
             $baseUrl = config('app.env') === 'production'
-                ? 'http://172.17.8.80/plataforma'
-                : 'http://172.17.9.231/plataforma';
+                ? config('app.internal_url_prod')
+                : config('app.internal_url_dev');
 
             return "{$baseUrl}/concursos/concursos/{$concursoId}";
         }

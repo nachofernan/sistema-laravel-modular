@@ -56,6 +56,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | URLs internas de red (LAN) por entorno
+    |--------------------------------------------------------------------------
+    | Usadas para armar links "internos" en emails y para forzar app.url cuando
+    | se accede por la IP de la red interna (ver AppServiceProvider::boot()).
+    */
+
+    'internal_url_prod' => env('APP_INTERNAL_URL_PROD', ''),
+    'internal_url_dev' => env('APP_INTERNAL_URL_DEV', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

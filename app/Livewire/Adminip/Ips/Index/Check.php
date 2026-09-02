@@ -20,7 +20,7 @@ class Check extends Component
 
     public function checkear()
     {
-        $response = Http::get('http://172.17.9.231/checkip/index.php?ip='.$this->ip->ip)['activo'];
+        $response = Http::get(config('services.checkip.url') . '?ip=' . $this->ip->ip)['activo'];
         if($response === true) {
             $this->color = 'bg-green-500';
             $this->texto = 'Activo';

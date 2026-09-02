@@ -135,7 +135,7 @@ class TableSearch extends Component
         $this->checkResult = null;
 
         try {
-            $response = Http::timeout(10)->get('http://172.17.9.231/checkip/index.php?ip=' . $ip);
+            $response = Http::timeout(10)->get(config('services.checkip.url') . '?ip=' . $ip);
             $isActive = $response['activo'] ?? false;
             
             if ($isActive) {

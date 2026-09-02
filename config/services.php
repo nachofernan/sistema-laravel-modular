@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'checkip' => [
+        'url' => env('CHECKIP_SERVICE_URL', ''),
+    ],
+
 ];

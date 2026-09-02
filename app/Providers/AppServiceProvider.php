@@ -28,8 +28,13 @@ class AppServiceProvider extends ServiceProvider
 
         $hostMap = [
             'intranet.local' => 'http://intranet.local',
-            '172.17.8.80' => 'http://172.17.8.80/plataforma',
         ];
+
+        foreach ([config('app.internal_url_prod'), config('app.internal_url_dev')] as $internalUrl) {
+            if ($internalUrl && $internalHost = parse_url($internalUrl, PHP_URL_HOST)) {
+                $hostMap[$internalHost] = $internalUrl;
+            }
+        }
 
         $host = $request->getHost();
 
