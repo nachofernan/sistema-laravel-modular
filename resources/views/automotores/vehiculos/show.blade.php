@@ -32,7 +32,33 @@
                             </h3>
                                                          <div class="mt-1 text-sm text-red-700">
                                  <p>
-                                     Han pasado {{ number_format($vehiculo->kilometraje - ($vehiculo->services->sortByDesc('fecha_service')->first()->kilometros ?? 0)) }} km desde el último service. 
+                                     Han pasado {{ number_format($vehiculo->km_desde_ultimo_service) }} km desde el último service.
+                                 </p>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @elseif($vehiculo->proximo_service)
+    <div class="w-full max-w-7xl mx-auto mb-6">
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-yellow-800">
+                                Se acerca el próximo service
+                            </h3>
+                                                         <div class="mt-1 text-sm text-yellow-700">
+                                 <p>
+                                     Han pasado {{ number_format($vehiculo->km_desde_ultimo_service) }} km desde el último service.
                                  </p>
                              </div>
                         </div>

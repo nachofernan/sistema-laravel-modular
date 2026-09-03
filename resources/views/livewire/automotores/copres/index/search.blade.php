@@ -277,6 +277,12 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zm7.94-2.5a1 1 0 00.06-2l-2.02-.17a7.03 7.03 0 00-.7-1.7l1.23-1.66a1 1 0 00-1.32-1.5l-1.66 1.23a7.03 7.03 0 00-1.7-.7l-.17-2.02a1 1 0 00-2-.06l-.17 2.02a7.03 7.03 0 00-1.7.7l-1.66-1.23a1 1 0 00-1.5 1.32l1.23 1.66a7.03 7.03 0 00-.7 1.7l-2.02.17a1 1 0 00-.06 2l2.02.17a7.03 7.03 0 00.7 1.7l-1.23 1.66a1 1 0 001.32 1.5l1.66-1.23a7.03 7.03 0 001.7.7l.17 2.02a1 1 0 002 .06l.17-2.02a7.03 7.03 0 001.7-.7l1.66 1.23a1 1 0 001.5-1.32l-1.23-1.66a7.03 7.03 0 00.7-1.7l2.02-.17z"/>
                                             </svg>
                                         </span>
+                                        @elseif($copre->vehiculo->proximo_service)
+                                        <span title="Próximo service">
+                                            <svg class="inline w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                            </svg>
+                                        </span>
                                         @endif
                                         <div class="text-xs text-gray-500">
                                             {{ number_format($copre->km_vehiculo) ?? '-' }} km
