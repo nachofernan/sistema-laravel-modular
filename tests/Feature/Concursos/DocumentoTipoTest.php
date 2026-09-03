@@ -4,11 +4,12 @@ namespace Tests\Feature\Concursos;
 
 use App\Models\Concursos\DocumentoTipo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DocumentoTipoTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_documento_tipo()
     {
         // Este test verifica que se puede crear un tipo de documento correctamente

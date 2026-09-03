@@ -15,6 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class ConcursoControllerTest extends TestCase
 {
@@ -57,7 +58,7 @@ class ConcursoControllerTest extends TestCase
         $this->token = $response->json('token');
     }
 
-    /** @test */
+    #[Test]
     public function puede_eliminar_documento_de_oferta_antes_del_cierre()
     {
         // Crear documento de oferta
@@ -84,7 +85,7 @@ class ConcursoControllerTest extends TestCase
         $this->assertDatabaseMissing('oferta_documentos', ['id' => $documento->id]);
     }
 
-    /** @test */
+    #[Test]
     public function no_puede_eliminar_documento_despues_del_cierre()
     {
         // Modificar fecha de cierre a pasado
@@ -107,7 +108,7 @@ class ConcursoControllerTest extends TestCase
                 ]);
     }
 
-    /** @test */
+    #[Test]
     public function no_puede_eliminar_documento_de_empresa()
     {
         // Crear documento ingresado por empresa
@@ -127,7 +128,7 @@ class ConcursoControllerTest extends TestCase
                 ]);
     }
 
-    /** @test */
+    #[Test]
     public function no_puede_eliminar_documento_inexistente()
     {
         $response = $this->withHeaders([
@@ -141,7 +142,7 @@ class ConcursoControllerTest extends TestCase
                 ]);
     }
 
-    /** @test */
+    #[Test]
     public function puede_dar_de_baja_oferta_completa()
     {
         // Crear varios documentos de oferta
@@ -180,7 +181,7 @@ class ConcursoControllerTest extends TestCase
         $this->assertEquals(1, $this->invitacion->intencion);
     }
 
-    /** @test */
+    #[Test]
     public function no_puede_dar_de_baja_oferta_despues_del_cierre()
     {
         // Modificar fecha de cierre a pasado
@@ -197,7 +198,7 @@ class ConcursoControllerTest extends TestCase
                 ]);
     }
 
-    /** @test */
+    #[Test]
     public function dar_de_baja_solo_elimina_documentos_de_proveedor()
     {
         // Crear documento de proveedor
@@ -228,7 +229,7 @@ class ConcursoControllerTest extends TestCase
         $this->assertDatabaseHas('oferta_documentos', ['id' => $documentoEmpresa->id]);
     }
 
-    /** @test */
+    #[Test]
     public function subir_documento_adicional_en_analisis_notifica_al_personal_interno()
     {
         Queue::fake();
@@ -259,7 +260,7 @@ class ConcursoControllerTest extends TestCase
         Queue::assertPushed(EnviarCorreoAutomatizado::class, 3);
     }
 
-    /** @test */
+    #[Test]
     public function subir_documento_en_estado_activo_no_notifica_al_personal_interno()
     {
         Queue::fake();

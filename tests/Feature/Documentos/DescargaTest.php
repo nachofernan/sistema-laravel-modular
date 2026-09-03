@@ -3,11 +3,12 @@
 namespace Tests\Feature\Documentos;
 
 use App\Models\Documentos\Descarga;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DescargaTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_una_descarga()
     {
         // Este test verifica que se puede crear una descarga correctamente

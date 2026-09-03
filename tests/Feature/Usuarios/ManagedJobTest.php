@@ -4,13 +4,14 @@ namespace Tests\Feature\Usuarios;
 
 use App\Models\Usuarios\ManagedJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ManagedJobTest extends TestCase
 {
     // NOTA: No usamos RefreshDatabase para no borrar la base completa
 
-    /** @test */
+    #[Test]
     public function puede_crear_un_job()
     {
         // Este test verifica que se puede crear un job administrado

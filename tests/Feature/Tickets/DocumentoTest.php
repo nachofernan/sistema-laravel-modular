@@ -4,11 +4,12 @@ namespace Tests\Feature\Tickets;
 
 use App\Models\Tickets\Documento;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DocumentoTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_documento()
     {
         // Este test verifica que se puede crear un documento correctamente
@@ -18,7 +19,7 @@ class DocumentoTest extends TestCase
         ], 'tickets');
     }
 
-    /** @test */
+    #[Test]
     public function documento_tiene_relacion_con_ticket()
     {
         // Este test verifica la relación explícita con ticket

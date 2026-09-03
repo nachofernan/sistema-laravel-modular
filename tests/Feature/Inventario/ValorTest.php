@@ -4,11 +4,12 @@ namespace Tests\Feature\Inventario;
 
 use App\Models\Inventario\Valor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ValorTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_valor()
     {
         // Este test verifica que se puede crear un valor correctamente
@@ -18,7 +19,7 @@ class ValorTest extends TestCase
         ], 'inventario');
     }
 
-    /** @test */
+    #[Test]
     public function valor_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas del valor

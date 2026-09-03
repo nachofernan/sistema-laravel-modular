@@ -4,11 +4,12 @@ namespace Tests\Feature\Inventario;
 
 use App\Models\Inventario\Caracteristica;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CaracteristicaTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_una_caracteristica()
     {
         // Este test verifica que se puede crear una característica correctamente
@@ -18,7 +19,7 @@ class CaracteristicaTest extends TestCase
         ], 'inventario');
     }
 
-    /** @test */
+    #[Test]
     public function caracteristica_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas de la característica
