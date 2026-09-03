@@ -5,7 +5,121 @@
 **Plan completo:** ver `docs/DECISIONES.md` (2026-09-03) para el resumen de la decisión.
 
 Este archivo se va actualizando a medida que se completa cada paso. Formato por entrada: qué se
-hizo, qué se encontró, qué queda pendiente de tu lado (el usuario).
+hizo, qué se encontró, qué queda pendiente de tu lado (el usuario). La sección siguiente,
+**"Para la próxima sesión"**, es autocontenida — sirve como prompt de arranque sin necesidad de
+leer el resto del archivo. El resto de abajo es el detalle cronológico, por si hace falta
+profundidad.
+
+---
+
+## Para la próxima sesión — empezar acá
+
+### Qué es esto
+
+Proyecto BAESA (Laravel, multi-DB, ver `CLAUDE.md` en la raíz del repo para las reglas de trabajo
+del proyecto — leerlo si no está ya en contexto). Estamos en medio de un upgrade de framework de
+Laravel 11 a Laravel 13, decidido con el usuario, pasando por Laravel 12 en el medio. Es un cambio
+que toca la infraestructura transversal completa (núcleo sagrado ampliado, ver `CLAUDE.md`), así
+que se trabaja en el hilo principal con el usuario presente, no delegado a ciegas.
+
+**Cómo se está versionando:** todo el recorrido vive en una sola rama, `upgrade/laravel-13`,
+creada desde `main` (con el tag `pre-upgrade-laravel11` marcando el punto de partida). Se mergea a
+`main` una sola vez al final, cuando todo esté en Laravel 13 y verificado — **no** se mergea nada
+intermedio. Si en algún momento hay una urgencia real en `main`, se resuelve ahí aparte y se trae
+a esta rama con un merge.
+
+### Estado actual (al cerrar la sesión del 2026-09-03)
+
+- Rama activa: `upgrade/laravel-13`, con 5 commits sobre `main` (ver `git log upgrade/laravel-13
+  ^main` para el detalle). **Nada mergeado a `main` todavía.**
+- **Escalón 1 (Laravel 11 → 12): CERRADO y verificado.** `laravel/framework` está en v12.69.1.
+  Detalle completo más abajo en este mismo archivo, en la sección "Escalón 1.1".
+- Suite de tests: **175 passed, 3 failed** (los 3 fallos son preexistentes, no relacionados —
+  tabla `oferta_documentos` faltante en `plataforma_dev`, ver detalle abajo). Esta es la línea de
+  base a la que hay que volver después de cada escalón.
+- Smoke test manual del escalón 1: **confirmado OK por el usuario** — login, todos los módulos,
+  exports a Excel y a PDF. **No se probó el envío real de email**, a propósito — se decidió
+  dejarlo para el final de todo el recorrido, ya que ningún escalón tocó el mailer todavía.
+
+### Lo que falta: Escalón 2 (Laravel 12 → 13), todavía NO iniciado
+
+Pasos en orden (adaptar si al ejecutar aparece algo nuevo, como pasó en el escalón 1 — avisar y
+ajustar, no forzar el plan original a como dé lugar):
+
+**2.0 — Retomar:**
+1. Confirmar `git status` limpio y que se está parado en la rama `upgrade/laravel-13` (no en
+   `main`).
+2. Correr la suite completa (vía el agente `testeador`) para confirmar que se sigue en 175
+   passed / 3 failed antes de tocar nada nuevo.
+
+**2.1 — `innoge/laravel-msgraph-mail` (independiente, se puede hacer primero y aparte):**
+- Actualmente en 1.4.0. No soporta Laravel 13 (su constraint es
+  `illuminate/contracts: ^9.38|^10.0|^11.0|^12.0`, sin `^13.0`). Hay que subirlo a la serie 2.x.
+- Recordatorio importante: **este mailer no está activo en producción** (`.env` tiene
+  `MAIL_MAILER=smtp` contra `smtp.office365.com`; las líneas de `microsoft-graph` están
+  comentadas) — confirmado en la sesión anterior. Bajo riesgo funcional, pero sigue siendo
+  dependencia dura en `composer.json` así que hay que subirla igual para que `composer update`
+  del framework no se trabe. Revisar el changelog de la v2 antes de darla por trivial.
+
+**2.2 — Livewire 3 → 4 (antes de tocar el framework — es el cambio de mayor superficie):**
+- `livewire/livewire` está en 3.8.7 (ya parcheado por seguridad en el escalón 1). Laravel 13
+  requiere Livewire 4 (confirmado: v4+ para Laravel 13, la propia librería lo dice explícito).
+- Puntos concretos a revisar, confirmados en el análisis previo:
+  - **Prefijo de URL cambia** de `/livewire/` a `/livewire-{hash}/` (hash derivado de `APP_KEY`).
+    El proyecto tiene `LIVEWIRE_URL_PREFIX` custom en `.env` — confirmar que sigue funcionando o
+    si rompe algo aguas arriba.
+  - `wire:model.blur` / `.change` cambian de semántica en v4 (ahora controlan sincronización de
+    estado del cliente, no solo timing de red) — hacer un grep dirigido antes de asumir que no se
+    usan (no se había detectado uso en el relevamiento inicial, pero eso fue ANTES de escribir
+    este paso, conviene reconfirmar sobre el código real en ese momento).
+  - `$this->emit(...)` viejo (pre-Livewire-3) rompería si sobrevivió algo así — grep dirigido
+    también.
+  - Es mayormente retrocompatible según la propia documentación de Livewire — no debería requerir
+    reescribir los 108 componentes, pero hay que verificarlo con la suite + smoke visual.
+- Suite completa después del bump. Commit separado, antes de tocar `laravel/framework`.
+
+**2.3 — Framework a Laravel 13:**
+- `composer require laravel/framework:^13.0` (chequear igual que en el escalón 1 si Composer
+  bloquea versiones bajas por advisories de seguridad — en el escalón 1 hubo que fijar el piso en
+  `^12.61` por eso mismo; puede repetirse el patrón acá, revisar el mensaje de error de Composer
+  si aparece y fijar el piso correspondiente).
+- Seguir la guía oficial en `https://laravel.com/docs/13.x/upgrade` punto por punto (fetchearla,
+  no asumir de memoria — en el escalón 1 sirvió mucho leerla literal en vez de confiar en resúmenes
+  de terceros, que tenían al menos un dato inventado sobre `TrustHosts` que la guía oficial no
+  respalda).
+- Confirmar versión mínima de `laravel/jetstream` / `laravel/fortify` que declare soporte 13 (en
+  el escalón 1 no hizo falta tocarlas, puede que acá tampoco, pero confirmar).
+- Ir chequeando de paso, igual que en el escalón 1, si algún otro paquete queda atado al bump
+  (dompdf, spatie/*, etc. ya deberían estar bien porque se subieron a versiones con rango amplio
+  en el escalón 1, pero no asumir sin confirmar con el propio `composer update`).
+
+**2.4 — Verificación del escalón 2:**
+- Suite completa (debe volver a 175 passed / 3 failed).
+- Smoke test manual del usuario: sesión/login (ojo que `SESSION_CONNECTION=usuarios` es custom,
+  no la default), un componente Livewire de cada módulo grande, el endpoint JWT del Portal de
+  Proveedores, **y esta vez sí probar el envío real de email** (ya que quedó pendiente de todo el
+  recorrido).
+- Commits de cierre + `docs/CHANGELOG.md` + `docs/ARQUITECTURA.md` si cambió algo estructural
+  visible (ej. el prefijo de Livewire).
+
+**2.5 — Cierre de todo el upgrade:**
+- Suite completa una vez más sobre el estado final de la rama.
+- Merge `upgrade/laravel-13` → `main` con `--no-ff`.
+- Borrar la rama ya mergeada.
+- Actualizar `docs/ROADMAP.md`.
+
+### Dos cosas sueltas, sin bloquear nada, a resolver cuando surja el momento
+
+- **`firebase/php-jwt`** 6.11.1 tiene una vulnerabilidad de severidad baja ("weak encryption",
+  fixed en 7.0.0+). No se tocó en el escalón 1 porque es el paquete que usa
+  `app/Http/Middleware/VerifyJWT.php` para el contrato JWT con el Portal de Proveedores — axioma 4,
+  núcleo sagrado. Si se decide encararlo, necesita test explícito antes de darlo por hecho (no es
+  parte obligatoria de llegar a Laravel 13, es un tema aparte).
+- **Test flaky** en `tests/Feature/Documentos/BusquedaTest.php` (`busca por nombre`): puede fallar
+  por `UniqueConstraintViolationException` en `users.legajo_unique`, porque `UserFactory` usa
+  `Faker::unique()` que no garantiza unicidad contra los datos reales ya en `plataforma_dev` (los
+  tests corren con `DatabaseTransactions` contra la base real). Preexistente, no causado por el
+  upgrade. Se decide si se arregla aparte.
 
 ---
 
