@@ -9,6 +9,17 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-09-03
+
+### Upgrade — Laravel 11 a 12 (escalón 1 de 2 hacia Laravel 13)
+`laravel/framework` v11.45.1 → v12.69.1, en la rama `upgrade/laravel-13`. Trabajado en detalle en `docs/updates/2026-09-03_upgrade-laravel-13.md`.
+
+- Paquetes que quedaron atados al mismo bump (no resolvían contra Laravel 12 en su versión anterior): `maatwebsite/excel` 3.1.56 → 4.0.2, `barryvdh/laravel-dompdf` 2.2.0 → 3.1.2, `pestphp/pest` 2.36.0 → 4.7.8 (trae PHPUnit 10 → 12).
+- **Parche de seguridad de paso**, sin relación con el upgrade: RCE crítica en `livewire/livewire` 3.6.3 → 3.8.7, y dos vulnerabilidades más en `spatie/laravel-medialibrary` 11.13.0 → 11.23.7.
+- Migrados los 66 tests que usaban `/** @test */` (ya no soportado por PHPUnit 12) al atributo `#[Test]`, en 34 archivos de `tests/Feature/`.
+- Suite completa y smoke test manual (login, flujos de todos los módulos, exports a Excel y PDF, endpoint JWT del Portal de Proveedores) verificados sin regresiones. Envío real de email queda para probar al final del recorrido completo (no se tocó nada del mailer en este escalón).
+- Pendiente, sin bloquear el resto del upgrade: `firebase/php-jwt` tiene una vulnerabilidad de severidad baja, se encara aparte por tocar el JWT del Portal de Proveedores (núcleo sagrado); un test flaky preexistente en `BusquedaTest` (colisión de `legajo` contra datos reales) quedó anotado, sin arreglar.
+
 ## 2026-08-25
 
 ### Eliminación de módulos deprecados Fichadas y Mesa de Entradas

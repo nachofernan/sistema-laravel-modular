@@ -142,16 +142,24 @@ sigue anotado como pendiente aparte, no arreglado.
 - `deps: sube Laravel 11 a 12, con los paquetes que quedaron atados al bump`
 - `tests: migra los 66 métodos /** @test */ a #[Test]`
 
-### Falta para cerrar el escalón 1
+### Smoke test manual — OK
 
-- [ ] **Smoke test manual (de tu lado):** login, un flujo de cada módulo grande, el endpoint JWT
-  del Portal de Proveedores, un envío real de email por SMTP. Avisame el resultado.
-- [ ] Decidir cuándo/cómo encarar `firebase/php-jwt` (weak encryption, severidad baja, pero toca
-  el núcleo sagrado del JWT externo) — pendiente, no bloquea el cierre del escalón.
-- [ ] Decidir si querés que arregle el test flaky de `BusquedaTest` (legajo) — pendiente, no
-  bloquea el cierre del escalón.
-- [ ] Entrada en `docs/CHANGELOG.md` una vez confirmado el smoke test.
-- [ ] Recién ahí arranca el escalón 2 (Laravel 12 → 13 + Livewire 4).
+Confirmado por el usuario (2026-09-03): login, todos los módulos, descarga de Excel y de PDF
+funcionando perfecto. **No se probó el envío real de email** — se decide a propósito dejarlo para
+el final de todo el recorrido (11→12→13), ya que este escalón no tocó nada del mailer y el riesgo
+de que algo se rompa ahí por este cambio puntual es muy bajo.
+
+**Escalón 1 (Laravel 11 → 12): CERRADO.** Entrada agregada en `docs/CHANGELOG.md` (2026-09-03).
+
+Quedan dos decisiones sueltas, anotadas pero sin bloquear el resto:
+- `firebase/php-jwt` (weak encryption, severidad baja, núcleo sagrado del JWT externo).
+- Test flaky de `BusquedaTest` (colisión de legajo).
+
+---
+
+## Escalón 2 — Laravel 12 → 13 (arranca acá)
+
+**Estado:** no iniciado.
 
 ### Línea de base de tests (2026-09-03, sobre `main`, antes de tocar nada)
 
