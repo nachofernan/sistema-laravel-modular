@@ -27,6 +27,33 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-04 — Se pausa el merge de `upgrade/laravel-13` a `main` por el PHP de producción
+
+**Decisión:** El código y los tests del upgrade completo (Laravel 11 → 12 → 13) quedan terminados,
+verificados (suite completa 175 passed / 3 failed preexistentes, smoke test manual OK incluyendo
+envío real de email) y commiteados en la rama `upgrade/laravel-13`. El **merge a `main` se pausa a
+propósito** hasta que se actualice el PHP del servidor de producción — puede quedar así sin
+problema salvo que aparezca una urgencia real que obligue a tocar `main`.
+
+**Motivo:** Producción corre **PHP 8.2**. Laravel 13 requiere PHP 8.3+ (confirmado puntualmente
+porque `spatie/laravel-permission` 8.3.0 declara `"php": "^8.3"` en su `composer.json`, y es una
+dependencia dura del framework en esta versión). Mergear ahora dejaría `main` con un framework que
+no arranca en el servidor tal como está configurado hoy. Se estima retomar la semana del
+2026-09-07, cuando se actualice el PHP de producción.
+
+**Corrección sobre el relevamiento inicial** (ver la decisión del 2026-09-03, más abajo): en ese
+momento se había anotado que "el PHP de este XAMPP ya es 8.3.33, cubre el mínimo de Laravel 13" —
+eso era correcto para el **entorno local de desarrollo**, pero nunca se chequeó la versión de PHP
+del **servidor de producción**, que resultó ser distinta (8.2). Queda como aprendizaje para
+próximos upgrades de framework: confirmar la versión de PHP en todos los entornos relevantes, no
+solo en el de desarrollo, antes de dar por cerrado el relevamiento previo.
+
+**Se descartó:** mergear igual y postergar el bump de PHP de producción como tarea aparte —
+implicaría dejar `main` roto en producción hasta que se resuelva el PHP, contra la regla del
+proyecto de no dejar `main` en un estado que no funcione.
+
+---
+
 ## 2026-09-03 — Se encara el upgrade de Laravel 11 a 13, pasando por 12, en una sola rama
 
 **Decisión:** Se sube el framework de Laravel v11.45.1 a Laravel 13, en dos escalones (11→12,

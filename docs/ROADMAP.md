@@ -17,6 +17,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 | ✅ | Tests: cobertura básica de modelos — Proveedores (ya existían, todos en verde) |
 | ✅ | Tests: cobertura básica de modelos — Concursos (ya existían; limpieza de drift de esquema, ver sección Concursos) |
 | 🔲 | Seeders de desarrollo: usuarios con roles, datos mínimos por módulo |
+| 🔲 | Actualizar PHP de producción a 8.3+ y mergear `upgrade/laravel-13` a `main` — código y tests ya listos en la rama, solo falta esto (ver `docs/DECISIONES.md`, 2026-09-04) |
 | ✅ | Documentación: CLAUDE.md, ARQUITECTURA.md, docs/modulos/ (12 módulos) |
 
 ---
