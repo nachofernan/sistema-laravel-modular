@@ -4,11 +4,12 @@ namespace Tests\Feature\Capacitaciones;
 
 use App\Models\Capacitaciones\Respuesta;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RespuestaTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_una_respuesta()
     {
         // Este test verifica que se puede crear una respuesta correctamente
@@ -18,7 +19,7 @@ class RespuestaTest extends TestCase
         ], 'capacitaciones');
     }
 
-    /** @test */
+    #[Test]
     public function respuesta_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas de la respuesta

@@ -4,11 +4,12 @@ namespace Tests\Feature\Capacitaciones;
 
 use App\Models\Capacitaciones\Encuesta;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class EncuestaTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_una_encuesta()
     {
         // Este test verifica que se puede crear una encuesta correctamente
@@ -18,7 +19,7 @@ class EncuestaTest extends TestCase
         ], 'capacitaciones');
     }
 
-    /** @test */
+    #[Test]
     public function encuesta_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas de la encuesta

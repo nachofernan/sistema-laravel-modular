@@ -4,11 +4,12 @@ namespace Tests\Feature\Proveedores;
 
 use App\Models\Proveedores\Documento;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DocumentoTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_documento()
     {
         // Este test verifica que se puede crear un documento correctamente
@@ -18,7 +19,7 @@ class DocumentoTest extends TestCase
         ], 'proveedores');
     }
 
-    /** @test */
+    #[Test]
     public function documento_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas del documento

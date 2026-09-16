@@ -5,13 +5,14 @@ namespace Tests\Feature\Usuarios;
 use App\Models\Usuarios\Log;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LogTest extends TestCase
 {
     // NOTA: No usamos RefreshDatabase para no borrar la base completa
 
-    /** @test */
+    #[Test]
     public function puede_registrar_un_evento_de_usuario()
     {
         // Este test verifica que se puede registrar un evento en el log de usuario
@@ -28,7 +29,7 @@ class LogTest extends TestCase
         ], 'usuarios');
     }
 
-    /** @test */
+    #[Test]
     public function traduce_evento_a_nombre_amigable()
     {
         // Este test verifica que el evento se traduce a un nombre amigable en español

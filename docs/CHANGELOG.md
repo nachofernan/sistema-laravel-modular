@@ -9,6 +9,38 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-09-04
+
+### Upgrade — Laravel 12 a 13 (escalón 2 de 2, código y tests cerrados)
+`laravel/framework` v12.69.1 → v13.30.1, en la rama `upgrade/laravel-13`. Trabajado en detalle en
+`docs/updates/2026-09-03_upgrade-laravel-13.md`.
+
+- `innoge/laravel-msgraph-mail` 1.4.0 → 2.0.0, `livewire/livewire` 3.8.7 → 4.4.3 (con ajuste de
+  firma en `Livewire::setUpdateRoute()`/`setScriptRoute()` en `routes/web.php` por el nuevo
+  parámetro `$path` de Livewire 4, preservando el prefijo custom que necesita producción).
+- Paquetes que quedaron atados al mismo bump del framework: `spatie/laravel-permission` 6.20.0 →
+  8.3.0 (paquete de permisos, axioma 2 — revisado el changelog, sin cambios en los métodos de uso
+  común), `laravel/jetstream` 5.3.7 → 5.5.3, `laravel/fortify` 1.27.0 → 1.39.0, `laravel/sanctum`
+  4.1.1 → 4.3.3 (no usado en rutas activas), `laravel/tinker` 2.10.1 → 3.0.2, `laravel/sail`
+  1.43.1 → 1.67.0 (dev).
+- Suite completa y smoke test manual verificados sin regresiones: login/sesión, Livewire de los
+  módulos grandes, endpoint JWT del Portal de Proveedores, y **envío real de email** — quedaba
+  pendiente de todo el recorrido 11→12→13, se probó en este cierre sin problemas.
+- **El merge de `upgrade/laravel-13` a `main` queda pausado**: producción corre PHP 8.2 y Laravel
+  13 necesita 8.3+. Ver `docs/DECISIONES.md` (2026-09-04). Retomar cuando se actualice el PHP de
+  producción.
+
+## 2026-09-03
+
+### Upgrade — Laravel 11 a 12 (escalón 1 de 2 hacia Laravel 13)
+`laravel/framework` v11.45.1 → v12.69.1, en la rama `upgrade/laravel-13`. Trabajado en detalle en `docs/updates/2026-09-03_upgrade-laravel-13.md`.
+
+- Paquetes que quedaron atados al mismo bump (no resolvían contra Laravel 12 en su versión anterior): `maatwebsite/excel` 3.1.56 → 4.0.2, `barryvdh/laravel-dompdf` 2.2.0 → 3.1.2, `pestphp/pest` 2.36.0 → 4.7.8 (trae PHPUnit 10 → 12).
+- **Parche de seguridad de paso**, sin relación con el upgrade: RCE crítica en `livewire/livewire` 3.6.3 → 3.8.7, y dos vulnerabilidades más en `spatie/laravel-medialibrary` 11.13.0 → 11.23.7.
+- Migrados los 66 tests que usaban `/** @test */` (ya no soportado por PHPUnit 12) al atributo `#[Test]`, en 34 archivos de `tests/Feature/`.
+- Suite completa y smoke test manual (login, flujos de todos los módulos, exports a Excel y PDF, endpoint JWT del Portal de Proveedores) verificados sin regresiones. Envío real de email queda para probar al final del recorrido completo (no se tocó nada del mailer en este escalón).
+- Pendiente, sin bloquear el resto del upgrade: `firebase/php-jwt` tiene una vulnerabilidad de severidad baja, se encara aparte por tocar el JWT del Portal de Proveedores (núcleo sagrado); un test flaky preexistente en `BusquedaTest` (colisión de `legajo` contra datos reales) quedó anotado, sin arreglar.
+
 ## 2026-08-25
 
 ### Eliminación de módulos deprecados Fichadas y Mesa de Entradas

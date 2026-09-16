@@ -4,11 +4,12 @@ namespace Tests\Feature\Proveedores;
 
 use App\Models\Proveedores\Proveedor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ProveedorTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_proveedor()
     {
         // Este test verifica que se puede crear un proveedor correctamente
@@ -18,7 +19,7 @@ class ProveedorTest extends TestCase
         ], 'proveedores');
     }
 
-    /** @test */
+    #[Test]
     public function proveedor_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas del proveedor

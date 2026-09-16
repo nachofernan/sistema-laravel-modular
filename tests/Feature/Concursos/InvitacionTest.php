@@ -4,11 +4,12 @@ namespace Tests\Feature\Concursos;
 
 use App\Models\Concursos\Invitacion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class InvitacionTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_una_invitacion()
     {
         // Este test verifica que se puede crear una invitación correctamente
@@ -18,7 +19,7 @@ class InvitacionTest extends TestCase
         ], 'concursos');
     }
 
-    /** @test */
+    #[Test]
     public function invitacion_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas de la invitación

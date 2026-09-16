@@ -4,11 +4,12 @@ namespace Tests\Feature\Concursos;
 
 use App\Models\Concursos\Historial;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class HistorialTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_historial()
     {
         // Este test verifica que se puede crear un historial correctamente
@@ -18,7 +19,7 @@ class HistorialTest extends TestCase
         ], 'concursos');
     }
 
-    /** @test */
+    #[Test]
     public function historial_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas del historial

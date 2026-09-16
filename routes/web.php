@@ -17,11 +17,11 @@ use Livewire\Livewire;
 
 $prefix = env('LIVEWIRE_URL_PREFIX', 'plataforma');
 
-Livewire::setUpdateRoute(function ($handle) use ($prefix) {
+Livewire::setUpdateRoute(function ($handle, $path) use ($prefix) {
     return Route::post($prefix.'/livewire/update', $handle);
 });
 
-Livewire::setScriptRoute(function ($handle) use ($prefix) {
+Livewire::setScriptRoute(function ($handle, $path) use ($prefix) {
     return Route::get($prefix.'/livewire/livewire.js', $handle);
 });
 

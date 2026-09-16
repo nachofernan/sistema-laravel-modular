@@ -6,13 +6,14 @@ use App\Models\User;
 use App\Models\Usuarios\Role;
 use App\Models\Usuarios\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RolPermisoTest extends TestCase
 {
     // NOTA: No usamos RefreshDatabase para no borrar la base completa
 
-    /** @test */
+    #[Test]
     public function puede_asignar_rol_a_usuario()
     {
         // Este test verifica que se puede asignar un rol a un usuario
@@ -22,7 +23,7 @@ class RolPermisoTest extends TestCase
         $this->assertTrue($usuario->hasRole('admin'));
     }
 
-    /** @test */
+    #[Test]
     public function puede_asignar_permiso_a_rol()
     {
         // Este test verifica que se puede asignar un permiso a un rol

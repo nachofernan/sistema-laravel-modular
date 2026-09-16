@@ -4,11 +4,12 @@ namespace Tests\Feature\Concursos;
 
 use App\Models\Concursos\Concurso;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ConcursoTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_concurso()
     {
         // Este test verifica que se puede crear un concurso correctamente
@@ -18,7 +19,7 @@ class ConcursoTest extends TestCase
         ], 'concursos');
     }
 
-    /** @test */
+    #[Test]
     public function concurso_tiene_relaciones_basicas()
     {
         // Este test verifica las relaciones explícitas del concurso

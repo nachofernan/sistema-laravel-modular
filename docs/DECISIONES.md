@@ -27,6 +27,61 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-04 — Se pausa el merge de `upgrade/laravel-13` a `main` por el PHP de producción
+
+**Decisión:** El código y los tests del upgrade completo (Laravel 11 → 12 → 13) quedan terminados,
+verificados (suite completa 175 passed / 3 failed preexistentes, smoke test manual OK incluyendo
+envío real de email) y commiteados en la rama `upgrade/laravel-13`. El **merge a `main` se pausa a
+propósito** hasta que se actualice el PHP del servidor de producción — puede quedar así sin
+problema salvo que aparezca una urgencia real que obligue a tocar `main`.
+
+**Motivo:** Producción corre **PHP 8.2**. Laravel 13 requiere PHP 8.3+ (confirmado puntualmente
+porque `spatie/laravel-permission` 8.3.0 declara `"php": "^8.3"` en su `composer.json`, y es una
+dependencia dura del framework en esta versión). Mergear ahora dejaría `main` con un framework que
+no arranca en el servidor tal como está configurado hoy. Se estima retomar la semana del
+2026-09-07, cuando se actualice el PHP de producción.
+
+**Corrección sobre el relevamiento inicial** (ver la decisión del 2026-09-03, más abajo): en ese
+momento se había anotado que "el PHP de este XAMPP ya es 8.3.33, cubre el mínimo de Laravel 13" —
+eso era correcto para el **entorno local de desarrollo**, pero nunca se chequeó la versión de PHP
+del **servidor de producción**, que resultó ser distinta (8.2). Queda como aprendizaje para
+próximos upgrades de framework: confirmar la versión de PHP en todos los entornos relevantes, no
+solo en el de desarrollo, antes de dar por cerrado el relevamiento previo.
+
+**Se descartó:** mergear igual y postergar el bump de PHP de producción como tarea aparte —
+implicaría dejar `main` roto en producción hasta que se resuelva el PHP, contra la regla del
+proyecto de no dejar `main` en un estado que no funcione.
+
+---
+
+## 2026-09-03 — Se encara el upgrade de Laravel 11 a 13, pasando por 12, en una sola rama
+
+**Decisión:** Se sube el framework de Laravel v11.45.1 a Laravel 13, en dos escalones (11→12,
+12→13) pero sin quedarse a vivir en el 12 intermedio. Todo el trabajo se hace en una única rama
+(`upgrade/laravel-13`), con un commit por paso lógico, y se mergea a `main` una sola vez al final,
+cuando la suite completa pase y el smoke test manual esté OK en Laravel 13. Se marca el commit de
+arranque con el tag liviano `pre-upgrade-laravel11` para tener un punto de referencia fácil.
+
+Relevado antes de arrancar: `bootstrap/app.php` ya está en el formato moderno de Laravel 11 (sin
+`Kernel.php`), el PHP de este XAMPP ya es 8.3.33 (cubre el mínimo de Laravel 13), y dos paquetes
+tienen incompatibilidad confirmada con Laravel 12 tal como están hoy: `maatwebsite/excel` (3.1 →
+4.0.2) e `innoge/laravel-msgraph-mail` (1.4 → 2.x). Se confirmó además que `innoge/laravel-msgraph-mail`
+**no está en uso activo** hoy (`.env` tiene `MAIL_MAILER=smtp` contra `smtp.office365.com`; las
+líneas de `microsoft-graph` están comentadas), así que su actualización es de bajo riesgo funcional
+aunque sigue haciendo falta para que `composer update` del framework no se trabe. Livewire 3 no
+soporta Laravel 13: hace falta subir a Livewire 4 dentro del escalón 12→13.
+
+**Motivo:** Es un cambio que toca la infraestructura transversal completa (todos los axiomas a la
+vez), no un módulo — se decide y ejecuta en el hilo principal. El análisis previo completo está en
+`docs/updates/2026-09-03_upgrade-laravel-13.md` (se va actualizando a medida que avanza cada paso).
+
+**Se descartó:** un salto directo 11→13 (acumula demasiado riesgo sin poder aislar qué rompió qué).
+También se descartó mergear a `main` después de cada escalón (12 estable primero, 13 después): se
+prefirió una sola rama larga para simplificar el trabajo con git, asumiendo que si aparece una
+urgencia real de producción mientras tanto se resuelve aparte en `main` y se trae a la rama.
+
+---
+
 ## 2026-08-19 — El gestor del concurso se corrige para que reciba sus notificaciones
 
 **Decisión:** En `Concurso::getCorreosInteresados()`, el bloque que arma el grupo `'contactos_concurso'`

@@ -4,11 +4,12 @@ namespace Tests\Feature\Inventario;
 
 use App\Models\Inventario\Modificacion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ModificacionTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_una_modificacion()
     {
         // Este test verifica que se puede crear una modificación correctamente
@@ -18,7 +19,7 @@ class ModificacionTest extends TestCase
         ], 'inventario');
     }
 
-    /** @test */
+    #[Test]
     public function modificacion_tiene_relacion_con_elemento()
     {
         // Este test verifica la relación explícita con elemento

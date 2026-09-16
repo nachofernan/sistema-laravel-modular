@@ -4,11 +4,12 @@ namespace Tests\Feature\Proveedores;
 
 use App\Models\Proveedores\Contacto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ContactoTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function puede_crear_un_contacto()
     {
         // Este test verifica que se puede crear un contacto correctamente
@@ -18,7 +19,7 @@ class ContactoTest extends TestCase
         ], 'proveedores');
     }
 
-    /** @test */
+    #[Test]
     public function contacto_tiene_relacion_con_proveedor()
     {
         // Este test verifica la relación explícita con proveedor
