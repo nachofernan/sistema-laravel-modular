@@ -39,4 +39,8 @@ return [
         'url' => env('CHECKIP_SERVICE_URL', ''),
     ],
 
+    'jwt' => [
+        'secret' => env('JWT_SECRET'),
+    ],
+
 ];

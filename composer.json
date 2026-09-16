@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
-        "firebase/php-jwt": "^6.10",
+        "firebase/php-jwt": "^7.0",
         "innoge/laravel-msgraph-mail": "^2.0",
         "laravel/framework": "^13.0",
         "laravel/jetstream": "^5.5",

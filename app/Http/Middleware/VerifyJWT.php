@@ -11,7 +11,10 @@ use Symfony\Component\HttpFoundation\Response;
 class VerifyJWT
 {
     /**
-     * Handle an incoming request.
+     * Valida el JWT del Portal de Proveedores y expone el proveedor autenticado en el request.
+     * Cubierto por: endpoint_protegido_sin_token_devuelve_401,
+     * endpoint_protegido_con_token_firmado_con_otro_secreto_devuelve_401,
+     * endpoint_protegido_con_token_expirado_devuelve_401 (AuthControllerTest).
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -23,7 +26,7 @@ class VerifyJWT
                 throw new \Exception('Token no proporcionado');
             }
 
-            $decoded = JWT::decode($token, new Key(env('JWT_SECRET'), 'HS256'));
+            $decoded = JWT::decode($token, new Key(config('services.jwt.secret'), 'HS256'));
             $request->attributes->add(['proveedor_id' => $decoded->sub]);
 
             return $next($request);

@@ -4,11 +4,16 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Proveedores\Proveedor;
-use Illuminate\Http\Request; 
-use Firebase\JWT\JWT; // Esto tengo que instalarlo en la plataforma del 8.80!!!
+use Illuminate\Http\Request;
+use Firebase\JWT\JWT;
 
 class AuthController extends Controller
 {
+    /**
+     * Emite el JWT que el Portal de Proveedores usa para autenticarse en el resto de la API.
+     * Cubierto por: un_proveedor_valido_obtiene_token_y_accede_a_endpoint_protegido,
+     * generar_token_con_proveedor_inexistente_devuelve_404 (AuthControllerTest).
+     */
     public function generateToken(Request $request)
     {
         $cuit = $request->input('cuit');
@@ -27,7 +32,7 @@ class AuthController extends Controller
             'email' => $email,
             'iat' => time(),
             'exp' => time() + 600 // Token válido por 10 minutos
-        ], env('JWT_SECRET'), 'HS256');
+        ], config('services.jwt.secret'), 'HS256');
 
         //return response();
         
