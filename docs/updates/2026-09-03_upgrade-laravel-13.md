@@ -352,3 +352,23 @@ pendiente de todo el recorrido 11→12→13 y se probó recién acá, sin proble
 **Escalón 2 (Laravel 12 → 13): CERRADO en código y tests.**
 
 ---
+
+## Escalón 2.5 — Merge final (2026-09-16)
+
+Confirmado por el usuario que producción ya corre **PHP 8.3+**, se destraba la pausa registrada en
+`docs/DECISIONES.md` (2026-09-04).
+
+- Suite completa corrida de nuevo antes de mergear (vía `testeador`): **175 passed, 3 failed**,
+  mismos 3 fallos de siempre (`ConcursoControllerTest`, tabla `oferta_documentos` faltante en
+  `plataforma_dev`). Sin cambios respecto al cierre del escalón 2.
+- Merge `upgrade/laravel-13` → `main` con `--no-ff`. Sin conflictos.
+- Rama `upgrade/laravel-13` borrada (solo existía local, nunca se pusheó a `origin`).
+- `docs/ROADMAP.md` y `docs/CHANGELOG.md` actualizados. Decisión de cierre registrada en
+  `docs/DECISIONES.md` (2026-09-16).
+
+**Upgrade Laravel 11 → 13: CERRADO por completo**, código y merge a `main`. Queda pendiente
+confirmar con el usuario si hace falta un smoke test adicional ya en el servidor de producción
+después del próximo deploy — el smoke test hecho hasta ahora fue en entornos locales (XAMPP y
+`artisan serve`), no en el servidor real.
+
+---

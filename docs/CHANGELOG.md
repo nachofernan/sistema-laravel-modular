@@ -9,6 +9,14 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-09-16
+
+### Upgrade — Merge de `upgrade/laravel-13` a `main` (escalón 2.5, cierre del upgrade)
+Confirmado que producción ya corre PHP 8.3+, se destraba la pausa registrada el 2026-09-04. Suite
+completa verificada una vez más antes de mergear: 175 passed / 3 failed (mismos 3 preexistentes de
+siempre). Merge `--no-ff` de `upgrade/laravel-13` a `main`, rama borrada. `main` queda en Laravel
+13.30.1. Detalle completo en `docs/updates/2026-09-03_upgrade-laravel-13.md`.
+
 ## 2026-09-04
 
 ### Upgrade — Laravel 12 a 13 (escalón 2 de 2, código y tests cerrados)

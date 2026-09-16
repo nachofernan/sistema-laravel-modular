@@ -27,6 +27,24 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-16 — Se destraba el merge de `upgrade/laravel-13` a `main`
+
+**Decisión:** El usuario confirma que el servidor de producción ya corre PHP 8.3+. Con la
+precondición cumplida, se ejecuta el merge de `upgrade/laravel-13` a `main` (verificación final de
+suite completa en 175 passed / 3 failed, mismos fallos preexistentes de siempre, merge `--no-ff`
+sin conflictos, rama borrada). `main` queda en Laravel 13.30.1.
+
+**Motivo:** Resuelve la única condición pendiente que dejó pausado el merge desde la decisión del
+2026-09-04, de abajo.
+
+**Se descartó:** nada nuevo, es la continuación directa de lo ya decidido — no hubo alternativas a
+evaluar una vez cumplida la precondición.
+
+**Reemplaza a:** 2026-09-04 — Se pausa el merge de `upgrade/laravel-13` a `main` por el PHP de
+producción.
+
+---
+
 ## 2026-09-04 — Se pausa el merge de `upgrade/laravel-13` a `main` por el PHP de producción
 
 **Decisión:** El código y los tests del upgrade completo (Laravel 11 → 12 → 13) quedan terminados,
