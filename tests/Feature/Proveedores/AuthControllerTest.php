@@ -4,11 +4,30 @@ namespace Tests\Feature\Proveedores;
 
 use App\Models\Proveedores\Proveedor;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
+    #[Test]
+    public function generar_token_con_cuit_alfanumerico_devuelve_token_valido()
+    {
+        $proveedor = Proveedor::factory()->create(['cuit' => 'RUT12345CL']);
+
+        $response = $this->postJson('/api/generate-token', [
+            'cuit' => 'rut12345cl',
+            'email' => $proveedor->correo,
+        ]);
+
+        $response->assertStatus(200)->assertJsonStructure(['token']);
+
+        $decoded = JWT::decode($response->json('token'), new Key(config('services.jwt.secret'), 'HS256'));
+
+        $this->assertIsString($decoded->cuit);
+        $this->assertSame('RUT12345CL', $decoded->cuit);
+    }
+
     #[Test]
     public function un_proveedor_valido_obtiene_token_y_accede_a_endpoint_protegido()
     {
@@ -23,7 +42,7 @@ class AuthControllerTest extends TestCase
 
         $token = $response->json('token');
 
-        $this->withHeaders(['Authorization' => 'Bearer ' . $token])
+        $this->withHeaders(['Authorization' => 'Bearer '.$token])
             ->getJson('/api/proveedores/tipos-documentos')
             ->assertStatus(200);
     }
@@ -58,7 +77,7 @@ class AuthControllerTest extends TestCase
             'exp' => time() + 600,
         ], 'secreto-que-no-es-el-configurado', 'HS256');
 
-        $this->withHeaders(['Authorization' => 'Bearer ' . $tokenAjeno])
+        $this->withHeaders(['Authorization' => 'Bearer '.$tokenAjeno])
             ->getJson('/api/proveedores/tipos-documentos')
             ->assertStatus(401);
     }
@@ -75,7 +94,7 @@ class AuthControllerTest extends TestCase
             'exp' => time() - 600,
         ], config('services.jwt.secret'), 'HS256');
 
-        $this->withHeaders(['Authorization' => 'Bearer ' . $tokenExpirado])
+        $this->withHeaders(['Authorization' => 'Bearer '.$tokenExpirado])
             ->getJson('/api/proveedores/tipos-documentos')
             ->assertStatus(401);
     }

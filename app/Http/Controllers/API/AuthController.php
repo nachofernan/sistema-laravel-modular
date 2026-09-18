@@ -4,38 +4,43 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Proveedores\Proveedor;
-use Illuminate\Http\Request;
 use Firebase\JWT\JWT;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
     /**
      * Emite el JWT que el Portal de Proveedores usa para autenticarse en el resto de la API.
      * Cubierto por: un_proveedor_valido_obtiene_token_y_accede_a_endpoint_protegido,
-     * generar_token_con_proveedor_inexistente_devuelve_404 (AuthControllerTest).
+     * generar_token_con_proveedor_inexistente_devuelve_404,
+     * generar_token_con_cuit_alfanumerico_devuelve_token_valido (AuthControllerTest).
      */
     public function generateToken(Request $request)
     {
-        $cuit = $request->input('cuit');
+        $request->validate([
+            'cuit' => 'required|string',
+        ]);
+
+        $cuit = strtoupper($request->input('cuit'));
         $email = $request->input('email');
-        
+
         // Verificar si el proveedor existe
         $proveedor = Proveedor::where('cuit', $cuit)->where('correo', $email)->first();
-        
-        if (!$proveedor) {
+
+        if (! $proveedor) {
             return response()->json(['error' => 'Proveedor no encontrado'], 404);
         }
-        
+
         $token = JWT::encode([
             'sub' => $proveedor->id,
             'cuit' => $cuit,
             'email' => $email,
             'iat' => time(),
-            'exp' => time() + 600 // Token válido por 10 minutos
+            'exp' => time() + 600, // Token válido por 10 minutos
         ], config('services.jwt.secret'), 'HS256');
 
-        //return response();
-        
+        // return response();
+
         return response()->json(['token' => $token]);
     }
 
@@ -45,18 +50,18 @@ class AuthController extends Controller
     public function validateProvider(Request $request)
     {
         $request->validate([
-            'cuit' => 'required|string'
+            'cuit' => 'required|string',
         ]);
-        
+
         $proveedor = Proveedor::where('cuit', $request->cuit)->first();
-        
-        if (!$proveedor) {
+
+        if (! $proveedor) {
             return response()->json([
                 'exists' => false,
-                'message' => 'Proveedor no encontrado'
+                'message' => 'Proveedor no encontrado',
             ], 404);
         }
-        
+
         return response()->json([
             'exists' => true,
             'proveedor' => [
@@ -64,8 +69,8 @@ class AuthController extends Controller
                 'cuit' => $proveedor->cuit,
                 'razonsocial' => $proveedor->razonsocial,
                 'correo' => $proveedor->correo,
-                'estado' => $proveedor->estado_id
-            ]
+                'estado' => $proveedor->estado_id,
+            ],
         ]);
     }
 
@@ -77,13 +82,13 @@ class AuthController extends Controller
         $proveedor = Proveedor::with(['contactos', 'direcciones', 'documentos', 'apoderados'])
             ->where('cuit', $cuit)
             ->first();
-        
-        if (!$proveedor) {
+
+        if (! $proveedor) {
             return response()->json(['error' => 'Proveedor no encontrado'], 404);
         }
-        
+
         return response()->json([
-            'proveedor' => $proveedor
+            'proveedor' => $proveedor,
         ]);
     }
 }
