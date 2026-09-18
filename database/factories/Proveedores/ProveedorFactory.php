@@ -2,8 +2,8 @@
 
 namespace Database\Factories\Proveedores;
 
-use App\Models\Proveedores\Proveedor;
 use App\Models\Proveedores\Estado;
+use App\Models\Proveedores\Proveedor;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +14,9 @@ class ProveedorFactory extends Factory
     public function definition()
     {
         return [
-            'cuit' => $this->faker->unique()->numberBetween(20000000000, 27999999999),
+            'cuit' => $this->faker->boolean(85)
+                ? (string) $this->faker->unique()->numberBetween(20000000000, 27999999999)
+                : strtoupper($this->faker->unique()->bothify('??######???')),
             'razonsocial' => $this->faker->company(),
             'correo' => $this->faker->unique()->safeEmail(),
             'fantasia' => $this->faker->companySuffix(),
@@ -26,4 +28,4 @@ class ProveedorFactory extends Factory
             'estado_id' => Estado::factory(),
         ];
     }
-} 
+}
