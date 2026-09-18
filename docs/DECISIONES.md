@@ -27,6 +27,33 @@ Formato de cada entrada:
 
 ---
 
+## 2026-09-17 — Política de validación para el cambio de `cuit` a texto
+
+**Decisión:** Se retoma el análisis de `docs/archivo/CAMBIO_TIPO_CAMPO_CUIT.md` (migrar `cuit` de
+`proveedors` de `BIGINT` a texto, para admitir identificadores tributarios extranjeros con letras) y
+se cierran los tres puntos que lo tenían pendiente:
+
+- **Auditoría de datos:** confirmado que `proveedores_externos.users.username` es literalmente el
+  `cuit` de `proveedores.proveedors` — no hay inconsistencias de formato entre ambas bases.
+- **Alcance de la API externa:** el único consumidor de `cuit` vía API es el propio sistema de
+  proveedores externos, y solo lo usa en registro y login — no hay otros integradores a coordinar.
+- **Política de validación:** el CUIT/identificador se valida entre 6 y 20 caracteres, se sanitiza
+  eliminando guiones, barras, espacios y puntos (queda alfanumérico puro), y las letras se normalizan
+  a mayúsculas. La UX pasa a mayúsculas mientras se escribe (JS), pero la garantía real es el
+  `strtoupper()` (u equivalente) del backend antes de persistir. No se agrega un campo
+  `tipo_identificador` separado.
+
+**Motivo:** Estas eran las tres condiciones que el análisis original dejaba pendientes antes de
+poder implementar el cambio de tipo de campo sin riesgo. Con las tres resueltas, el cambio queda
+listo para ejecutarse como tarea de núcleo sagrado (toca aislamiento multi-DB vía la relación
+Eloquent con `proveedores_externos`, y el contrato de la API externa).
+
+**Se descartó:** un campo `tipo_identificador` separado para distinguir CUIT argentino de
+identificador extranjero — se prefiere unificar todo en `cuit` como texto libre normalizado, sin
+metadata adicional que hoy no se necesita.
+
+---
+
 ## 2026-09-16 — Se destraba el merge de `upgrade/laravel-13` a `main`
 
 **Decisión:** El usuario confirma que el servidor de producción ya corre PHP 8.3+. Con la

@@ -9,6 +9,28 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-09-18
+
+### Proveedores — Cambio de `cuit` de bigint a varchar(30), soporte a identificadores extranjeros
+Implementa `docs/archivo/CAMBIO_TIPO_CAMPO_CUIT.md` y la política definida en `docs/DECISIONES.md`
+(2026-09-17). Tres etapas, cada una con su test:
+
+- Migración `proveedors.cuit` de `bigint` a `varchar(30)` (sin `doctrine/dbal`, Laravel 13 lo
+  soporta nativo) + factory ajustado para generar CUIT alfanumérico.
+- Sanitización (trim de guiones/barras/espacios/puntos + mayúsculas) y validación nueva
+  (`required|string|min:6|max:20|regex:/^[A-Z0-9]+$/`) en alta/edición de `ProveedorController`,
+  con JS cosmético de mayúsculas en los formularios. De paso, fix de un bug preexistente en
+  `store()` (`Undefined array key "webpage"` cuando el campo quedaba vacío).
+- `AuthController::generateToken()` (API JWT del Portal de Proveedores) alineado con
+  `validateProvider()`: valida `cuit` como string y lo normaliza a mayúsculas antes de la query y
+  del payload del token.
+
+Suite completa: 185 passed / 3 failed (mismos 3 preexistentes de Concursos, tabla
+`oferta_documentos` faltante en la base de test — ajenos a este cambio).
+
+**Pendiente:** activación en producción (backup + migración manual + verificación del login
+externo) — ver runbook en el plan de la sesión.
+
 ## 2026-09-16
 
 ### Upgrade — Merge de `upgrade/laravel-13` a `main` (escalón 2.5, cierre del upgrade)

@@ -1,8 +1,9 @@
 # Análisis de Impacto: Migración del Campo `cuit` de Entero a Texto
 
-**Fecha:** Mayo 2025  
+**Fecha:** Mayo 2026 (actualizado Septiembre 2026)  
 **Autor:** Equipo de Desarrollo  
-**Estado:** Pendiente de aprobación  
+**Estado:** Implementado en código (2026-09-18, ver `docs/CHANGELOG.md`) — pendiente activación en
+producción  
 
 ---
 
@@ -58,7 +59,13 @@ proveedores_externos.users.username  (VARCHAR)
 
 Actualmente el motor de base de datos realiza una **conversión automática de tipos** para resolver este join, lo que funciona pero es técnicamente incorrecto. Al convertir `cuit` a `VARCHAR`, ambas columnas quedan del mismo tipo y el join pasa a ser limpio y correcto.
 
-**El riesgo:** si en la base de datos `proveedores_externos` algún `username` fue almacenado con un formato diferente al CUIT numérico puro (con guiones, espacios u otros caracteres), la vinculación dejará de funcionar y el proveedor no podrá iniciar sesión. Esto **debe auditarse antes de ejecutar cualquier cambio**.
+**El riesgo:** si en la base de datos `proveedores_externos` algún `username` fue almacenado con un formato diferente al CUIT numérico puro (con guiones, espacios u otros caracteres), la vinculación dejará de funcionar y el proveedor no podrá iniciar sesión.
+
+> **Actualización (Sep. 2026):** Auditoría realizada. El `username` de `proveedores_externos` es
+> literalmente el `cuit` guardado en `proveedores.proveedors` — **no hay inconsistencias de formato**.
+> Además, se confirmó que el único consumidor de la API es el propio sistema de proveedores externos,
+> y solo toma el `cuit` en dos momentos puntuales: **registro y login**. No hay otros integradores ni
+> otros puntos de la API que dependan de su forma actual. El riesgo de este punto queda saldado.
 
 ---
 
@@ -91,12 +98,24 @@ Todas las validaciones actuales del formulario de alta y edición de proveedores
 Reglas actuales:  requerido + numérico + mínimo 7 dígitos + máximo 15 dígitos
 ```
 
-Estas reglas deben ser redefinidas para aceptar tanto CUITs argentinos como identificadores extranjeros. Esto **requiere una decisión de negocio** sobre los formatos aceptables antes de implementar el cambio técnico.
+Estas reglas deben ser redefinidas para aceptar tanto CUITs argentinos como identificadores extranjeros.
 
-**Preguntas a resolver antes de implementar:**
-- ¿Se valida el formato del CUIT argentino de forma diferente al identificador extranjero?
-- ¿Cuál es la longitud máxima aceptada para identificadores extranjeros?
-- ¿Se agrega un campo `tipo_identificador` para distinguir el origen del número?
+> **Actualización (Sep. 2026) — Política de validación definida:**
+>
+> - **Longitud:** entre 6 y 20 caracteres.
+> - **Sanitización:** se eliminan guiones, barras, espacios y puntos antes de guardar — el valor
+>   persistido es siempre alfanumérico puro (`[A-Z0-9]`), sin separadores de ningún tipo.
+> - **Mayúsculas:** las letras se normalizan a mayúsculas.
+> - **UX:** un JS en el input pasa a mayúsculas mientras el usuario escribe (feedback inmediato).
+> - **Defensa en profundidad:** independientemente del JS, el backend aplica `strtoupper()` (o
+>   equivalente) antes de persistir — el JS es cosmético, la garantía real la da el servidor.
+> - No se agrega un campo `tipo_identificador` separado: el dato queda unificado en `cuit` como texto
+>   libre normalizado.
+>
+> Esto se implementa como una regla de validación custom (o Form Request) en
+> `ProveedorController` — reemplaza las reglas actuales `numeric|min:1000000|max:999999999999999`
+> por algo del estilo `required|string|min:6|max:20|regex:/^[A-Z0-9]+$/` aplicado **después** de la
+> sanitización (trim de guiones/barras/espacios/puntos + `strtoupper`), no antes.
 
 ---
 
@@ -127,9 +146,9 @@ El export de proveedores incluye la columna CUIT. Con el tipo actual (`BIGINT`),
 | Área | Impacto | Requiere acción |
 |---|---|---|
 | Migración de base de datos | Alto | Sí — nueva migración |
-| Relación con portal externo | Crítico | Sí — auditoría de datos previa obligatoria |
-| API de autenticación (JWT) | Alto | Sí — coordinar con clientes externos |
-| Validaciones formulario web | Alto | Sí — redefinir política de validación |
+| Relación con portal externo | Crítico | **Resuelto** — auditoría sin inconsistencias (Sep. 2026) |
+| API de autenticación (JWT) | Alto | **Resuelto** — único consumidor es el propio portal, solo en registro/login (Sep. 2026) |
+| Validaciones formulario web | Alto | **Resuelto** — política definida: 6-20 caracteres, sanitizado alfanumérico, mayúsculas (Sep. 2026) |
 | Módulo de Concursos | Bajo | No |
 | Buscadores y listados | Bajo | No (funciona igual) |
 | Export Excel | Bajo | Verificar reportes downstream |
@@ -154,22 +173,32 @@ El export de proveedores incluye la columna CUIT. Con el tipo actual (`BIGINT`),
 
 ## Condiciones Previas para Implementar
 
-El cambio **no debe implementarse** hasta que se cumplan estas condiciones:
+~~El cambio no debe implementarse hasta que se cumplan estas condiciones~~ — **actualizado Sep. 2026,
+todas resueltas:**
 
-1. **Auditoría de datos aprobada:** Verificar que todos los registros en `proveedores_externos.users.username` coincidan exactamente con su correspondiente `proveedors.cuit`, sin diferencias de formato.
+1. ~~Auditoría de datos aprobada~~ **✔ Hecho.** El `username` de `proveedores_externos` es literalmente
+   el `cuit` de `proveedores.proveedors`, sin diferencias de formato.
 
-2. **Política de validación definida:** El área de negocio debe definir qué formato se acepta para los identificadores tributarios extranjeros.
+2. ~~Política de validación definida~~ **✔ Hecho.** Ver sección "Validaciones del Sistema Interno"
+   arriba: 6-20 caracteres, sanitizado a alfanumérico puro, mayúsculas, uppercase en JS + backend.
 
-3. **Clientes externos notificados:** Los consumidores de la API (portal externo, integraciones) deben ser informados del cambio y confirmar compatibilidad.
+3. ~~Clientes externos notificados~~ **✔ No aplica.** El único consumidor de la API es el propio
+   sistema de proveedores externos, y solo usa `cuit` en registro y login — no hay otros
+   integradores a coordinar.
 
-4. **Entorno de staging actualizado:** El cambio debe probarse en staging con datos reales replicados antes de ejecutarse en producción.
+4. **Pendiente:** probar en staging con datos reales antes de ejecutar en producción (sigue vigente,
+   es checklist de despliegue estándar, no un bloqueante de diseño).
 
 ---
 
 ## Conclusión
 
-El cambio es **técnicamente necesario y viable**, pero su impacto trasciende una modificación de código puntual: afecta la base de datos, el flujo de autenticación externo y los contratos de la API. La ejecución correcta requiere coordinación entre el equipo de desarrollo, el área de negocio y los responsables de los sistemas externos que consumen la API.
+El cambio es **técnicamente necesario y viable**. El análisis original identificaba tres riesgos
+(consistencia cross-DB, contrato de API externa, política de validación) que **ya fueron
+despejados** en la revisión de Septiembre 2026: no hay inconsistencias de datos, la API no tiene
+otros consumidores además del propio portal, y la política de validación quedó definida.
 
-El riesgo más alto es la consistencia de la relación entre las dos bases de datos (`proveedores` y `proveedores_externos`). Una migración sin auditoría previa puede dejar proveedores existentes sin acceso al portal externo.
-
-Se recomienda **planificar el cambio en un sprint dedicado** con ventana de mantenimiento programada para la ejecución en producción.
+Lo que queda es la ejecución en sí — como el cambio toca dos axiomas de arquitectura (aislamiento
+multi-DB por la relación con `proveedores_externos`, y el contrato de la API externa), se trata como
+**núcleo sagrado**: migración + cambio de validación + actualización del JWT si corresponde, cada uno
+con su test, y avisando el efecto en cascada antes de tocar cada capa (ver CLAUDE.md).
