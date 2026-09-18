@@ -90,6 +90,7 @@
                                            value="{{ $proveedor->cuit }}" 
                                            class="block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm @can('Proveedores/Proveedores/Editar') border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 @error('cuit') border-red-300 @enderror @else border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed @endcan" 
                                            placeholder="XX-XXXXXXXX-X"
+                                           oninput="this.value = this.value.toUpperCase()"
                                            @cannot('Proveedores/Proveedores/Editar') disabled @endcannot
                                            @can('Proveedores/Proveedores/Editar') required @endcan
                                            autocomplete="off">

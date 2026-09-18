@@ -69,13 +69,14 @@
                                     <label for="cuit" class="block text-sm font-medium text-gray-700 mb-2">
                                         CUIT <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" 
+                                    <input type="text"
                                            id="cuit"
-                                           name="cuit" 
-                                           value="{{ old('cuit') }}" 
-                                           class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('cuit') border-red-300 @enderror" 
+                                           name="cuit"
+                                           value="{{ old('cuit') }}"
+                                           class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('cuit') border-red-300 @enderror"
                                            placeholder="XX-XXXXXXXX-X"
-                                           required 
+                                           oninput="this.value = this.value.toUpperCase()"
+                                           required
                                            autocomplete="off">
                                     @error('cuit')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
