@@ -50,7 +50,7 @@ trait ConcursoMailableTrait
         }
 
         // Link externo (proveedores)
-        return "https://buenosairesenergia.com.ar/registroproveedores/concursos/{$concursoId}";
+        return "https://www.buenosairesenergia.com.ar/registroproveedores/concursos/{$concursoId}";
     }
 
     /**
