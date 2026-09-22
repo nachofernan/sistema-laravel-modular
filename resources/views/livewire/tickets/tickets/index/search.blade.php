@@ -64,15 +64,9 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ticket
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Categoría
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                        Estado
-                    </th>
+                    <x-th-sortable field="codigo" label="Ticket" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-th-sortable field="categoria" label="Categoría" :sort-by="$sortBy" :sort-direction="$sortDirection" />
+                    <x-th-sortable field="estado" label="Estado" :sort-by="$sortBy" :sort-direction="$sortDirection" class="hidden lg:table-cell" />
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Solicitante
                     </th>
@@ -82,9 +76,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Doc.
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fecha
-                    </th>
+                    <x-th-sortable field="created_at" label="Fecha" :sort-by="$sortBy" :sort-direction="$sortDirection" />
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Acciones
                     </th>
