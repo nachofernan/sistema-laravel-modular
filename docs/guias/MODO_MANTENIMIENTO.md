@@ -196,9 +196,23 @@ php artisan tinker
 3. Revisar `bootstrap/app.php` línea 28
 
 ### **❌ "Vista de mantenimiento no se muestra"**
-1. Verificar archivo `resources/views/errors/mantenimiento.blade.php`
+1. Verificar archivo `resources/views/errors/503.blade.php` (vista única, usada tanto por `artisan down` como por el modo custom)
 2. Comprobar permisos de archivos
 3. Limpiar caché de vistas: `php artisan view:clear`
+
+---
+
+## 📢 Banner de alerta global (aviso previo)
+
+Además de los dos modos de mantenimiento, existe un banner de aviso independiente que se muestra arriba de todo el sistema (incluido el login) sin bloquear el acceso — útil para avisar con anticipación ("El viernes a las 20hs habrá mantenimiento por actualización de cola").
+
+```bash
+# Editar el archivo .env
+ALERTA_GLOBAL_ACTIVA=true
+ALERTA_GLOBAL_MENSAJE="El viernes a las 20hs el sistema estará en mantenimiento por actualización de cola."
+```
+
+Config en `config/alerta.php`. Si además se activa el modo mantenimiento (`SYSTEM_MAINTENANCE=true` o `artisan down` sin `--message`), la vista `errors/503.blade.php` reutiliza automáticamente `ALERTA_GLOBAL_MENSAJE` como motivo mostrado, así no hay que cargar el mismo texto dos veces.
 
 ---
 

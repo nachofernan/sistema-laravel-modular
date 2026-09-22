@@ -20,6 +20,8 @@
         @livewireStyles
     </head>
     <body>
+        <x-alerta-global />
+
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>

@@ -162,6 +162,8 @@
         <div id="main-content-container"
              class="flex-1 overflow-x-hidden transition-all duration-300 ease-in-out"
              :class="getContentMargin()">
+            <x-alerta-global />
+
             <!-- Page Content (sin header) -->
             <main class="p-6">
                 @yield('content')

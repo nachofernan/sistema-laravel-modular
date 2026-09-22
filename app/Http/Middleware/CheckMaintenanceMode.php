@@ -19,7 +19,7 @@ class CheckMaintenanceMode
         $response = $next($request);
         if (env('SYSTEM_MAINTENANCE', false)) {
             // Check if the user is authenticated and has the required permission
-            if(auth()->check()) {
+            if (auth()->check()) {
                 $user = User::find(auth()->user()->id);
                 if ($user->hasPermissionTo('Usuarios/Modulos/Editar')) {
                     return $response;
@@ -27,7 +27,7 @@ class CheckMaintenanceMode
             }
 
             // Return maintenance view if system is in maintenance mode
-            return response()->view('errors.mantenimiento');
+            return response()->view('errors.503', [], 503);
         }
 
         return $response;
