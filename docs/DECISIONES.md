@@ -296,3 +296,21 @@ Ajustes de realidad: Livewire 3 (no 4) y tests con `DatabaseTransactions` multi-
 cálculo de riesgo, ciclo de estados, autorización por área — no aplican a BAESA). También se descartó
 no crear los agentes y dejar solo los stances descritos en el `CLAUDE.md`: se prefirió tener los tres
 agentes reales para poder delegar.
+
+---
+
+## 2026-10-07 — Livewire usa sus rutas por defecto; se elimina el prefijo manual (`LIVEWIRE_URL_PREFIX`)
+
+**Decisión:** Se borra de `routes/web.php` el override de `Livewire::setUpdateRoute` y `setScriptRoute`
+(y la variable `LIVEWIRE_URL_PREFIX`). Livewire registra sus rutas por defecto y la única regla es que
+la raíz forzada por `AppServiceProvider` (`APP_INTERNAL_URL_PROD`/`_DEV`) coincida con la URL real de
+entrada del entorno. Reemplaza el parche del prefijo manual, que reemplaza a su vez el ajuste previo
+hecho al pasar de local a producción.
+
+**Motivo:** Livewire 4 pide la ruta de update en forma relativa y luego le aplica `url()`; con una raíz
+forzada que ya trae path (`/plataforma`) y un prefijo manual, el path salía duplicado. En producción
+funcionaba solo porque el prefijo `plataforma` compensaba el duplicado (Laravel descarta la base y
+la ruta coincidía); en local, además, la raíz forzada apuntaba a una URL de entrada inexistente.
+
+**Se descartó:** Dejar el parche y solo corregir el `.env` local (opción A): mantenía el contrapeso
+frágil en producción y dos entornos dependiendo de valores que se compensan entre sí.

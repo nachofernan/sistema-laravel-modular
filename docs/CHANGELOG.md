@@ -9,6 +9,14 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-10-07
+
+### Livewire — URLs de assets y update duplicaban el path de la raíz forzada
+Se elimina el parche de prefijo en `routes/web.php` (`setUpdateRoute`/`setScriptRoute` con `LIVEWIRE_URL_PREFIX`)
+y la variable del `.env.example`. Con Livewire 4 el prefijo manual duplicaba `/plataforma` en `data-update-uri`;
+en producción solo andaba porque el parche compensaba el duplicado. Ver `docs/DECISIONES.md` (2026-10-07).
+Requiere que `APP_INTERNAL_URL_DEV` en cada `.env` local coincida con la URL real de entrada.
+
 ## 2026-09-18
 
 ### Proveedores — Cambio de `cuit` de bigint a varchar(30), soporte a identificadores extranjeros
