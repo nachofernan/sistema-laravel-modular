@@ -13,17 +13,6 @@ use App\Models\Usuarios\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Livewire\Livewire;
-
-$prefix = env('LIVEWIRE_URL_PREFIX', 'plataforma');
-
-Livewire::setUpdateRoute(function ($handle, $path) use ($prefix) {
-    return Route::post($prefix.'/livewire/update', $handle);
-});
-
-Livewire::setScriptRoute(function ($handle, $path) use ($prefix) {
-    return Route::get($prefix.'/livewire/livewire.js', $handle);
-});
 
 Route::get('/refresh-csrf', function () {
     return response()->json([
