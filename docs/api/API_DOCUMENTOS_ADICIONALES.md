@@ -16,7 +16,7 @@ Los documentos adicionales son archivos que pueden ser subidos por el proveedor 
 - `concurso_id` (integer, required): ID del concurso
 
 #### Body (multipart/form-data)
-- `file` (file, required): Archivo a subir (máximo 10MB)
+- `file` (file, required): Archivo a subir (máximo 15MB)
 - `documento_tipo_id` (integer, optional): ID del tipo de documento
   - Si se proporciona: documento requerido
   - Si se omite o es null: documento adicional
@@ -212,7 +212,7 @@ curl -X POST "https://api.ejemplo.com/api/concursos/123/documentos" \
 ## 🔐 Reglas de Negocio
 
 ### Subida de Documentos
-- **Tamaño máximo:** 10MB por archivo
+- **Tamaño máximo:** 15MB por archivo
 - **Formatos permitidos:** Todos los formatos de archivo
 - **Documentos adicionales:** Solo pueden ser subidos por proveedores
 - **Documentos de empresa:** Se cargan internamente por el sistema
@@ -237,7 +237,7 @@ curl -X POST "https://api.ejemplo.com/api/concursos/123/documentos" \
 | Código | Mensaje | Descripción |
 |--------|---------|-------------|
 | 400 | `El archivo debe ser válido.` | Archivo corrupto o inválido |
-| 400 | `El archivo no puede superar los 10MB.` | Archivo demasiado grande |
+| 400 | `El archivo no puede superar los 15MB.` | Archivo demasiado grande |
 | 400 | `Los comentarios no pueden superar los 500 caracteres.` | Comentarios muy largos |
 | 403 | `No se pueden subir documentos. El concurso ya ha cerrado.` | Concurso en estado activo pero cerrado |
 | 403 | `No se pueden subir documentos en esta etapa del concurso.` | Concurso en análisis sin permite_carga |

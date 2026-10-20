@@ -23,15 +23,13 @@ class ConcursoSubirDocumentoRequest extends FormRequest
     {
         return [
             'documento_tipo_id' => 'nullable|exists:concursos.documento_tipos,id',
-            'file' => 'required|file|max:10240', // Máximo 10MB
+            'file' => 'required|file|max:15360', // Máximo 15MB
             'comentarios' => 'nullable|string|max:500', // Comentarios opcionales para documentos adicionales
         ];
     }
 
     /**
      * Get custom messages for validator errors.
-     *
-     * @return array
      */
     public function messages(): array
     {
@@ -39,8 +37,8 @@ class ConcursoSubirDocumentoRequest extends FormRequest
             'documento_tipo_id.exists' => 'El tipo de documento seleccionado no existe.',
             'file.required' => 'El archivo es requerido.',
             'file.file' => 'El archivo debe ser válido.',
-            'file.max' => 'El archivo no puede superar los 10MB.',
+            'file.max' => 'El archivo no puede superar los 15MB.',
             'comentarios.max' => 'Los comentarios no pueden superar los 500 caracteres.',
         ];
     }
-} 
+}

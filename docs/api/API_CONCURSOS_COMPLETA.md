@@ -259,7 +259,7 @@ Permite al proveedor subir un documento para el concurso.
 
 **Body (multipart/form-data):**
 - `documento_tipo_id` (integer): ID del tipo de documento
-- `file` (file): Archivo a subir (máximo 10MB)
+- `file` (file): Archivo a subir (máximo 15MB)
 
 **Respuesta:**
 ```json
@@ -489,7 +489,7 @@ Todas las respuestas de error siguen este formato:
 
 ## 5. Límites y Restricciones
 
-- **Tamaño máximo de archivo:** 10MB por documento
+- **Tamaño máximo de archivo:** 15MB por documento
 - **Formatos soportados:** PDF, DOC, DOCX, XLS, XLSX, JPG, PNG
 - **Token JWT:** Válido por 10 minutos
 - **Rate limiting:** 100 requests por minuto por proveedor

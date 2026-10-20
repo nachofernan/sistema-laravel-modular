@@ -401,7 +401,7 @@ class ConcursoSubirDocumentoRequest extends FormRequest
     {
         return [
             'documento_tipo_id' => 'required|exists:concursos.documento_tipos,id',
-            'file' => 'required|file|max:10240', // 10MB
+            'file' => 'required|file|max:15360', // 15MB
         ];
     }
 }
