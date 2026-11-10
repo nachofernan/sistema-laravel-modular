@@ -4,132 +4,175 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 
+/**
+ * Separa `realname` ("APELLIDOS NOMBRES", así viene de RRHH) en `apellido` y `nombre`.
+ *
+ * El modelo de Groq solo decide cuántas palabras del principio son apellido; el corte se hace
+ * sobre el realname original (con espacios normalizados), así no puede inventar ni cambiar
+ * mayúsculas. Por defecto solo muestra el resultado; con --aplicar guarda vía $user->update(),
+ * para que cada cambio quede en el historial de cambios del usuario.
+ *
+ * Cubierto por: sin_aplicar_no_guarda_nada, aplicar_corta_sobre_el_realname_original,
+ * descarta_cortes_invalidos_e_ids_ajenos, reintenta_cuando_groq_corta_por_limite.
+ */
 class SplitUserNames extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:split-user-names {--limit= : Limit the number of users to process} {--chunk=10 : Number of users per API call}';
+    protected $signature = 'app:split-user-names
+        {--aplicar : Guarda los cambios (sin esta opción solo muestra el resultado)}
+        {--limit= : Cantidad máxima de usuarios a procesar}
+        {--chunk=25 : Usuarios por llamada a la API}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Splits user->realname into nombre and apellido using Groq API (llama-3.1-8b-instant)';
+    protected $description = 'Separa realname en apellido y nombre usando Groq (por defecto, solo vista previa)';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    private const URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+    private const REINTENTOS = 5;
+
+    private const PROMPT = <<<'TXT'
+Recibís una lista de personas argentinas con su nombre completo en formato "APELLIDOS NOMBRES": primero el o los apellidos y después el o los nombres de pila.
+Para cada una indicá cuántas palabras del principio son apellido ("palabras_apellido").
+- Las partículas forman parte del apellido: "De Luca" son 2 palabras, "De La Colina" son 3, "San Martino" son 2.
+- Puede haber dos apellidos seguidos (ej: "Fernandez Vega Magali" => 2).
+- Si dudás entre apellido o nombre de pila, pensá en nombres de pila comunes en Argentina.
+- Algunos nombres vienen truncados o con iniciales al final (ej: "Norber", "L."): son parte de los nombres.
+Respondé solo JSON: {"personas": [{"id": 1, "palabras_apellido": 2}, ...]}
+TXT;
+
+    public function handle(): int
     {
-        $apiKey = env('GROQ_API');
+        if (! config('services.groq.key')) {
+            $this->error('Falta GROQ_API en el .env');
 
-        if (! $apiKey) {
-            $this->error('GROQ_API not found in .env');
-
-            return 1;
+            return self::FAILURE;
         }
 
-        $query = User::whereNull('nombre')->whereNull('apellido')->whereNotNull('realname');
+        // Se toman los usuarios de entrada: el filtro usa las columnas que este comando
+        // modifica, así que paginar la query mientras se guarda saltearía usuarios.
+        $usuarios = User::whereNull('nombre')->whereNull('apellido')->whereNotNull('realname')
+            ->orderBy('id')
+            ->when($this->option('limit'), fn ($q, $limite) => $q->limit((int) $limite))
+            ->get(['id', 'realname'])
+            ->mapWithKeys(fn ($u) => [$u->id => preg_replace('/\s+/', ' ', trim($u->realname))]);
 
-        if ($limit = $this->option('limit')) {
-            $query->limit($limit);
+        [$aProcesar, $unaPalabra] = $usuarios->partition(fn ($realname) => str_contains($realname, ' '));
+
+        if ($aProcesar->isEmpty()) {
+            $this->info('No hay usuarios para procesar.');
+            $this->listarSalteados($unaPalabra);
+
+            return self::SUCCESS;
         }
 
-        $totalUsers = $query->count();
+        $this->info(($this->option('aplicar') ? 'Procesando y GUARDANDO' : 'Vista previa (no guarda nada) de')." {$aProcesar->count()} usuarios con modelo ".config('services.groq.modelo'));
 
-        if ($totalUsers === 0) {
-            $this->info('No users found to process.');
+        $resultados = [];
+        $sinResultado = [];
 
-            return 0;
-        }
+        foreach ($aProcesar->chunk(max(1, (int) $this->option('chunk')), true) as $lote) {
+            $cortes = $this->pedirCortes($lote);
 
-        $this->info("Processing {$totalUsers} users...");
+            foreach ($lote as $id => $realname) {
+                $palabras = explode(' ', $realname);
+                $k = $cortes[$id] ?? null;
 
-        $chunkSize = (int) $this->option('chunk');
-        $bar = $this->output->createProgressBar($totalUsers);
-        $bar->start();
+                if ($k === null || $k < 1 || $k >= count($palabras)) {
+                    $sinResultado[] = $id;
 
-        $query->chunk($chunkSize, function ($users) use ($apiKey, $bar) {
-            $payload = $users->map(fn ($user) => [
-                'id' => $user->id,
-                'realname' => $user->realname,
-            ])->toArray();
-
-            $response = $this->callGroq($payload, $apiKey);
-
-            if ($response && is_array($response)) {
-                foreach ($response as $item) {
-                    if (isset($item['id'], $item['nombre'])) {
-                        User::where('id', $item['id'])->update([
-                            'nombre' => $item['nombre'],
-                            'apellido' => $item['apellido'] ?? '',
-                        ]);
-                    }
+                    continue;
                 }
+
+                $resultados[] = [
+                    'id' => $id,
+                    'realname' => $realname,
+                    'apellido' => implode(' ', array_slice($palabras, 0, $k)),
+                    'nombre' => implode(' ', array_slice($palabras, $k)),
+                ];
             }
+        }
 
-            $bar->advance($users->count());
+        $this->table(['ID', 'Realname', 'Apellido', 'Nombre'], $resultados);
 
-            // Add a delay to avoid rate limits (TPM: 6000 is very low)
-            sleep(5);
-        });
+        if ($this->option('aplicar')) {
+            foreach ($resultados as $r) {
+                User::find($r['id'])->update(['apellido' => $r['apellido'], 'nombre' => $r['nombre']]);
+            }
+            $this->info(count($resultados).' usuarios actualizados.');
+        } else {
+            $this->warn(count($resultados).' usuarios listos. No se guardó nada: correr con --aplicar para guardar.');
+        }
 
-        $bar->finish();
-        $this->newLine();
-        $this->info('Done!');
+        if ($sinResultado !== []) {
+            $this->warn(count($sinResultado).' sin resultado válido (volver a correr para reintentarlos): '.implode(', ', $sinResultado));
+        }
+        $this->listarSalteados($unaPalabra);
 
-        return 0;
+        return self::SUCCESS;
     }
 
-    private function callGroq(array $payload, string $apiKey)
+    /**
+     * Pide a Groq la cantidad de palabras de apellido de cada usuario del lote.
+     * Ignora ids que no pertenecen al lote. Reintenta si Groq corta por límite de uso (429).
+     *
+     * @return array<int, int> id => palabras de apellido
+     */
+    private function pedirCortes(Collection $lote): array
     {
-        $prompt = "Eres un experto en nombres hispanos. Recibirás un JSON con una lista de usuarios que tienen 'id' y 'realname'. 
-        El campo 'realname' está en formato 'APELLIDO NOMBRE' (generalmente el apellido primero, pero puede haber varios apellidos y nombres).
-        Tu tarea es separar con precisión el nombre (o nombres) y el apellido (o apellidos) y devolver EXCLUSIVAMENTE un JSON con este formato: 
-        {\"usuarios\": [{\"id\": 1, \"nombre\": \"JUAN CARLOS\", \"apellido\": \"PEREZ GARCIA\"}, ...]}.
-        
-        Reglas:
-        1. Devuelve SOLO el JSON, sin texto adicional, sin bloques de código markdown.
-        2. Mantén las mayúsculas del original (generalmente están en mayúsculas).
-        3. Si hay ambigüedad, usa tu conocimiento de nombres comunes (ej: 'Martin' puede ser nombre o apellido, pero si está al principio suele ser apellido).
-        4. No inventes datos.
-        
-        Usuarios: ".json_encode($payload);
+        $payload = $lote->map(fn ($realname, $id) => ['id' => $id, 'nombre_completo' => $realname])->values()->all();
 
-        try {
-            $response = Http::withToken($apiKey)
-                ->timeout(60)
-                ->post('https://api.groq.com/openai/v1/chat/completions', [
-                    'model' => 'llama-3.1-8b-instant',
-                    'messages' => [
-                        ['role' => 'system', 'content' => 'Eres un procesador de datos que responde solo en JSON.'],
-                        ['role' => 'user', 'content' => $prompt],
-                    ],
-                    'temperature' => 0,
-                    'response_format' => ['type' => 'json_object'],
-                ]);
+        for ($intento = 1; $intento <= self::REINTENTOS; $intento++) {
+            try {
+                $respuesta = Http::withToken(config('services.groq.key'))
+                    ->timeout(120)
+                    ->post(self::URL, [
+                        'model' => config('services.groq.modelo'),
+                        'temperature' => 0,
+                        'response_format' => ['type' => 'json_object'],
+                        'messages' => [
+                            ['role' => 'user', 'content' => self::PROMPT."\n\n".json_encode($payload, JSON_UNESCAPED_UNICODE)],
+                        ],
+                    ]);
+            } catch (\Exception $e) {
+                $this->error("\nError de conexión: ".$e->getMessage());
 
-            if ($response->failed()) {
-                $this->error("\nAPI call failed: ".$response->body());
-
-                return null;
+                return [];
             }
 
-            $content = $response->json('choices.0.message.content');
-            $data = json_decode($content, true);
+            if ($respuesta->status() === 429) {
+                $espera = (int) ($respuesta->header('retry-after') ?: 30);
+                $this->warn("Groq cortó por límite de uso, espero {$espera}s (intento {$intento}/".self::REINTENTOS.')');
+                Sleep::for($espera)->seconds();
 
-            return $data['usuarios'] ?? $data['users'] ?? (is_array($data) && ! isset($data['id']) ? $data : null);
+                continue;
+            }
 
-        } catch (\Exception $e) {
-            $this->error("\nError: ".$e->getMessage());
+            if ($respuesta->failed()) {
+                $this->error("\nFalló la llamada a Groq: ".$respuesta->body());
 
-            return null;
+                return [];
+            }
+
+            $datos = json_decode((string) $respuesta->json('choices.0.message.content'), true);
+
+            return collect($datos['personas'] ?? [])
+                ->filter(fn ($p) => isset($p['id'], $p['palabras_apellido']) && $lote->has($p['id']))
+                ->mapWithKeys(fn ($p) => [(int) $p['id'] => (int) $p['palabras_apellido']])
+                ->all();
+        }
+
+        $this->error("\nSe agotaron los reintentos para el lote.");
+
+        return [];
+    }
+
+    private function listarSalteados(Collection $unaPalabra): void
+    {
+        if ($unaPalabra->isNotEmpty()) {
+            $this->line('Salteados por tener una sola palabra (cargar a mano): '
+                .$unaPalabra->map(fn ($r, $id) => "{$id} ({$r})")->implode(', '));
         }
     }
 }

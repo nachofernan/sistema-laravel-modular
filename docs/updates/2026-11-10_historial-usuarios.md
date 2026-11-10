@@ -40,6 +40,6 @@ logins y cambios de contraseña, y con huecos.
 - Los usuarios ya existentes no tienen historial previo: arranca a registrar desde el deploy.
 
 ## Fuera de alcance
-- `SplitUserNames` hace update por query builder y no queda en el historial (comando de única vez).
+- (Resuelto en la misma sesión) `SplitUserNames` ahora guarda vía `$user->update()` y queda en el historial.
 - Cambios de permisos de un rol (`syncPermissions` en Módulos) no se registran todavía.
 - `users.last_login` sigue sin escribirse.

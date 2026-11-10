@@ -20,6 +20,14 @@ login con 2FA y resets por mail/perfil). `ResetPasswordModal` ahora exige `Usuar
 (antes no chequeaba permiso). Ver `docs/DECISIONES.md` (2026-11-10) y
 `docs/updates/2026-11-10_historial-usuarios.md`.
 
+### Usuarios — `app:split-user-names` reescrito
+El comando no funcionaba: el modelo `llama-3.1-8b-instant` ya no existe en Groq, `chunk()` salteaba
+usuarios (modificaba las columnas del filtro), no reintentaba ante el límite de uso (429) y guardaba
+texto generado por el modelo. Ahora usa `openai/gpt-oss-120b` (configurable con `GROQ_MODELO`,
+`config/services.php`), el modelo solo indica cuántas palabras son apellido y el corte se hace sobre
+el `realname` original. Por defecto es vista previa; `--aplicar` guarda vía `$user->update()` (queda
+en el historial). Probado contra Groq real sin guardar: 50/50 casos difíciles correctos.
+
 ### Limpieza — migraciones legacy duplicadas
 Se borran cuatro migraciones de la raíz que creaban `users`, `sessions`, `password_reset_tokens`,
 roles/permisos, 2FA y `personal_access_tokens` en `plataforma` (todo eso vive en `usuarios`; en prod

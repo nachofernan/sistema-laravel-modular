@@ -43,4 +43,10 @@ return [
         'secret' => env('JWT_SECRET'),
     ],
 
+    // Usado por app:split-user-names para separar nombre y apellido de realname.
+    'groq' => [
+        'key' => env('GROQ_API'),
+        'modelo' => env('GROQ_MODELO', 'openai/gpt-oss-120b'),
+    ],
+
 ];
