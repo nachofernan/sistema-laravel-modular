@@ -3,6 +3,7 @@
 namespace App\Exports\Inventario;
 
 use App\Models\Inventario\Elemento;
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -13,7 +14,7 @@ class ElementosExport implements FromCollection, ShouldAutoSize, WithHeadings, W
 {
     use Exportable;
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return Elemento::with(['categoria', 'estado', 'user', 'sede', 'area'])->get();
     }

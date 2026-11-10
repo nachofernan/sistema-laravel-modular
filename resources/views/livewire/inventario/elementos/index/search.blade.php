@@ -1,7 +1,7 @@
 <div>
     <!-- Filtros de búsqueda -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
             <!-- Búsqueda por código -->
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
@@ -25,6 +25,21 @@
                     <option value="0">Todas las categorías</option>
                     @foreach ($categorias as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Filtro por sede -->
+            <div>
+                <label for="sede" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sede
+                </label>
+                <select wire:model.live="sede"
+                        id="sede"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <option value="0">Todas las sedes</option>
+                    @foreach ($sedes as $s)
+                        <option value="{{ $s->id }}">{{ $s->nombre }}</option>
                     @endforeach
                 </select>
             </div>
@@ -66,6 +81,9 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Usuario Asignado
                     </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Sede
+                    </th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Acciones
                     </th>
@@ -102,6 +120,11 @@
                                 {{ $elemento->user ? $elemento->user->realname : 'Sin asignar' }}
                             </div>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ $elemento->sede?->nombre ?? 'Sin sede' }}
+                            </div>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             @can('Inventario/Elementos/Ver')
                                 <a href="{{ route('inventario.elementos.show', $elemento) }}" 
@@ -117,7 +140,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center">
+                        <td colspan="6" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <svg class="h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
