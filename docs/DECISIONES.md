@@ -354,3 +354,29 @@ desde cualquier base. Se movió antes de llegar a producción, sin datos que mig
 
 **Se descartó:** Mantenerla en `usuarios` porque hoy solo registra usuarios: describe el alcance
 inicial, no la naturaleza de la tabla.
+
+---
+
+## 2026-11-10 — Limpieza de migraciones legacy duplicadas
+
+**Decisión:** Se borran cinco migraciones que crean tablas en la base equivocada:
+- en la raíz (`plataforma`): `0001_01_01_000000_create_users_table` (users, password_reset_tokens,
+  sessions), `2024_05_31_085906_create_permission_tables`,
+  `2024_05_31_103051_add_two_factor_columns_to_users_table` y
+  `2024_05_31_103127_create_personal_access_tokens_table`;
+- en `Usuarios/`: `2019_08_19_000000_create_failed_jobs_table`.
+
+Regla que queda: en la raíz (`plataforma`) solo va la infraestructura transversal (cache, jobs y
+failed_jobs, email_logs, managed_jobs, media, activity_log). Auth, usuarios, roles, permisos,
+sesiones, tokens de reset y tokens de API viven en `usuarios`.
+
+**Motivo:** Vienen del "Respaldo inicial" (2025-07) y duplicaban tablas que viven en `usuarios`
+(sesiones por `SESSION_CONNECTION=usuarios`, tokens de reset por `passwords.users.connection`).
+En producción las cuatro de la raíz figuraban `Pending`: un `php artisan migrate` sin `--path` las
+habría creado como basura en `plataforma`. A la inversa, `failed_jobs` se escribe en `plataforma`
+(`queue.failed.database` = conexión por defecto) y la copia de `usuarios` estaba muerta. Test que
+fija dónde van los tokens de reset: `el_token_de_reset_por_mail_se_guarda_en_la_base_usuarios`.
+
+**Se descartó:** Dejarlas como "historia". No documentan nada real y son una trampa para un migrate
+pelado. Tampoco se borran por ahora las tablas huérfanas que ya existen en las bases (por ejemplo
+`users`/`roles` en `plataforma_dev`, `failed_jobs` en `usuarios`): es un paso aparte, sobre datos.

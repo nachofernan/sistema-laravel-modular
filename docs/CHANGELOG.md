@@ -20,6 +20,12 @@ login con 2FA y resets por mail/perfil). `ResetPasswordModal` ahora exige `Usuar
 (antes no chequeaba permiso). Ver `docs/DECISIONES.md` (2026-11-10) y
 `docs/updates/2026-11-10_historial-usuarios.md`.
 
+### Limpieza — migraciones legacy duplicadas
+Se borran cuatro migraciones de la raíz que creaban `users`, `sessions`, `password_reset_tokens`,
+roles/permisos, 2FA y `personal_access_tokens` en `plataforma` (todo eso vive en `usuarios`; en prod
+figuraban `Pending`), y `Usuarios/…create_failed_jobs_table` (los jobs fallidos van a `plataforma`).
+Ver `docs/DECISIONES.md` (2026-11-10, limpieza de migraciones legacy).
+
 Se actualiza la versión del stack en `CLAUDE.md`, `ARQUITECTURA.md` y agentes (Laravel 13 / Livewire 4),
 y `composer.json` pasa de `php ^8.2` a `^8.3` (mínimo real de Laravel 13; producción corre 8.3.36).
 El `TestCase` suma la conexión `mysql` a las transacciones de los tests.
