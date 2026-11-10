@@ -314,3 +314,24 @@ la ruta coincidía); en local, además, la raíz forzada apuntaba a una URL de e
 
 **Se descartó:** Dejar el parche y solo corregir el `.env` local (opción A): mantenía el contrapeso
 frágil en producción y dos entornos dependiendo de valores que se compensan entre sí.
+
+---
+
+## 2026-11-10 — Historial de cambios (auditoría) con spatie/laravel-activitylog
+
+**Decisión:** Los cambios sobre usuarios (alta, edición campo por campo con valor anterior → nuevo,
+baja, restauración y roles agregados/quitados) se registran con `spatie/laravel-activitylog` v4, con la
+tabla `activity_log` en la base central `usuarios` (conexión fija en `config/activitylog.php`, no por
+`.env`). El causante es el usuario autenticado. Los roles se registran a mano en
+`User::sincronizarRoles()` porque `syncRoles()` no dispara eventos de Eloquent. La tabla `logs` sigue
+existiendo, pero solo como log de **accesos y seguridad** (logins, logout, cambios de contraseña).
+Alcance inicial: solo usuarios; el mecanismo queda listo para sumar otros módulos con el trait
+`LogsActivity`.
+
+**Motivo:** Hacía falta saber quién creó o editó un usuario y qué cambió. Activitylog es del mismo
+ecosistema Spatie que ya usamos (permission, medialibrary) y resuelve old/new, causante y sujeto sin
+código propio. Se usa v4 (no v5) porque v5 exige PHP 8.4 y el entorno corre 8.3.
+
+**Se descartó:** Una tabla de historial propia con trait/observer escrito a mano (más código a
+mantener para lo mismo). También unificar los logins dentro de `activity_log`: son eventos de acceso,
+no cambios sobre una entidad, y la tabla `logs` ya los muestra en la ficha.

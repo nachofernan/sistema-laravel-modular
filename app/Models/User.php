@@ -21,6 +21,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -30,6 +32,7 @@ class User extends Authenticatable
     use HasFactory;
     use HasPermissions, HasRoles;
     use HasProfilePhoto;
+    use LogsActivity;
     use Notifiable;
     use SoftDeletes;
     use TwoFactorAuthenticatable;
@@ -85,6 +88,73 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Qué cambios del usuario quedan en el historial (activity_log, base usuarios).
+     * Nunca se registran contraseña, remember_token ni secretos de 2FA.
+     *
+     * Cubierto por: editar_un_usuario_registra_valor_anterior_y_nuevo,
+     * editar_la_contrasena_no_guarda_la_contrasena_en_el_historial.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        $descripciones = [
+            'created' => 'creado',
+            'updated' => 'editado',
+            'deleted' => 'eliminado',
+            'restored' => 'restaurado',
+        ];
+
+        return LogOptions::defaults()
+            ->useLogName('usuarios')
+            ->logOnly([
+                'name',
+                'realname',
+                'nombre',
+                'apellido',
+                'email',
+                'legajo',
+                'interno',
+                'visible',
+                'area_id',
+                'sede_id',
+                'cargo_id',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $evento) => $descripciones[$evento] ?? $evento);
+    }
+
+    /**
+     * Sincroniza los roles del usuario y deja en el historial cuáles se agregaron y
+     * cuáles se quitaron. Hace falta a mano porque syncRoles() no dispara eventos de
+     * Eloquent. Si no cambió nada, no registra.
+     *
+     * Cubierto por: sincronizar_roles_registra_agregados_y_quitados,
+     * sincronizar_los_mismos_roles_no_registra_nada.
+     *
+     * @param  array<int, string>  $roles  nombres de roles
+     */
+    public function sincronizarRoles(array $roles): void
+    {
+        $antes = $this->getRoleNames();
+
+        $this->syncRoles($roles);
+
+        $despues = $this->load('roles')->getRoleNames();
+        $agregados = $despues->diff($antes)->values()->all();
+        $quitados = $antes->diff($despues)->values()->all();
+
+        if ($agregados === [] && $quitados === []) {
+            return;
+        }
+
+        activity('usuarios')
+            ->performedOn($this)
+            ->event('roles')
+            ->withProperties(['agregados' => $agregados, 'quitados' => $quitados])
+            ->log('roles modificados');
+    }
 
     public function getSistemasAcceso()
     {

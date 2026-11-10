@@ -73,7 +73,7 @@ class UserController extends Controller
             ]);
             $auth = User::find(Auth::user()->id);
             if ($auth->hasPermissionTo('Usuarios/Usuarios/Roles')) {
-                $user->syncRoles(array_keys($request->all()['roles']));
+                $user->sincronizarRoles(array_keys($request->all()['roles']));
             }
 
             return redirect()->route('usuarios.users.show', $user);
@@ -118,7 +118,7 @@ class UserController extends Controller
         $user->update($data);
         $auth = User::find(Auth::user()->id);
         if ($auth->hasPermissionTo('Usuarios/Usuarios/Roles')) {
-            $user->syncRoles(array_keys($request->all()['roles']));
+            $user->sincronizarRoles(array_keys($request->all()['roles']));
         }
 
         return redirect()->route('usuarios.users.show', $user);
@@ -146,7 +146,7 @@ class UserController extends Controller
     {
         //
         $permisos = $request->all()['roles'] ?? array();
-        $user->syncRoles(array_keys($permisos));
+        $user->sincronizarRoles(array_keys($permisos));
         return redirect()->route('usuarios.users.roles', $user);
     }
 
