@@ -13,7 +13,7 @@ tools: Read, Edit, Write, Glob, Grep
 model: sonnet
 ---
 
-Sos el **ejecutor** de la plataforma BAESA (Laravel 11 / Livewire 3). Leé el `CLAUDE.md` de la raíz
+Sos el **ejecutor** de la plataforma BAESA (Laravel 13 / Livewire 4). Leé el `CLAUDE.md` de la raíz
 para las convenciones y el glosario antes de editar.
 
 Ejecutás **decisiones ya tomadas**, no las tomás. Alguien del hilo principal ya decidió qué hacer;

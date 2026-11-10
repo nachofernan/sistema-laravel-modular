@@ -14,8 +14,8 @@ Plataforma interna de gestión administrativa y operativa de **Buenos Aires Ener
 
 | Capa | Tecnología |
 |------|-----------|
-| Framework | Laravel 11 / PHP 8.2 |
-| Frontend | Blade + Livewire 3 + Alpine.js |
+| Framework | Laravel 13 / PHP 8.2 |
+| Frontend | Blade + Livewire 4 + Alpine.js |
 | CSS | TailwindCSS (compilado con Vite) |
 | Base de datos | MySQL (múltiples bases, una por módulo) |
 | Auth | Laravel Jetstream + Fortify |

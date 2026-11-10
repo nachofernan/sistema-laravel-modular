@@ -136,7 +136,7 @@ sobre él lleva test y aviso de cascada**.
    `config/filesystems.php`. Algunos documentos (Concursos) soportan encriptación. No se guardan
    adjuntos a mano por fuera de MediaLibrary.
 
-7. **Sin SPA.** Todo server-rendered vía Blade/Livewire 3. El JS custom es Alpine.js puntual. No se
+7. **Sin SPA.** Todo server-rendered vía Blade/Livewire 4. El JS custom es Alpine.js puntual. No se
    introduce Vue/React ni un framework front nuevo sin pasar por el Principio cero.
 
 8. **El dominio se nombra en castellano.** Modelos, tablas, variables, rutas y vistas siguen el
@@ -146,8 +146,8 @@ sobre él lleva test y aviso de cascada**.
 
 ## Stack y decisiones tomadas
 
-- **Backend**: Laravel 11, PHP 8.2.
-- **Frontend**: Livewire 3 + Blade + Alpine.js + TailwindCSS, compilado con Vite.
+- **Backend**: Laravel 13, PHP 8.2.
+- **Frontend**: Livewire 4 + Blade + Alpine.js + TailwindCSS, compilado con Vite.
 - **Auth**: Laravel Jetstream + Fortify. Roles/permisos con Spatie Laravel Permission. 2FA disponible.
 - **Multi-DB**: una base MySQL por módulo, conexión por modelo (`$connection`). Ver axioma 1.
 - **PDF**: `barryvdh/laravel-dompdf` para reportes.
