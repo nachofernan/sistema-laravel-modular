@@ -24,9 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->append(\App\Http\Middleware\DetectModule::class);
-        $middleware->append(\App\Http\Middleware\LogUserActivity::class);
         $middleware->append(\App\Http\Middleware\CheckMaintenanceMode::class);
-        
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Usuarios;
 
-use Illuminate\Http\Request;
-
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Controller;
+use App\Models\Usuarios\Log;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PasswordSecurityController extends Controller
 {
@@ -18,7 +16,7 @@ class PasswordSecurityController extends Controller
         return view('profile.reset-password');
     }
 
-    public function update(Request $request) 
+    public function update(Request $request)
     {
         /** @var \App\Models\Usuarios\User $user */
         $user = Auth::user();
@@ -44,7 +42,13 @@ class PasswordSecurityController extends Controller
             'password_updated_at' => \Carbon\Carbon::now(),
         ]);
 
+        Log::create([
+            'user_id' => $user->id,
+            'event' => 'password_change',
+            'ip_address' => $request->ip(),
+        ]);
+
         return redirect()->route('home.dashboard')->with('mensaje_verde', '¡La contraseña fue actualizada con éxito!');
-        
+
     }
 }

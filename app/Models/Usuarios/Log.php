@@ -2,6 +2,7 @@
 
 namespace App\Models\Usuarios;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,12 +12,18 @@ class Log extends Model
 
     protected $connection = 'usuarios';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'user_id',
+        'event',
+        'ip_address',
+    ];
 
     protected static $eventDictionary = [
         'password_change' => 'Cambio de contraseña',
         'login' => 'Inicio de sesión',
-        // Añade más eventos según sea necesario
+        'logout' => 'Cierre de sesión',
+        'login_fallido' => 'Intento de inicio de sesión fallido',
+        'password_reset_admin' => 'Contraseña reseteada por un administrador',
     ];
 
     public function usuario()
