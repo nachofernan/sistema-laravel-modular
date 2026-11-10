@@ -33,6 +33,7 @@ Cada modelo relevante de cada módulo tiene:
 ```
 
 ## ¿Qué cubren los tests?
+- Usuarios: historial de cambios (`HistorialUsuarioTest`) y log de accesos (`LogTest`: login, logout, login fallido, resets de contraseña y permiso del reset por admin).
 - Creación de registros en cada modelo principal.
 - Verificación de relaciones explícitas (belongsTo, hasMany, etc.)
 - Los nombres y mensajes de los tests están en español para facilitar la presentación de informes.

@@ -1,8 +1,11 @@
 <?php
 
+use App\Livewire\Usuarios\Users\Show\Historial;
 use App\Models\User;
+use App\Models\Usuarios\Permission;
 use App\Models\Usuarios\Role;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity;
 
 /**
@@ -92,4 +95,29 @@ test('la_actividad_se_guarda_en_la_conexion_usuarios', function () {
         'subject_type' => User::class,
         'subject_id' => $usuario->id,
     ], 'usuarios');
+});
+
+test('la_ficha_muestra_el_historial_con_valor_anterior_y_nuevo', function () {
+    Permission::firstOrCreate(['name' => 'Usuarios/Usuarios/Ver', 'guard_name' => 'web']);
+    $admin = User::factory()->create(['realname' => 'Admin De Prueba']);
+    $admin->givePermissionTo('Usuarios/Usuarios/Ver');
+    $usuario = User::factory()->create(['nombre' => 'Juan']);
+
+    $this->actingAs($admin);
+    $usuario->update(['nombre' => 'Pedro']);
+
+    Livewire::test(Historial::class, ['user' => $usuario])
+        ->assertSee('Historial de cambios')
+        ->assertSee('Admin De Prueba')
+        ->assertSee('Editado')
+        ->assertSee('Juan')
+        ->assertSee('Pedro');
+});
+
+test('un_usuario_sin_permiso_no_ve_el_historial', function () {
+    $usuario = User::factory()->create();
+
+    Livewire::actingAs(User::factory()->create())
+        ->test(Historial::class, ['user' => $usuario])
+        ->assertForbidden();
 });

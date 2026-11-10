@@ -9,6 +9,19 @@ o módulo afectado. Los cambios de infraestructura (tests, docs, config) van agr
 
 ---
 
+## 2026-11-10
+
+### Usuarios — Historial de cambios y log de accesos completo
+Se instala `spatie/laravel-activitylog` v4 (v5 exige PHP 8.4) con la tabla `activity_log` en la base
+`usuarios`. Se registran alta, edición (valor anterior → nuevo), baja, restauración y roles
+agregados/quitados (`User::sincronizarRoles()`), visibles en la ficha del usuario. El middleware
+`LogUserActivity` se reemplaza por el listener `RegistrarAccesoUsuario` (suma logout, login fallido,
+login con 2FA y resets por mail/perfil). `ResetPasswordModal` ahora exige `Usuarios/Usuarios/Editar`
+(antes no chequeaba permiso). Ver `docs/DECISIONES.md` (2026-11-10) y
+`docs/updates/2026-11-10_historial-usuarios.md`.
+
+Se actualiza la versión del stack en `CLAUDE.md`, `ARQUITECTURA.md` y agentes (Laravel 13 / Livewire 4).
+
 ## 2026-10-07
 
 ### Livewire — URLs de assets y update duplicaban el path de la raíz forzada

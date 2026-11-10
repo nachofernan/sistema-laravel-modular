@@ -307,6 +307,11 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Historial de cambios (activity_log) -->
+                <div class="mt-8">
+                    @livewire('usuarios.users.show.historial', ['user' => $user], key($user->id.'-historial'))
+                </div>
             </div>
         </div>
     </div>

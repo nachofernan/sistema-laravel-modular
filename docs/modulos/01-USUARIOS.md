@@ -15,8 +15,8 @@ Es el módulo central del sistema. Gestiona todo lo relacionado con identidad, a
 - Organigrama: áreas jerárquicas tipificadas (gerencia, sector, etc.), con responsable y personal asignado; cargo de cada usuario.
 - Definición de sedes.
 - Control de qué módulos están activos en el sistema.
-- Registro de logs de actividad (logins, acciones).
-- Seguridad de contraseñas (expiración, historial).
+- Log de accesos (login, logout, logins fallidos, cambios de contraseña) e historial de cambios de usuarios (quién, qué campo, valor anterior → nuevo, roles).
+- Seguridad de contraseñas (expiración).
 - Panel de administración de jobs de email en cola.
 
 ---
@@ -33,8 +33,9 @@ Es el módulo central del sistema. Gestiona todo lo relacionado con identidad, a
 | `Modulo` | `modulos` | Módulos habilitados en el sistema. Campo `estado` controla si se cargan las rutas. |
 | `Role` | `roles` | Roles de Spatie. Naming: `Modulo/NombreRol`. |
 | `Permission` | `permissions` | Permisos de Spatie. |
-| `Log` | `logs` | Log de actividad del usuario (logins, acciones). |
-| `PasswordSecurity` | `password_securities` | Fecha de vencimiento de contraseña, historial hash. |
+| `Log` | `logs` | Log de accesos y seguridad (login, logout, login fallido, cambios de contraseña). |
+| `Activity` (Spatie) | `activity_log` | Historial de cambios de usuarios (spatie/activitylog). |
+| `PasswordSecurity` | `password_securities` | Fecha de vencimiento de contraseña. |
 
 ---
 
@@ -102,9 +103,20 @@ El middleware `PasswordExpiryCheck` verifica en cada request si la contraseña d
 
 ---
 
-## Logs de actividad
+## Log de accesos
 
-La tabla `logs` registra eventos del usuario (login, logout, acciones relevantes). El modelo `Log` está en `App\Models\Usuarios\Log`. El accessor `User::getLastAccessAttribute()` devuelve el último login.
+La tabla `logs` (modelo `App\Models\Usuarios\Log`) registra eventos de acceso y seguridad: `login`, `logout`, `login_fallido`, `password_change` y `password_reset_admin`. Los escribe el listener `App\Listeners\RegistrarAccesoUsuario` (eventos de auth `Login`, `Logout`, `Failed`, `PasswordReset` y `PasswordUpdatedViaController` de Fortify; se registra solo por auto-discovery), más dos registros explícitos: el cambio de contraseña propio (`PasswordSecurityController@update`) y el reset hecho por un admin (`ResetPasswordModal`, que exige `Usuarios/Usuarios/Editar`). El accessor `User::getLastAccessAttribute()` devuelve el último login. La columna `users.last_login` no la escribe nadie.
+
+## Historial de cambios
+
+Los cambios sobre usuarios quedan en `activity_log` (base `usuarios`, `spatie/laravel-activitylog` v4, config en `config/activitylog.php`):
+
+- **Alta, edición, baja y restauración**: automático por el trait `LogsActivity` en `User` (`getActivitylogOptions()`). Guarda solo los campos que cambiaron, con valor anterior y nuevo. Nunca registra contraseña, `remember_token` ni secretos de 2FA. El causante es el usuario autenticado (vacío si el cambio vino de un comando o de un proceso sin sesión).
+- **Roles**: `syncRoles()` no dispara eventos, así que se registran con `User::sincronizarRoles()` (evento `roles`, propiedades `agregados`/`quitados`). Usarlo en lugar de `syncRoles()` cuando se quiere dejar rastro.
+- **Reset de contraseña por admin**: evento `password_reset` con el admin como causante.
+- **Vista**: componente `Usuarios\Users\Show\Historial` en la ficha del usuario, bajo el mismo permiso que la ficha (`Usuarios/Usuarios/Ver`).
+
+Para sumar otro modelo al historial: agregar `LogsActivity` y su `getActivitylogOptions()`.
 
 ---
 

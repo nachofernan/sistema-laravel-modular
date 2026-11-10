@@ -128,6 +128,7 @@ Leyenda: ✅ hecho · 🔲 pendiente · ⏸ postergado/a futuro · ❌ descartad
 
 | Estado | Tarea |
 |--------|-------|
+| ✅ | Historial de cambios de usuarios (spatie/activitylog) y log de accesos completo (logout, login fallido, resets de contraseña) |
 | ⏸ | Migración: consolidar campos duplicados `name`/`realname`/`nombre`/`apellido` en `users` |
 | ✅ | Limpieza: constructor comentado sin uso en `UserController` (reemplazado hace tiempo por `middleware()` estático) |
 | ✅ | Limpieza: ruta de `email-queue.index` duplicada (una comentada) y comentarios de relleno sin valor en `routes/usuarios.php` |
