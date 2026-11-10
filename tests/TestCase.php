@@ -12,6 +12,7 @@ abstract class TestCase extends BaseTestCase
     // Envuelve cada test en transacciones por conexión y las revierte al terminar.
     // Así los tests corren contra las bases de desarrollo sin dejar datos.
     protected $connectionsToTransact = [
+        'mysql',
         'usuarios',
         'tickets',
         'inventario',

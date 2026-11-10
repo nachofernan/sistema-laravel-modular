@@ -335,3 +335,22 @@ código propio. Se usa v4 (no v5) porque v5 exige PHP 8.4 y el entorno corre 8.3
 **Se descartó:** Una tabla de historial propia con trait/observer escrito a mano (más código a
 mantener para lo mismo). También unificar los logins dentro de `activity_log`: son eventos de acceso,
 no cambios sobre una entidad, y la tabla `logs` ya los muestra en la ficha.
+
+---
+
+## 2026-11-10 — `activity_log` se muda a la base general `plataforma` (reemplaza la conexión de la entrada anterior)
+
+**Decisión:** La tabla `activity_log` vive en la base general `plataforma` (conexión por defecto
+`mysql`) y no en `usuarios`. Su migración pasa a `database/migrations/` (raíz). El resto de la
+entrada "Historial de cambios (auditoría) con spatie/laravel-activitylog" sigue vigente. De paso, la
+conexión `mysql` se suma a `$connectionsToTransact` del `TestCase`, para que los tests no dejen datos
+en `plataforma_dev`.
+
+**Motivo:** `activity_log` es infraestructura transversal polimórfica (el sujeto puede ser un modelo de
+cualquier módulo), igual que `media` y `email_logs`, que ya viven en `plataforma`. Dejarla en
+`usuarios` habría guardado, por ejemplo, el historial de un concurso en la base de Usuarios cuando se
+sume otro módulo. El causante siempre es un usuario, pero esa relación se resuelve en Eloquent igual
+desde cualquier base. Se movió antes de llegar a producción, sin datos que migrar.
+
+**Se descartó:** Mantenerla en `usuarios` porque hoy solo registra usuarios: describe el alcance
+inicial, no la naturaleza de la tabla.

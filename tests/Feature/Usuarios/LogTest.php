@@ -106,7 +106,7 @@ class LogTest extends TestCase
             'subject_id' => $usuario->id,
             'event' => 'password_reset',
             'causer_id' => $admin->id,
-        ], 'usuarios');
+        ], 'mysql');
     }
 
     #[Test]

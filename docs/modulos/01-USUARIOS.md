@@ -34,7 +34,7 @@ Es el módulo central del sistema. Gestiona todo lo relacionado con identidad, a
 | `Role` | `roles` | Roles de Spatie. Naming: `Modulo/NombreRol`. |
 | `Permission` | `permissions` | Permisos de Spatie. |
 | `Log` | `logs` | Log de accesos y seguridad (login, logout, login fallido, cambios de contraseña). |
-| `Activity` (Spatie) | `activity_log` | Historial de cambios de usuarios (spatie/activitylog). |
+| `Activity` (Spatie) | `activity_log` | Historial de cambios de usuarios (spatie/activitylog). **Vive en la base `plataforma`**, no en `usuarios`. |
 | `PasswordSecurity` | `password_securities` | Fecha de vencimiento de contraseña. |
 
 ---
@@ -109,7 +109,7 @@ La tabla `logs` (modelo `App\Models\Usuarios\Log`) registra eventos de acceso y 
 
 ## Historial de cambios
 
-Los cambios sobre usuarios quedan en `activity_log` (base `usuarios`, `spatie/laravel-activitylog` v4, config en `config/activitylog.php`):
+Los cambios sobre usuarios quedan en `activity_log` (base general `plataforma`, como `media` y `email_logs`; `spatie/laravel-activitylog` v4, config en `config/activitylog.php`):
 
 - **Alta, edición, baja y restauración**: automático por el trait `LogsActivity` en `User` (`getActivitylogOptions()`). Guarda solo los campos que cambiaron, con valor anterior y nuevo. Nunca registra contraseña, `remember_token` ni secretos de 2FA. El causante es el usuario autenticado (vacío si el cambio vino de un comando o de un proceso sin sesión).
 - **Roles**: `syncRoles()` no dispara eventos, así que se registran con `User::sincronizarRoles()` (evento `roles`, propiedades `agregados`/`quitados`). Usarlo en lugar de `syncRoles()` cuando se quiere dejar rastro.

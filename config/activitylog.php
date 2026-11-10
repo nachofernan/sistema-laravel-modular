@@ -2,7 +2,9 @@
 
 /*
  * Historial de cambios (auditoría) con spatie/laravel-activitylog.
- * La tabla vive en la base central `usuarios` (ver docs/DECISIONES.md).
+ * La tabla vive en la base general `plataforma`, como media y email_logs: es
+ * infraestructura transversal y el sujeto puede ser de cualquier módulo
+ * (ver docs/DECISIONES.md).
  */
 
 return [
@@ -33,5 +35,5 @@ return [
      * Conexión fija, no por .env: el aislamiento multi-DB exige que cada
      * tabla tenga su conexión explícita.
      */
-    'database_connection' => 'usuarios',
+    'database_connection' => 'mysql',
 ];

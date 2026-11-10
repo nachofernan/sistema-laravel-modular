@@ -9,7 +9,7 @@ use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity;
 
 /**
- * Historial de cambios de usuarios (spatie/activitylog sobre la base usuarios).
+ * Historial de cambios de usuarios (spatie/activitylog sobre la base plataforma).
  */
 function historialDe(User $usuario)
 {
@@ -86,15 +86,15 @@ test('sincronizar_los_mismos_roles_no_registra_nada', function () {
     expect(historialDe($usuario))->toHaveCount($cantidadAntes);
 });
 
-test('la_actividad_se_guarda_en_la_conexion_usuarios', function () {
-    expect((new Activity)->getConnectionName())->toBe('usuarios');
+test('la_actividad_se_guarda_en_la_conexion_plataforma', function () {
+    expect((new Activity)->getConnectionName())->toBe('mysql');
 
     $usuario = User::factory()->create();
 
     $this->assertDatabaseHas('activity_log', [
         'subject_type' => User::class,
         'subject_id' => $usuario->id,
-    ], 'usuarios');
+    ], 'mysql');
 });
 
 test('la_ficha_muestra_el_historial_con_valor_anterior_y_nuevo', function () {

@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Schema;
  * Tabla de historial de cambios de spatie/laravel-activitylog (v4).
  *
  * Une en una sola migración los tres stubs del paquete (create + event + batch_uuid).
- * Se corre sobre la conexión `usuarios` (php artisan module:migrate usuarios), por eso
- * usa Schema:: pelado como el resto de las migraciones de esta carpeta.
+ * Vive en la base general `plataforma` (conexión por defecto `mysql`), junto con la otra
+ * infraestructura transversal polimórfica (media, email_logs): el sujeto puede ser un
+ * modelo de cualquier módulo.
  */
 return new class extends Migration
 {
