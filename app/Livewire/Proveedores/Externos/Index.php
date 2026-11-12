@@ -13,21 +13,33 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+
     public $soloSinVincular = false;
+
+    public $soloNoSincronizados = false;
 
     // Modal de reset de contraseña
     public $modalOpen = false;
+
     public $selectedUserId = null;
+
     public $selectedUsername = '';
+
     public $selectedEmail = '';
+
     public $nuevaPassword = '';
+
     public $confirmacionOpen = false;
 
     // Modal de sincronización de correo
     public $emailModalOpen = false;
+
     public $emailUserId = null;
+
     public $emailUsername = '';
+
     public $emailActual = '';
+
     public $emailNuevo = '';
 
     public function updatedSearch()
@@ -40,10 +52,17 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function updatedSoloNoSincronizados()
+    {
+        $this->resetPage();
+    }
+
     public function abrirModal($userId)
     {
         $user = ProveedorExterno::find($userId);
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
         $this->selectedUserId = $user->id;
         $this->selectedUsername = $user->username;
@@ -76,8 +95,9 @@ class Index extends Component
     public function resetearPassword()
     {
         $user = ProveedorExterno::find($this->selectedUserId);
-        if (!$user) {
+        if (! $user) {
             $this->cerrarModal();
+
             return;
         }
 
@@ -92,7 +112,9 @@ class Index extends Component
     public function abrirEmailModal($userId)
     {
         $user = ProveedorExterno::with('proveedorInterno')->find($userId);
-        if (!$user || !$user->proveedorInterno) return;
+        if (! $user || ! $user->proveedorInterno) {
+            return;
+        }
 
         $this->emailUserId = $user->id;
         $this->emailUsername = $user->username;
@@ -110,8 +132,9 @@ class Index extends Component
     public function sincronizarEmail()
     {
         $user = ProveedorExterno::with('proveedorInterno')->find($this->emailUserId);
-        if (!$user || !$user->proveedorInterno) {
+        if (! $user || ! $user->proveedorInterno) {
             $this->cerrarEmailModal();
+
             return;
         }
 
@@ -126,15 +149,20 @@ class Index extends Component
     {
         $users = ProveedorExterno::with('proveedorInterno')
             ->where(function ($q) {
-                $q->where('username', 'LIKE', '%' . $this->search . '%')
-                  ->orWhere('email', 'LIKE', '%' . $this->search . '%');
+                $q->where('username', 'LIKE', '%'.$this->search.'%')
+                    ->orWhere('email', 'LIKE', '%'.$this->search.'%');
             })
             ->orderBy('created_at', 'desc')
             ->get();
 
         // Filtro cross-DB en PHP para evitar subquery entre conexiones distintas
         if ($this->soloSinVincular) {
-            $users = $users->filter(fn($u) => !$u->proveedorInterno);
+            $users = $users->filter(fn ($u) => ! $u->proveedorInterno);
+        }
+
+        // Mismo criterio que pinta el botón "Sync correo" en la vista
+        if ($this->soloNoSincronizados) {
+            $users = $users->filter(fn ($u) => $u->proveedorInterno && $u->email !== $u->proveedorInterno->correo);
         }
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();

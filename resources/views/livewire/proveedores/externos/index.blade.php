@@ -14,11 +14,16 @@
                    placeholder="Buscar por CUIT o correo electrónico"
                    class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
-        <div class="col-span-5 flex items-center gap-2">
+        <div class="col-span-5 flex items-center gap-4">
             <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
                 <input wire:model.live="soloSinVincular" type="checkbox"
                        class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
                 Solo sin proveedor vinculado
+            </label>
+            <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+                <input wire:model.live="soloNoSincronizados" type="checkbox"
+                       class="rounded border-gray-300 text-blue-500 focus:ring-blue-500">
+                Solo correos no sincronizados
             </label>
         </div>
     </div>
